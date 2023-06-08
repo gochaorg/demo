@@ -104,7 +104,7 @@ RunParams=
 HostApplication=
 Launcher=
 UseLauncher=0
-DebugCWD=
+DebugCWD=C:\code\auto-accounting
 [Version Info]
 IncludeVerInfo=0
 AutoIncBuild=0
