@@ -4,18 +4,18 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, DB, ADODB, StdCtrls,
+  Dialogs, DB, ADODB, StdCtrls, Menus,
 
-  Config;
+  Config, DBConfForm;
 
 type
   // Главное окно программы
   TMainForm = class(TForm)
-    Button1: TButton;
-    Button2: TButton;
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    MainMenu1: TMainMenu;
+    configMenu: TMenuItem;
+    configDBMenuItem: TMenuItem;
     procedure FormCreate(Sender: TObject);
+    procedure configDBMenuItemClick(Sender: TObject);
   private
     applicationConfig: TConfig;
   public
@@ -31,22 +31,6 @@ implementation
 
 {$R *.dfm}
 
-procedure TMainForm.Button1Click(Sender: TObject);
-var
-  conf: TConfig;
-begin
-  conf := TConfig.Create();
-  conf.Load();
-end;
-
-procedure TMainForm.Button2Click(Sender: TObject);
-var
-  conf: TConfig;
-begin
-  conf := TConfig.Create();
-  conf.Save();
-end;
-
 procedure TMainForm.SetConfig(config: TConfig);
 begin
   FreeAndNil(applicationConfig);
@@ -56,6 +40,18 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   applicationConfig := TConfig.Create();
+end;
+
+procedure TMainForm.configDBMenuItemClick(Sender: TObject);
+var
+  conf: TDBConfController;
+begin
+  conf := TDBConfController.Create(self);
+  try
+    conf.ShowModal();
+  finally
+    FreeAndNil(conf);
+  end;
 end;
 
 end.

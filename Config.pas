@@ -5,7 +5,7 @@ interface
 uses SysUtils;
 
 type
-  TConfig = class(TObject)
+  TConfig = class(TInterfacedObject)
   public
     // Имя пользователя DB
     dbUserName : WideString;
