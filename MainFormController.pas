@@ -57,10 +57,11 @@ procedure TMainForm.connectToDBMenuItemClick(Sender: TObject);
 begin
   try
     ADOMainConnection.Open(applicationConfigItf.dbUsername, applicationConfigItf.dbPassword);
-    carsModelsController.ADOTable1.Active := true;
-    carsModelsController.carModelDBGrid.Columns[3].Visible := false;
-    carsModelsController.carModelDBGrid.Columns[2].Visible := false;
-    carsModelsController.carModelDBGrid.Columns[1].Width := 500;
+    carsModelsController.activateDataView();
+    //carsModelsController._ADOTable.Active := true;
+    //carsModelsController._carModelDBGrid.Columns[3].Visible := false;
+    //carsModelsController._carModelDBGrid.Columns[2].Visible := false;
+    //carsModelsController._carModelDBGrid.Columns[1].Width := 500;
   except
     on e: EOleException do begin
       ShowMessage('Ошибка соединения:'+e.Message);

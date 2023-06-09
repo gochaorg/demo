@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 772
-  Top = 153
+  Left = 774
+  Top = 155
   Width = 878
   Height = 676
   Caption = 'MainForm'
@@ -62,14 +62,14 @@ object MainForm: TMainForm
         Height = 589
         Align = alClient
         TabOrder = 0
-        inherited topPanel: TPanel
+        inherited _topPanel: TPanel
           Width = 854
         end
-        inherited carModelDBGrid: TDBGrid
+        inherited _carModelDBGrid: TDBGrid
           Width = 854
           Height = 548
         end
-        inherited ADOTable1: TADOTable
+        inherited _ADOTable: TADOTable
           Connection = ADOMainConnection
           CursorType = ctStatic
           TableName = 'cars_model'
