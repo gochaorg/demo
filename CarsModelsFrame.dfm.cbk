@@ -1,13 +1,13 @@
-object AutoController: TAutoController
+object CarsModelsController: TCarsModelsController
   Left = 0
   Top = 0
-  Width = 487
-  Height = 281
+  Width = 490
+  Height = 329
   TabOrder = 0
   object topPanel: TPanel
     Left = 0
     Top = 0
-    Width = 487
+    Width = 490
     Height = 41
     Align = alTop
     TabOrder = 0
@@ -44,13 +44,13 @@ object AutoController: TAutoController
       TabOrder = 3
     end
   end
-  object DBGrid1: TDBGrid
+  object carModelDBGrid: TDBGrid
     Left = 0
     Top = 41
-    Width = 487
-    Height = 240
+    Width = 490
+    Height = 288
     Align = alClient
-    DataSource = autoDataSource
+    DataSource = DataSource1
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
@@ -58,8 +58,14 @@ object AutoController: TAutoController
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
   end
-  object autoDataSource: TDataSource
-    Left = 304
-    Top = 104
+  object ADOTable1: TADOTable
+    Left = 280
+    Top = 88
+  end
+  object DataSource1: TDataSource
+    AutoEdit = False
+    DataSet = ADOTable1
+    Left = 200
+    Top = 160
   end
 end

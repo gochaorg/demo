@@ -4,9 +4,10 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, DB, ADODB, StdCtrls, Menus,
+  Dialogs, DB, ADODB, StdCtrls, Menus, ComObj,
 
-  Config, DBConfForm, ComCtrls, ExtCtrls, Grids, DBGrids;
+  Config, DBConfForm, ComCtrls, ExtCtrls, Grids, DBGrids, AutoFrame,
+  CarsModelsFrame;
 
 type
   // Главное окно программы
@@ -22,14 +23,12 @@ type
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
-    ADOConnection1: TADOConnection;
-    autoModelDBGrid: TDBGrid;
-    Panel1: TPanel;
-    autoModelDataSource: TDataSource;
-    Button1: TButton;
+    ADOMainConnection: TADOConnection;
+    TFrame11: TAutoController;
+    carsModelsController: TCarsModelsController;
     procedure configDBMenuItemClick(Sender: TObject);
     procedure connectToDBMenuItemClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure refreshAutoModelButtonClick(Sender: TObject);
   public
   end;
 
@@ -56,10 +55,20 @@ end;
 
 procedure TMainForm.connectToDBMenuItemClick(Sender: TObject);
 begin
- //
+  try
+    ADOMainConnection.Open(applicationConfigItf.dbUsername, applicationConfigItf.dbPassword);
+    carsModelsController.ADOTable1.Active := true;
+    carsModelsController.carModelDBGrid.Columns[3].Visible := false;
+    carsModelsController.carModelDBGrid.Columns[2].Visible := false;
+    carsModelsController.carModelDBGrid.Columns[1].Width := 500;
+  except
+    on e: EOleException do begin
+      ShowMessage('Ошибка соединения:'+e.Message);
+    end;
+  end;
 end;
 
-procedure TMainForm.Button1Click(Sender: TObject);
+procedure TMainForm.refreshAutoModelButtonClick(Sender: TObject);
 begin
   // autoModelDataSource.
 end;

@@ -4,12 +4,17 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls;
+  Dialogs, StdCtrls, DB, ExtCtrls, Grids, DBGrids;
 
 type
-  TFrame1 = class(TFrame)
-    Label1: TLabel;
-    Button1: TButton;
+  TAutoController = class(TFrame)
+    topPanel: TPanel;
+    refreshButton: TButton;
+    newButton: TButton;
+    editButton: TButton;
+    deleteButton: TButton;
+    autoDataSource: TDataSource;
+    DBGrid1: TDBGrid;
     procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
@@ -21,7 +26,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TFrame1.Button1Click(Sender: TObject);
+procedure TAutoController.Button1Click(Sender: TObject);
 begin
   ShowMessage('!!');
 end;

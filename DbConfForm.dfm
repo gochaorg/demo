@@ -1,6 +1,6 @@
 object DbConfController: TDbConfController
-  Left = 875
-  Top = 143
+  Left = 879
+  Top = 165
   Width = 413
   Height = 329
   Caption = 'DbConfController'

@@ -1,8 +1,8 @@
 object MainForm: TMainForm
-  Left = 765
-  Top = 146
-  Width = 760
-  Height = 486
+  Left = 772
+  Top = 153
+  Width = 878
+  Height = 676
   Caption = 'MainForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,9 +17,9 @@ object MainForm: TMainForm
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 744
-    Height = 427
-    ActivePage = TabSheet3
+    Width = 862
+    Height = 617
+    ActivePage = TabSheet5
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
@@ -36,40 +36,43 @@ object MainForm: TMainForm
     object TabSheet4: TTabSheet
       Caption = #1040#1074#1090#1086
       ImageIndex = 3
+      inline TFrame11: TAutoController
+        Left = 0
+        Top = 0
+        Width = 854
+        Height = 589
+        Align = alClient
+        TabOrder = 0
+        inherited topPanel: TPanel
+          Width = 854
+        end
+        inherited DBGrid1: TDBGrid
+          Width = 854
+          Height = 548
+        end
+      end
     end
     object TabSheet5: TTabSheet
       Caption = #1052#1086#1076#1077#1083#1080' '#1072#1074#1090#1086
       ImageIndex = 4
-      object autoModelDBGrid: TDBGrid
-        Left = 0
-        Top = 41
-        Width = 736
-        Height = 358
-        Align = alClient
-        DataSource = autoModelDataSource
-        TabOrder = 0
-        TitleFont.Charset = DEFAULT_CHARSET
-        TitleFont.Color = clWindowText
-        TitleFont.Height = -11
-        TitleFont.Name = 'Tahoma'
-        TitleFont.Style = []
-      end
-      object Panel1: TPanel
+      inline carsModelsController: TCarsModelsController
         Left = 0
         Top = 0
-        Width = 736
-        Height = 41
-        Align = alTop
-        Caption = 'Panel1'
-        TabOrder = 1
-        object Button1: TButton
-          Left = 16
-          Top = 8
-          Width = 75
-          Height = 25
-          Caption = 'Button1'
-          TabOrder = 0
-          OnClick = Button1Click
+        Width = 854
+        Height = 589
+        Align = alClient
+        TabOrder = 0
+        inherited topPanel: TPanel
+          Width = 854
+        end
+        inherited carModelDBGrid: TDBGrid
+          Width = 854
+          Height = 548
+        end
+        inherited ADOTable1: TADOTable
+          Connection = ADOMainConnection
+          CursorType = ctStatic
+          TableName = 'cars_model'
         end
       end
     end
@@ -92,14 +95,13 @@ object MainForm: TMainForm
       end
     end
   end
-  object ADOConnection1: TADOConnection
+  object ADOMainConnection: TADOConnection
+    ConnectionString = 
+      'Provider=SQLOLEDB.1;Persist Security Info=False;User ID=test;Ini' +
+      'tial Catalog=test1;Data Source=localhost;'
     LoginPrompt = False
+    Provider = 'SQLOLEDB.1'
     Left = 668
     Top = 48
-  end
-  object autoModelDataSource: TDataSource
-    AutoEdit = False
-    Left = 540
-    Top = 144
   end
 end

@@ -1,20 +1,21 @@
-unit AutoFrame;
+unit CarsModelsFrame;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, DB, ExtCtrls;
+  Dialogs, Grids, DBGrids, StdCtrls, ExtCtrls, DB, ADODB;
 
 type
-  TAutoController = class(TFrame)
+  TCarsModelsController = class(TFrame)
     topPanel: TPanel;
     refreshButton: TButton;
     newButton: TButton;
     editButton: TButton;
     deleteButton: TButton;
-    autoDataSource: TDataSource;
-    procedure Button1Click(Sender: TObject);
+    carModelDBGrid: TDBGrid;
+    ADOTable1: TADOTable;
+    DataSource1: TDataSource;
   private
     { Private declarations }
   public
@@ -24,10 +25,5 @@ type
 implementation
 
 {$R *.dfm}
-
-procedure TAutoController.Button1Click(Sender: TObject);
-begin
-  ShowMessage('!!');
-end;
 
 end.
