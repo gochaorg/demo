@@ -6,7 +6,8 @@ uses
   Config in 'Config.pas',
   Dialogs,
   DbConfForm in 'DbConfForm.pas' {DbConfController},
-  Log in 'Log.pas';
+  Log in 'Log.pas',
+  AutoFrame in 'AutoFrame.pas' {AutoController: TFrame};
 
 {$R *.res}
 
