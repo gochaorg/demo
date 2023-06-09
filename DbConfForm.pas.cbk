@@ -41,10 +41,10 @@ implementation
 
 procedure TDbConfController.edit(conf: IConfig);
 begin
-  self.conf := _conf;
-  userNameEdit.Text := _conf.dbUsername;
+  self.conf := conf;
+  userNameEdit.Text := conf.dbUsername;
   connectionStringEdit.Text := conf.dbConnectionString;
-  passwordEdit.Text := conf.dbPasswordValue;
+  passwordEdit.Text := conf.dbPassword;
   ShowModal();
   self.conf := nil;
 end;

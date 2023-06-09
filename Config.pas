@@ -5,16 +5,44 @@ interface
 uses SysUtils;
 
 type
-  TConfig = class(TInterfacedObject)
-  public
+  IConfig = interface
     // Имя пользователя DB
-    dbUserName : WideString;
+    function getDbUsername: WideString;
+    procedure setDbUsername( user_name: WideString );
+    property dbUsername : WideString
+      read getDbUsername
+      write setDbUsername;
 
     // Пароль пользователя DB
-    dbPassword : WideString;
+    function getDbPassword: WideString;
+    procedure setDbPassword( password: WideString );
+    property dbPassword : WideString
+      read getDbPassword
+      write setDbPassword;
 
     // Строка подключения к DB
-    dbConnectionString : WideString;
+    function getDbConnectionString: WideString;
+    procedure setDbConnectionString( str:WideString );
+    property dbConnectionString : WideString
+      read getDbConnectionString
+      write setDbConnectionString;
+
+    // Сохранение настроек в файл config.ini в текущем каталоге
+    // Ошибки
+    //   В стучае ошибки генерирует исключение EConfigSave
+    procedure Save();  
+  end;
+
+  TConfig = class(TInterfacedObject, IConfig)
+  private
+    // Имя пользователя DB
+    dbUserNameValue : WideString;
+
+    // Пароль пользователя DB
+    dbPasswordValue : WideString;
+
+    // Строка подключения к DB
+    dbConnectionStringValue : WideString;
   public
     // Создание конфига со значениями по умолчанию
     constructor Create();
@@ -33,14 +61,14 @@ type
 
     // Сохранение настроек в файл config.ini в текущем каталоге
     // Ошибки
-    //   В стучае ошибки генерирует исключение EConfigLoad
+    //   В стучае ошибки генерирует исключение EConfigSave
     procedure Save(); overload;
 
     // Чтение настроек
     // Аргументы
     //  - fileName - имя файла
     // Ошибки
-    //   В стучае ошибки генерирует исключение EConfigSave
+    //   В стучае ошибки генерирует исключение EConfigLoad
     procedure Load( const fileName: WideString ); overload;
 
     // Чтение настроек из файла config.ini в текущем каталоге
@@ -48,6 +76,18 @@ type
     // Ошибки
     //   В стучае ошибки генерирует исключение EConfigLoad
     procedure Load(); overload;
+
+    // свойство dbUsername
+    function getDbUsername: WideString;
+    procedure setDbUsername( userName: WideString );
+
+    // свойство dbPassword
+    function getDbPassword: WideString;
+    procedure setDbPassword( password: WideString );
+
+    // свойство dbConnectionString
+    function getDbConnectionString: WideString;
+    procedure setDbConnectionString( str:WideString );
   end;
 
   // Ошибка сохранения конфига
@@ -81,17 +121,17 @@ const
 constructor TConfig.Copy(const sample: TConfig);
 begin
   Inherited Create();
-  dbConnectionString := sample.dbConnectionString;
-  dbUserName := sample.dbUserName;
-  dbPassword := sample.dbPassword;
+  dbConnectionStringValue := sample.dbConnectionStringValue;
+  dbUserNameValue := sample.dbUserNameValue;
+  dbPasswordValue := sample.dbPasswordValue;
 end;
 
 constructor TConfig.Create;
 begin
   Inherited Create();
-  DbConnectionString := DEFAULT_DB_CONNECTION_STRING;
-  DbUserName := DEFAULT_DB_USERNAME;
-  DbPassword := DEFAULT_DB_PASSWORD;
+  dbConnectionStringValue := DEFAULT_DB_CONNECTION_STRING;
+  dbUserNameValue := DEFAULT_DB_USERNAME;
+  dbPasswordValue := DEFAULT_DB_PASSWORD;
 end;
 
 procedure TConfig.Load(const fileName: WideString);
@@ -101,9 +141,9 @@ begin
   try
     try
       iniFile := TIniFile.Create(fileName);
-      DbConnectionString := iniFile.ReadString(DB_SECTION, DB_CONNECTION_STRING_KEY, DEFAULT_DB_CONNECTION_STRING);
-      DbUserName := iniFile.ReadString(DB_SECTION, DB_USERNAME_KEY, DEFAULT_DB_USERNAME);
-      DbPassword := iniFile.ReadString(DB_SECTION, DB_PASSWORD_KEY, DEFAULT_DB_PASSWORD);
+      dbConnectionStringValue := iniFile.ReadString(DB_SECTION, DB_CONNECTION_STRING_KEY, DEFAULT_DB_CONNECTION_STRING);
+      dbUserNameValue := iniFile.ReadString(DB_SECTION, DB_USERNAME_KEY, DEFAULT_DB_USERNAME);
+      dbPasswordValue := iniFile.ReadString(DB_SECTION, DB_PASSWORD_KEY, DEFAULT_DB_PASSWORD);
     except
       on e: EIniFileException do raise EConfigLoad.Create(e.Message);
     end;    
@@ -119,9 +159,9 @@ begin
   try
     try
       iniFile := TIniFile.Create(fileName);
-      iniFile.WriteString(DB_SECTION, DB_CONNECTION_STRING_KEY, DbConnectionString);
-      iniFile.WriteString(DB_SECTION, DB_USERNAME_KEY, DbUserName);
-      iniFile.WriteString(DB_SECTION, DB_PASSWORD_KEY, DbPassword);
+      iniFile.WriteString(DB_SECTION, DB_CONNECTION_STRING_KEY, dbConnectionStringValue);
+      iniFile.WriteString(DB_SECTION, DB_USERNAME_KEY, dbUserNameValue);
+      iniFile.WriteString(DB_SECTION, DB_PASSWORD_KEY, dbPasswordValue);
     except
       on e: EIniFileException do raise EConfigSave.Create(e.Message);
     end;  
@@ -138,6 +178,36 @@ end;
 procedure TConfig.Load;
 begin
   Load( GetCurrentDir() + '\\' + 'config.ini' );
+end;
+
+function TConfig.getDbConnectionString: WideString;
+begin
+  result := self.dbConnectionStringValue;
+end;
+
+procedure TConfig.setDbConnectionString(str: WideString);
+begin
+  self.dbConnectionStringValue := str;
+end;
+
+function TConfig.getDbPassword: WideString;
+begin
+  result := self.dbPasswordValue;
+end;
+
+procedure TConfig.setDbPassword(password: WideString);
+begin
+  self.dbPasswordValue := password;
+end;
+
+function TConfig.getDbUsername: WideString;
+begin
+  result := self.dbUserNameValue;
+end;
+
+procedure TConfig.setDbUsername(userName: WideString);
+begin
+  self.dbUserNameValue := userName;
 end;
 
 end.
