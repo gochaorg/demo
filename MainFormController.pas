@@ -48,7 +48,7 @@ var
 begin
   conf := TDBConfController.Create(self);
   try
-    conf.ShowModal();
+    conf.edit(applicationConfig);
   finally
     FreeAndNil(conf);
   end;

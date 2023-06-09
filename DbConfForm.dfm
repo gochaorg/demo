@@ -1,6 +1,6 @@
 object DbConfController: TDbConfController
-  Left = 1135
-  Top = 384
+  Left = 1198
+  Top = 174
   Width = 413
   Height = 377
   Caption = 'DbConfController'
@@ -62,6 +62,7 @@ object DbConfController: TDbConfController
     Height = 25
     Caption = #1055#1088#1086#1074#1077#1088#1080#1090#1100' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1077
     TabOrder = 3
+    OnClick = testConnectionButtonClick
   end
   object applyButton: TButton
     Left = 246
@@ -80,5 +81,9 @@ object DbConfController: TDbConfController
     Anchors = [akTop, akRight]
     Caption = #1047#1072#1082#1088#1099#1090#1100
     TabOrder = 5
+  end
+  object ADOConnectionTest: TADOConnection
+    Left = 16
+    Top = 224
   end
 end
