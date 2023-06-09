@@ -2,7 +2,7 @@ object DbConfController: TDbConfController
   Left = 1198
   Top = 174
   Width = 413
-  Height = 377
+  Height = 329
   Caption = 'DbConfController'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,7 +13,7 @@ object DbConfController: TDbConfController
   OldCreateOrder = False
   DesignSize = (
     397
-    338)
+    290)
   PixelsPerInch = 96
   TextHeight = 13
   object passwordLabel: TLabel
@@ -72,15 +72,26 @@ object DbConfController: TDbConfController
     Anchors = [akTop, akRight]
     Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
     TabOrder = 4
+    OnClick = applyButtonClick
   end
   object closeButton: TButton
     Left = 246
-    Top = 208
+    Top = 240
     Width = 137
     Height = 25
     Anchors = [akTop, akRight]
     Caption = #1047#1072#1082#1088#1099#1090#1100
     TabOrder = 5
+    OnClick = closeButtonClick
+  end
+  object saveButton: TButton
+    Left = 248
+    Top = 208
+    Width = 137
+    Height = 25
+    Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+    TabOrder = 6
+    OnClick = saveButtonClick
   end
   object ADOConnectionTest: TADOConnection
     Left = 16

@@ -16,7 +16,11 @@ type
     applyButton: TButton;
     closeButton: TButton;
     ADOConnectionTest: TADOConnection;
+    saveButton: TButton;
     procedure testConnectionButtonClick(Sender: TObject);
+    procedure applyButtonClick(Sender: TObject);
+    procedure saveButtonClick(Sender: TObject);
+    procedure closeButtonClick(Sender: TObject);
   private
     conf: TConfig;
   public
@@ -57,6 +61,31 @@ begin
       ShowMessage('Ошибка соединения:'+e.Message);
     end;
   end;
+end;
+
+procedure TDbConfController.applyButtonClick(Sender: TObject);
+begin
+  if assigned(conf) then begin
+    conf.dbConnectionString := connectionStringEdit.Text;
+    conf.dbUserName := userNameEdit.Text;
+    conf.dbPassword := passwordEdit.Text;
+  end;
+end;
+
+procedure TDbConfController.saveButtonClick(Sender: TObject);
+begin
+  if assigned(conf) then begin
+    try
+      conf.Save;
+    except
+      on e:EConfigSave do ShowMessage('Ошибка сохранения '+e.Message);
+    end;
+  end;
+end;
+
+procedure TDbConfController.closeButtonClick(Sender: TObject);
+begin
+  Close();
 end;
 
 end.
