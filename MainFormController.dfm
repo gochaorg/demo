@@ -1,8 +1,8 @@
 object MainForm: TMainForm
-  Left = 566
-  Top = 419
+  Left = 761
+  Top = 126
   Width = 760
-  Height = 485
+  Height = 486
   Caption = 'MainForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -12,7 +12,6 @@ object MainForm: TMainForm
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object MainMenu1: TMainMenu

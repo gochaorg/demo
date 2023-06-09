@@ -5,7 +5,8 @@ interface
 uses SysUtils;
 
 type
-  IConfig = interface
+  // Конфигурация БД
+  IDbConfig = interface
     // Имя пользователя DB
     function getDbUsername: WideString;
     procedure setDbUsername( user_name: WideString );
@@ -26,14 +27,22 @@ type
     property dbConnectionString : WideString
       read getDbConnectionString
       write setDbConnectionString;
+  end;
 
+  // Сохранение конфигурации
+  IConfigSave = interface
     // Сохранение настроек в файл config.ini в текущем каталоге
     // Ошибки
     //   В стучае ошибки генерирует исключение EConfigSave
-    procedure Save();  
+    procedure Save();
   end;
 
-  TConfig = class(TInterfacedObject, IConfig)
+  IConfig = interface(IDbConfig)
+    // Возвращает кол-во ссылок - цель отладка
+    function getRefCount: Integer;
+  end;
+
+  TConfig = class(TInterfacedObject, IConfig, IConfigSave)
   private
     // Имя пользователя DB
     dbUserNameValue : WideString;
@@ -88,6 +97,8 @@ type
     // свойство dbConnectionString
     function getDbConnectionString: WideString;
     procedure setDbConnectionString( str:WideString );
+    
+    function getRefCount(): Integer;
   end;
 
   // Ошибка сохранения конфига
@@ -105,10 +116,16 @@ const
   DEFAULT_DB_PASSWORD = 'password';
   DEFAULT_CONFIG_FILENAME = 'config.init';
 
+// Глобальные объекты  
+var
+  applicationConfigObj : TConfig;
+  applicationConfigItf : IConfig;
+  applicationConfigSaveItf : IConfigSave;
+
 implementation
 
 uses
-   IniFiles;
+   IniFiles, Dialogs;
 
 const
   DB_SECTION = 'db';
@@ -180,6 +197,8 @@ begin
   Load( GetCurrentDir() + '\\' + 'config.ini' );
 end;
 
+// свойство dbConnectionString
+
 function TConfig.getDbConnectionString: WideString;
 begin
   result := self.dbConnectionStringValue;
@@ -189,6 +208,8 @@ procedure TConfig.setDbConnectionString(str: WideString);
 begin
   self.dbConnectionStringValue := str;
 end;
+
+// свойство dbPassword
 
 function TConfig.getDbPassword: WideString;
 begin
@@ -200,6 +221,8 @@ begin
   self.dbPasswordValue := password;
 end;
 
+// свойство DbUsername
+
 function TConfig.getDbUsername: WideString;
 begin
   result := self.dbUserNameValue;
@@ -209,6 +232,17 @@ procedure TConfig.setDbUsername(userName: WideString);
 begin
   self.dbUserNameValue := userName;
 end;
+
+function TConfig.getRefCount: Integer;
+begin
+  result := RefCount;
+end;
+
+initialization
+applicationConfigObj := TConfig.Create();
+
+applicationConfigItf := applicationConfigObj;
+applicationConfigSaveItf := applicationConfigObj;
 
 end.
  

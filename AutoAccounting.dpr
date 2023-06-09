@@ -9,20 +9,15 @@ uses
 
 {$R *.res}
 
-var
-  applicationConfig: TConfig;
 begin
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
-  //Application.CreateForm(TDbConfController, DbConfController);
+  
   try
-    applicationConfig := TConfig.Create();
-    applicationConfig.Load();
-    MainForm.SetConfig( applicationConfig );
+    applicationConfigObj.Load();
   except
     on e: EConfigLoad do begin
       ShowMessage('can''t read config: ' + e.Message);
-      MainForm.SetConfig( TConfig.Create() );
     end;
   end;
 

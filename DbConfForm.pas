@@ -7,6 +7,7 @@ uses
   Dialogs, StdCtrls, ExtCtrls, DB, ADODB, Config, ComObj;
 
 type
+  // Настройка подключения к СУБД
   TDbConfController = class(TForm)
     passwordEdit: TEdit;
     passwordLabel: TLabel;
@@ -17,17 +18,26 @@ type
     closeButton: TButton;
     ADOConnectionTest: TADOConnection;
     saveButton: TButton;
+
+    // Тестирование подключения
     procedure testConnectionButtonClick(Sender: TObject);
+
+    // Применение настроек
     procedure applyButtonClick(Sender: TObject);
+
+    // Сохранение настроек
     procedure saveButtonClick(Sender: TObject);
+
+    // Закрытие окна
     procedure closeButtonClick(Sender: TObject);
   private
-    conf: IConfig;
+     conf: IConfig;
+     confSave: IConfigSave;
   public
     // Редактирование настроек - подключения к СУБД
     // Аргументы
-    //  conf - конфигурация
-    procedure edit( conf:IConfig );
+    // conf - конфигурация
+    procedure edit( conf: IConfig; confSave: IConfigSave );
   end;
 
 var
@@ -39,14 +49,19 @@ implementation
 
 { TDbConfController }
 
-procedure TDbConfController.edit(conf: IConfig);
+procedure TDbConfController.edit(conf: IConfig; confSave: IConfigSave);
 begin
-  self.conf := _conf;
-  userNameEdit.Text := _conf.dbUsername;
+  self.conf     := conf;
+  self.confSave := confSave;
+
+  userNameEdit.Text         := conf.dbUsername;
   connectionStringEdit.Text := conf.dbConnectionString;
-  passwordEdit.Text := conf.dbPasswordValue;
+  passwordEdit.Text         := conf.dbPassword;
+
   ShowModal();
-  self.conf := nil;
+
+  self.conf     := nil;
+  self.confSave := nil;
 end;
 
 procedure TDbConfController.testConnectionButtonClick(Sender: TObject);
@@ -76,9 +91,9 @@ end;
 
 procedure TDbConfController.saveButtonClick(Sender: TObject);
 begin
-  if assigned(conf) then begin
+  if assigned(confSave) then begin
     try
-      conf.Save;
+      confSave.Save;
     except
       on e:EConfigSave do ShowMessage('Ошибка сохранения '+e.Message);
     end;

@@ -14,13 +14,8 @@ type
     MainMenu1: TMainMenu;
     configMenu: TMenuItem;
     configDBMenuItem: TMenuItem;
-    procedure FormCreate(Sender: TObject);
     procedure configDBMenuItemClick(Sender: TObject);
-  private
-    applicationConfig: TConfig;
   public
-    // ”казывает конфигурацию приложени€
-    procedure SetConfig( config: TConfig );
   end;
 
 var
@@ -31,16 +26,6 @@ implementation
 
 {$R *.dfm}
 
-procedure TMainForm.SetConfig(config: TConfig);
-begin
-  FreeAndNil(applicationConfig);
-  applicationConfig := config;
-end;
-
-procedure TMainForm.FormCreate(Sender: TObject);
-begin
-  applicationConfig := TConfig.Create();
-end;
 
 procedure TMainForm.configDBMenuItemClick(Sender: TObject);
 var
@@ -48,7 +33,13 @@ var
 begin
   conf := TDBConfController.Create(self);
   try
-    conf.edit(applicationConfig);
+    ShowMessage('ref count after ' +
+      IntToStr(applicationConfigObj.getRefCount())
+    );
+    conf.edit(applicationConfigItf, applicationConfigSaveItf);
+    ShowMessage('ref count after ' +
+      IntToStr(applicationConfigObj.getRefCount())
+    );
   finally
     FreeAndNil(conf);
   end;
