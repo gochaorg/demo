@@ -14,7 +14,10 @@ type
     MainMenu1: TMainMenu;
     configMenu: TMenuItem;
     configDBMenuItem: TMenuItem;
+    dbConnectMenu: TMenuItem;
+    connectToDBMenuItem: TMenuItem;
     procedure configDBMenuItemClick(Sender: TObject);
+    procedure connectToDBMenuItemClick(Sender: TObject);
   public
   end;
 
@@ -33,16 +36,15 @@ var
 begin
   conf := TDBConfController.Create(self);
   try
-    ShowMessage('ref count after ' +
-      IntToStr(applicationConfigObj.getRefCount())
-    );
     conf.edit(applicationConfigItf, applicationConfigSaveItf);
-    ShowMessage('ref count after ' +
-      IntToStr(applicationConfigObj.getRefCount())
-    );
   finally
     FreeAndNil(conf);
   end;
+end;
+
+procedure TMainForm.connectToDBMenuItemClick(Sender: TObject);
+begin
+ //
 end;
 
 end.
