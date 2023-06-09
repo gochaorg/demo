@@ -4,7 +4,8 @@ uses
   Forms,
   MainFormController in 'MainFormController.pas' {MainForm},
   Config in 'Config.pas',
-  Dialogs;
+  Dialogs,
+  DbConfForm in 'DbConfForm.pas' {DbConfController};
 
 {$R *.res}
 
@@ -13,7 +14,7 @@ var
 begin
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
-
+  //Application.CreateForm(TDbConfController, DbConfController);
   try
     applicationConfig := TConfig.Create();
     applicationConfig.Load();
