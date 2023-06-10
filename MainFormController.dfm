@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 774
-  Top = 155
+  Left = 730
+  Top = 110
   Width = 878
   Height = 676
   Caption = 'MainForm'
@@ -69,10 +69,8 @@ object MainForm: TMainForm
           Width = 854
           Height = 548
         end
-        inherited _ADOTable: TADOTable
+        inherited ADOQuery1: TADOQuery
           Connection = ADOMainConnection
-          CursorType = ctStatic
-          TableName = 'cars_model'
         end
       end
     end

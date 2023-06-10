@@ -28,7 +28,6 @@ type
     carsModelsController: TCarsModelsController;
     procedure configDBMenuItemClick(Sender: TObject);
     procedure connectToDBMenuItemClick(Sender: TObject);
-    procedure refreshAutoModelButtonClick(Sender: TObject);
   public
   end;
 
@@ -58,20 +57,11 @@ begin
   try
     ADOMainConnection.Open(applicationConfigItf.dbUsername, applicationConfigItf.dbPassword);
     carsModelsController.activateDataView();
-    //carsModelsController._ADOTable.Active := true;
-    //carsModelsController._carModelDBGrid.Columns[3].Visible := false;
-    //carsModelsController._carModelDBGrid.Columns[2].Visible := false;
-    //carsModelsController._carModelDBGrid.Columns[1].Width := 500;
   except
     on e: EOleException do begin
       ShowMessage('Ошибка соединения:'+e.Message);
     end;
   end;
-end;
-
-procedure TMainForm.refreshAutoModelButtonClick(Sender: TObject);
-begin
-  // autoModelDataSource.
 end;
 
 end.
