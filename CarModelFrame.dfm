@@ -1,6 +1,6 @@
 object CarModelController: TCarModelController
-  Left = 824
-  Top = 168
+  Left = 827
+  Top = 170
   Width = 319
   Height = 134
   Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1084#1086#1076#1077#1083#1080
@@ -43,7 +43,22 @@ object CarModelController: TCarModelController
     Top = 56
   end
   object ADOQueryUpdate: TADOQuery
-    Parameters = <>
+    Parameters = <
+      item
+        Name = 'name_param'
+        DataType = ftWideString
+        Value = Null
+      end
+      item
+        Name = 'id_param'
+        DataType = ftInteger
+        Value = Null
+      end>
+    Prepared = True
+    SQL.Strings = (
+      
+        'update cars_model set [name] = :name_param where [id] = :id_para' +
+        'm')
     Left = 72
     Top = 56
   end

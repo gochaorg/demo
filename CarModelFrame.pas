@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, DB, ADODB;
+  Dialogs, StdCtrls, ExtCtrls, DB, ADODB, ComObj;
 
 type
   TMode = (InsertMode, UpdateMode);
@@ -21,7 +21,9 @@ type
 
     connection: TADOConnection;
     insertedId: Integer;
+    updatingId: Integer;
     insertSuccessfully: Boolean;
+    updateSuccessfully: Boolean;
 
     procedure insertData();
     procedure updateData();
@@ -38,7 +40,10 @@ type
     function getInsertedId(): Integer;
 
     // Открыть диалог для обновления
-    procedure updateDialog(connection: TADOConnection; id: Integer; name: WideString);
+    // Возвращает
+    //   true - успено обновлена запись
+    //   false - ошибка
+    function updateDialog(connection: TADOConnection; id: Integer; name: WideString): Boolean;
   end;
 
 var
@@ -122,19 +127,45 @@ end;
 
 procedure TCarModelController.updateData;
 begin
-  //
+  ADOQueryUpdate.Connection := connection;
+  try
+    try
+      ADOQueryUpdate.Parameters.ParamByName('name_param').Value := nameEdit.Text;
+      ADOQueryUpdate.Parameters.ParamByName('id_param').Value := updatingId;
+      ADOQueryUpdate.ExecSQL;
+
+      updateSuccessfully := true;
+      Close;
+    except
+      on e:EOleException do
+        ShowMessage('Ошибка обновления: '+IntToStr(e.ErrorCode)+' '+e.Message);
+    end;    
+  finally
+    ADOQueryUpdate.Close;
+    ADOQueryUpdate.Parameters.Clear;
+    ADOQueryUpdate.Connection := nil;
+  end;
 end;
 
-procedure TCarModelController.updateDialog(connection: TADOConnection;  id: Integer; name: WideString);
+function TCarModelController.updateDialog(
+  connection: TADOConnection;
+  id: Integer;
+  name: WideString
+): Boolean;
 begin
   self.mode := UpdateMode;
 
   self.connection := connection;
   self.doButton.Caption := 'Обновить';
-  self.Caption := 'Обновить модель';
+  self.Caption := 'Обновить модель #'+intToStr(id);
+  self.updatingId := id;
+  self.nameEdit.Text := name;
+  self.updateSuccessfully := false;
+  result := false;
 
   try
     ShowModal();
+    result := self.updateSuccessfully;
   finally
     self.connection := nil;
   end;

@@ -29,7 +29,9 @@ type
     procedure _refreshButtonClick(Sender: TObject);
     procedure _carModelDBGridTitleClick(Column: TColumn);
     procedure _newButtonClick(Sender: TObject);
+    procedure _editButtonClick(Sender: TObject);
   private
+    procedure refreshAll();
   public
     { Public declarations }
     procedure activateDataView();
@@ -53,14 +55,11 @@ end;
 
 procedure TCarsModelsController._refreshButtonClick(Sender: TObject);
 begin
-  //ADOQuery1.Active := false;
-  //ADOQuery1.Active := true;
-  ADOQuery1.Refresh;
+  refreshAll;
 end;
 
 procedure TCarsModelsController._carModelDBGridTitleClick(Column: TColumn);
 begin
-  //_ADOTable.Sort := 'name desc';
   ADOQuery1.Active := false;
   ADOQuery1.SQL.Clear();
   ADOQuery1.SQL.Add('select * from cars_model order by name desc');
@@ -73,10 +72,39 @@ var
 begin
   insertDialog := TCarModelController.Create(self);
   try
-    insertDialog.insertDialog( ADOQuery1.Connection );
+    if insertDialog.insertDialog( ADOQuery1.Connection ) then begin
+      refreshAll;
+    end;
   finally
     freeAndNil(insertDialog);
   end;
+end;
+
+procedure TCarsModelsController._editButtonClick(Sender: TObject);
+var
+  id : variant;
+  id_int : Integer;
+  name : variant;
+  updateDialog : TCarModelController;
+begin
+  id := _carModelDBGrid.Fields[0].Value;
+  name := _carModelDBGrid.Fields[1].Value;
+  id_int := StrToInt(VarToStr(id));
+
+  updateDialog := TCarModelController.Create(self);
+  try
+    if updateDialog.updateDialog(
+      ADOQuery1.Connection, id_int, varToWideStr(name) ) then begin
+      refreshAll;
+    end;
+  finally
+    FreeAndNil(updateDialog);
+  end;
+end;
+
+procedure TCarsModelsController.refreshAll;
+begin
+  ADOQuery1.Refresh;
 end;
 
 end.

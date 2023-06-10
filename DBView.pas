@@ -46,7 +46,7 @@ procedure DBViewConfig.prepareGrid(
   const grid: TDBGrid
 );
 begin
-  if tableName = CARS_MODEL then begin
+  if className = CARS_MODEL then begin
     hideVersionColumns(grid);
     setColumnWidth(grid, 'name', 500);
   end;
