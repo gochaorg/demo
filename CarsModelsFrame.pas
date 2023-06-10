@@ -87,18 +87,22 @@ var
   name : variant;
   updateDialog : TCarModelController;
 begin
-  id := _carModelDBGrid.Fields[0].Value;
-  name := _carModelDBGrid.Fields[1].Value;
-  id_int := StrToInt(VarToStr(id));
+  if extend(_carModelDBGrid).getRowsCount > 0 then
+  begin
+    id     := _carModelDBGrid.Fields[0].Value;
+    name   := _carModelDBGrid.Fields[1].Value;
+    id_int := StrToInt(VarToStr(id));
 
-  updateDialog := TCarModelController.Create(self);
-  try
-    if updateDialog.updateDialog(
-      ADOQuery1.Connection, id_int, varToWideStr(name) ) then begin
-      refreshAll;
+    updateDialog := TCarModelController.Create(self);
+    TDBGridExt.Create(_carModelDBGrid).Ext;
+    try
+      if updateDialog.updateDialog(
+        ADOQuery1.Connection, id_int, varToWideStr(name) ) then begin
+        refreshAll;
+      end;
+    finally
+      FreeAndNil(updateDialog);
     end;
-  finally
-    FreeAndNil(updateDialog);
   end;
 end;
 

@@ -7,7 +7,7 @@ uses
 
 type
   // Подгатовка визуальных таблиц
-  DBViewConfig = class(TObject)
+  TDBViewConfig = class(TObject)
     constructor Create();
 
     // Подгатовка таблицы TDBGrid в зависимости от того где она используется
@@ -24,8 +24,28 @@ type
     procedure setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );
   end;
 
+  // Расширение функций по работе с grid
+  IDBGridExtension = interface
+    // Возвращает кол-во строк в TDBGrid
+    function getRowsCount(): Integer;
+  end;
+
+  // Дополнительные функции по работе с grid
+  TDBGridExt = class(TInterfacedObject, IDBGridExtension)
+    private
+      grid: TDBGrid;
+    public
+    constructor Create( const grid:TDBGrid );
+    function Ext(): IDBGridExtension;
+    destructor Destroy; override;
+    function getRowsCount(): Integer; virtual;
+  end;
+
+  // Расширение функций по работе с grid
+  function extend( const grid: TDBGrid ): IDBGridExtension;
+
 var
-  dbViewPreparer : DBViewConfig;
+  dbViewPreparer : TDBViewConfig;
 
 implementation
 
@@ -36,12 +56,12 @@ const
   CARS_MODEL = 'TCarsModelsController';
 
 { DBViewConfig }
-constructor DBViewConfig.Create;
+constructor TDBViewConfig.Create;
 begin
   inherited Create();
 end;
 
-procedure DBViewConfig.prepareGrid(
+procedure TDBViewConfig.prepareGrid(
   const className:string;
   const grid: TDBGrid
 );
@@ -52,7 +72,7 @@ begin
   end;
 end;
 
-procedure DBViewConfig.hideVersionColumns(const grid: TDBGrid);
+procedure TDBViewConfig.hideVersionColumns(const grid: TDBGrid);
 var
   tcol : TColumn;
   ci : Integer;
@@ -64,7 +84,7 @@ begin
   end;
 end;
 
-procedure DBViewConfig.setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );
+procedure TDBViewConfig.setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );
 var
   tcol : TColumn;
   ci : Integer;
@@ -75,7 +95,44 @@ begin
   end;  
 end;
 
+{ TDBGridExt }
+
+constructor TDBGridExt.Create(const grid: TDBGrid);
+begin
+  inherited Create();
+  self.grid := grid;
+end;
+
+
+destructor TDBGridExt.Destroy;
+begin
+  self.grid := nil;
+  inherited Destroy;
+end;
+
+function TDBGridExt.Ext: IDBGridExtension;
+begin
+  result := self;
+end;
+
+function TDBGridExt.getRowsCount: Integer;
+begin
+  result := 0;
+  if assigned(self.grid) then begin
+    if assigned(self.grid.DataSource) then begin
+      if assigned(self.grid.DataSource.DataSet) then begin
+        result := self.grid.DataSource.DataSet.RecordCount;
+      end;
+    end;
+  end;
+end;
+
+function extend( const grid: TDBGrid ): IDBGridExtension;
+begin
+  result := TDBGridExt.Create(grid).Ext;
+end;
+
 initialization
-  dbViewPreparer := DBViewConfig.Create();
+  dbViewPreparer := TDBViewConfig.Create();
 
 end.
