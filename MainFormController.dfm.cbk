@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 774
-  Top = 155
+  Left = 686
+  Top = 75
   Width = 878
   Height = 676
   Caption = 'MainForm'
@@ -71,6 +71,7 @@ object MainForm: TMainForm
         end
         inherited ADOQuery1: TADOQuery
           Connection = ADOMainConnection
+          CursorLocation = clUseServer
         end
       end
     end

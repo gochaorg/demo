@@ -27,6 +27,7 @@ object CarsModelsController: TCarsModelsController
       Height = 25
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       TabOrder = 1
+      OnClick = _newButtonClick
     end
     object _editButton: TButton
       Left = 168
@@ -67,6 +68,7 @@ object CarsModelsController: TCarsModelsController
     Top = 160
   end
   object ADOQuery1: TADOQuery
+    CursorLocation = clUseServer
     Parameters = <>
     SQL.Strings = (
       'select * from cars_model')

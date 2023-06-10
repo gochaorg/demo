@@ -6,13 +6,21 @@ uses
   DBGrids;
 
 type
-  TTableName = string;
-
+  // Подгатовка визуальных таблиц
   DBViewConfig = class(TObject)
     constructor Create();
-    procedure prepareGrid( const tableName:TTableName; const grid:TDBGrid );
+
+    // Подгатовка таблицы TDBGrid в зависимости от того где она используется
+    // Аргументы
+    //   className - имя класса контроллера
+    //   grid - сетка
+    procedure prepareGrid( const className:string; const grid:TDBGrid );
   private
+
+    // Скрывает колонки которые относятся в версии данных
     procedure hideVersionColumns( const grid:TDBGrid );
+
+    // Устанавливает ширину колонки
     procedure setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );
   end;
 
@@ -34,11 +42,11 @@ begin
 end;
 
 procedure DBViewConfig.prepareGrid(
-  const tableName: TTableName;
+  const className:string;
   const grid: TDBGrid
 );
 begin
-  if tableName = CARS_MODEL then begin
+  if className = CARS_MODEL then begin
     hideVersionColumns(grid);
     setColumnWidth(grid, 'name', 500);
   end;
