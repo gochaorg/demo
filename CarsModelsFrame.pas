@@ -14,10 +14,12 @@ type
     _editButton: TButton;
     _deleteButton: TButton;
     _carModelDBGrid: TDBGrid;
-    _ADOTable: TADOTable;
     _DataSource: TDataSource;
+    ADOQuery1: TADOQuery;
+    procedure _refreshButtonClick(Sender: TObject);
+    procedure _carModelDBGridTitleClick(Column: TColumn);
   private
-    { Private declarations }
+    sort: Integer;
   public
     { Public declarations }
     procedure activateDataView();
@@ -34,10 +36,33 @@ uses
 
 procedure TCarsModelsController.activateDataView;
 begin
-  _ADOTable.Active := true;
+  //_ADOTable.Active := true;
+  ADOQuery1.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, _carModelDBGrid);
-  //_carModelDBGrid.Columns[2].Visible := false;
-  //_carModelDBGrid.Columns[3].Visible := false;
+  sort := 0;
+end;
+
+procedure TCarsModelsController._refreshButtonClick(Sender: TObject);
+begin
+  //_ADOTable.Refresh();
+  ADOQuery1.Refresh();
+end;
+
+procedure TCarsModelsController._carModelDBGridTitleClick(Column: TColumn);
+begin
+//  if sort = 0 then
+//    begin sort := 1; end
+//  else
+//    begin
+//      if sort = 1 then
+//        begin sort := -1
+//    end;
+
+  //_ADOTable.Sort := 'name desc';
+  ADOQuery1.Active := false;
+  ADOQuery1.SQL.Clear();
+  ADOQuery1.SQL.Add('select * from cars_model order by name desc');
+  ADOQuery1.Active := true;
 end;
 
 end.

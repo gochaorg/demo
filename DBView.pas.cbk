@@ -53,7 +53,7 @@ begin
     tcol := grid.Columns[ci];
     if SameText(tcol.FieldName,'ValidFrom') then begin tcol.Visible := false; end;
     if SameText(tcol.FieldName,'ValidTo')   then begin tcol.Visible := false; end;
-  end;  
+  end;
 end;
 
 procedure DBViewConfig.setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );

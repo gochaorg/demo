@@ -18,6 +18,7 @@ object CarsModelsController: TCarsModelsController
       Height = 25
       Caption = #1054#1073#1085#1086#1074#1080#1090#1100
       TabOrder = 0
+      OnClick = _refreshButtonClick
     end
     object _newButton: TButton
       Left = 88
@@ -57,15 +58,19 @@ object CarsModelsController: TCarsModelsController
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
-  end
-  object _ADOTable: TADOTable
-    Left = 280
-    Top = 88
+    OnTitleClick = _carModelDBGridTitleClick
   end
   object _DataSource: TDataSource
     AutoEdit = False
-    DataSet = _ADOTable
+    DataSet = ADOQuery1
     Left = 200
     Top = 160
+  end
+  object ADOQuery1: TADOQuery
+    Parameters = <>
+    SQL.Strings = (
+      'select * from cars_model')
+    Left = 256
+    Top = 96
   end
 end
