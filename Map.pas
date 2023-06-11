@@ -249,7 +249,6 @@ begin
   for i:=0 to list.Count-1 do begin
     pair := list.Items[i];
     if pair.name = name then begin
-      //result := pair.value;
       pair.value := value;
       found := true;
       break;
