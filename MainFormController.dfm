@@ -1,8 +1,8 @@
 object MainForm: TMainForm
-  Left = 730
-  Top = 110
-  Width = 878
-  Height = 676
+  Left = 750
+  Top = 243
+  Width = 688
+  Height = 471
   Caption = 'MainForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,8 +17,8 @@ object MainForm: TMainForm
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 862
-    Height = 617
+    Width = 672
+    Height = 412
     ActivePage = TabSheet5
     Align = alClient
     TabOrder = 0
@@ -39,16 +39,16 @@ object MainForm: TMainForm
       inline TFrame11: TAutoController
         Left = 0
         Top = 0
-        Width = 854
-        Height = 589
+        Width = 664
+        Height = 384
         Align = alClient
         TabOrder = 0
         inherited topPanel: TPanel
-          Width = 854
+          Width = 664
         end
         inherited DBGrid1: TDBGrid
-          Width = 854
-          Height = 548
+          Width = 664
+          Height = 343
         end
       end
     end
@@ -58,16 +58,16 @@ object MainForm: TMainForm
       inline carsModelsController: TCarsModelsController
         Left = 0
         Top = 0
-        Width = 854
-        Height = 589
+        Width = 664
+        Height = 384
         Align = alClient
         TabOrder = 0
         inherited _topPanel: TPanel
-          Width = 854
+          Width = 664
         end
         inherited _carModelDBGrid: TDBGrid
-          Width = 854
-          Height = 548
+          Width = 664
+          Height = 343
         end
         inherited ADOQuery1: TADOQuery
           Connection = ADOMainConnection
@@ -76,8 +76,8 @@ object MainForm: TMainForm
     end
   end
   object MainMenu1: TMainMenu
-    Left = 600
-    Top = 312
+    Left = 312
+    Top = 232
     object configMenu: TMenuItem
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
       object configDBMenuItem: TMenuItem
@@ -99,7 +99,7 @@ object MainForm: TMainForm
       'tial Catalog=test1;Data Source=localhost;'
     LoginPrompt = False
     Provider = 'SQLOLEDB.1'
-    Left = 668
-    Top = 48
+    Left = 364
+    Top = 128
   end
 end

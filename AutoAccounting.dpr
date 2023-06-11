@@ -6,15 +6,18 @@ uses
   Config in 'Config.pas',
   Dialogs,
   DbConfForm in 'DbConfForm.pas' {DbConfController},
-  Log in 'Log.pas',
+  Logging in 'Logging.pas',
   AutoFrame in 'AutoFrame.pas' {AutoController: TFrame},
-  CarsModelsFrame in 'CarsModelsFrame.pas' {CarsModelsController: TFrame};
+  CarsModelsFrame in 'CarsModelsFrame.pas' {CarsModelsController: TFrame},
+  DBView in 'DBView.pas',
+  CarModelFrame in 'CarModelFrame.pas' {CarModelController};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
+  Application.CreateForm(TCarModelController, CarModelController);
   try
     applicationConfigObj.Load();
   except

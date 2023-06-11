@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, Grids, DBGrids, StdCtrls, ExtCtrls, DB, ADODB,
 
-  CarModelFrame;
+  CarModelFrame, Logging, Map;
 
 type
   // Визуальныей элемент - список/таблица моделей авто
@@ -30,8 +30,10 @@ type
     procedure _carModelDBGridTitleClick(Column: TColumn);
     procedure _newButtonClick(Sender: TObject);
     procedure _editButtonClick(Sender: TObject);
+    procedure _deleteButtonClick(Sender: TObject);
   private
     procedure refreshAll();
+    procedure dumpRow( row:IStringMap );
   public
     { Public declarations }
     procedure activateDataView();
@@ -109,6 +111,18 @@ end;
 procedure TCarsModelsController.refreshAll;
 begin
   ADOQuery1.Refresh;
+end;
+
+
+
+procedure TCarsModelsController.dumpRow(row: IStringMap);
+begin
+  log.println('accept row: '+row.toString());
+end;
+
+procedure TCarsModelsController._deleteButtonClick(Sender: TObject);
+begin
+  extend(_carModelDBGrid).fetchRows(true,true, self.dumpRow);
 end;
 
 end.
