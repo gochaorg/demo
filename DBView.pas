@@ -10,24 +10,6 @@ uses
   Logging, Map;
 
 type
-  // Подгатовка визуальных таблиц
-  TDBViewConfig = class(TObject)
-    constructor Create();
-
-    // Подгатовка таблицы TDBGrid в зависимости от того где она используется
-    // Аргументы
-    //   className - имя класса контроллера
-    //   grid - сетка
-    procedure prepareGrid( const className:string; const grid:TDBGrid );
-  private
-
-    // Скрывает колонки которые относятся в версии данных
-    procedure hideVersionColumns( const grid:TDBGrid );
-
-    // Устанавливает ширину колонки
-    procedure setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );
-  end;
-
   // Используется для обновдления
   TDataRowSelectionUpdate = class(TObject)
     private
@@ -126,16 +108,10 @@ type
   // Расширение функций по работе с grid
   function extend( const grid: TDBGrid ): IDBGridExtension;
 
-var
-  dbViewPreparer : TDBViewConfig;
-
 implementation
 
 uses
   Dialogs, Variants;
-
-const
-  CARS_MODEL = 'TCarsModelsController';
 
 type
   TSetSelectAndFocusUpdater = class
@@ -148,46 +124,6 @@ type
       destructor Destroy;
       procedure Update(row:TDataRowSelectionUpdate);
   end;
-
-{ DBViewConfig }
-constructor TDBViewConfig.Create;
-begin
-  inherited Create();
-end;
-
-procedure TDBViewConfig.prepareGrid(
-  const className:string;
-  const grid: TDBGrid
-);
-begin
-  if className = CARS_MODEL then begin
-    hideVersionColumns(grid);
-    setColumnWidth(grid, 'name', 500);
-  end;
-end;
-
-procedure TDBViewConfig.hideVersionColumns(const grid: TDBGrid);
-var
-  tcol : TColumn;
-  ci : Integer;
-begin
-  for ci := 0 to (grid.Columns.Count-1) do begin
-    tcol := grid.Columns[ci];
-    if SameText(tcol.FieldName,'ValidFrom') then begin tcol.Visible := false; end;
-    if SameText(tcol.FieldName,'ValidTo')   then begin tcol.Visible := false; end;
-  end;
-end;
-
-procedure TDBViewConfig.setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );
-var
-  tcol : TColumn;
-  ci : Integer;
-begin
-  for ci := 0 to (grid.Columns.Count-1) do begin
-    tcol := grid.Columns[ci];
-    if SameText(tcol.FieldName,name) then begin tcol.Width := width; end;
-  end;  
-end;
 
 { TDBGridExt }
 
@@ -209,6 +145,7 @@ begin
   result := self;
 end;
 
+// todo Этот код можно уменьшить в пользу UpdateSelection
 procedure TDBGridExt.FetchRows(
   selected, unselected: Boolean;
   consumer: TDataRowConsumer
@@ -441,8 +378,5 @@ begin
   row.setFocus(matched);
   row.setSelect(matched);
 end;
-
-initialization
-  dbViewPreparer := TDBViewConfig.Create();
 
 end.

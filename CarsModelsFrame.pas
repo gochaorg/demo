@@ -6,7 +6,10 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, Grids, DBGrids, StdCtrls, ExtCtrls, DB, ADODB,
 
-  CarModelFrame, Logging, Map, DBRows, DBRowPredicate;
+  CarModelFrame, Logging, Map, DBRows, DBRowPredicate,
+  DBRowsSqlExec,
+  DBViewConfig
+  ;
 
 type
   // Визуальныей элемент - список/таблица моделей авто
@@ -145,7 +148,7 @@ begin
   rowDelete.Map('id', 'id');
   try
     extend(_carModelDBGrid).fetchRows(true,false, rows.Add);
-    rows.Each(rowDelete.Delete);
+    rows.Each(rowDelete.Execute);
     if rowDelete.getErrorsCount > 0 then
       begin
         ShowMessage('В процессе удаления обнаружены ошибки');
