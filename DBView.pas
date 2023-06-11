@@ -6,6 +6,7 @@ uses
   DBGrids, DB,
   Classes, SysUtils,
 
+  DBRowPredicate,
   Logging, Map;
 
 type
@@ -93,6 +94,9 @@ type
       unselected:Boolean;
       consumer:TDataRowConsumer
     );
+
+    // Выбирает и устанавливает фокус на указанные строки
+    procedure SelectAndFocus( predicate: IDataRowPredicate );
   end;
 
   /////////////////////////////////////////////////////////////
@@ -113,7 +117,9 @@ type
         consumer:TDataRowConsumer
       ); virtual;
 
-      procedure UpdateSelection(updater: TDataRowSelectUpdater); virtual;
+      procedure UpdateSelection( updater: TDataRowSelectUpdater ); virtual;
+
+      procedure SelectAndFocus( predicate: IDataRowPredicate ); virtual;
   end;
 
   //////////////////////////////////////////////////////////////
@@ -130,6 +136,18 @@ uses
 
 const
   CARS_MODEL = 'TCarsModelsController';
+
+type
+  TSetSelectAndFocusUpdater = class
+    private
+      predicate: IDataRowPredicate;
+      setFocus: boolean;
+      setSelect: boolean;
+    public
+      constructor Create( setFocus:boolean; setSelect:boolean; predicate:IDataRowPredicate );
+      destructor Destroy;
+      procedure Update(row:TDataRowSelectionUpdate);
+  end;
 
 { DBViewConfig }
 constructor TDBViewConfig.Create;
@@ -262,6 +280,18 @@ begin
   result := TDBGridExt.Create(grid).Ext;
 end;
 
+procedure TDBGridExt.SelectAndFocus(predicate: IDataRowPredicate);
+var
+  updater : TSetSelectAndFocusUpdater;
+begin
+  updater := TSetSelectAndFocusUpdater.Create(true,true,predicate);
+  try
+    UpdateSelection(updater.Update);
+  finally
+    FreeAndNil(updater);
+  end;
+end;
+
 procedure TDBGridExt.UpdateSelection(updater: TDataRowSelectUpdater);
 var
   bm: TBookmark;
@@ -386,6 +416,30 @@ end;
 procedure TDataRowSelectionUpdate.setSelect(selected: boolean);
 begin
   self.setSelectedValue := true;
+end;
+
+{ TSetSelectAndFocusUpdater }
+
+constructor TSetSelectAndFocusUpdater.Create(setFocus, setSelect: boolean;
+  predicate: IDataRowPredicate);
+begin
+  self.predicate := predicate;
+  self.setFocus := setFocus;
+  self.setSelect := setSelect;
+end;
+
+destructor TSetSelectAndFocusUpdater.Destroy;
+begin
+  self.predicate := nil;
+end;
+
+procedure TSetSelectAndFocusUpdater.Update(row: TDataRowSelectionUpdate);
+var
+  matched: boolean;
+begin
+  matched := self.predicate.test(row.getRow);
+  row.setFocus(matched);
+  row.setSelect(matched);
 end;
 
 initialization

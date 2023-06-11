@@ -12,7 +12,8 @@ uses
   DBView in 'DBView.pas',
   CarModelFrame in 'CarModelFrame.pas' {CarModelController},
   Map in 'Map.pas',
-  DBRows in 'DBRows.pas';
+  DBRows in 'DBRows.pas',
+  DBRowPredicate in 'DBRowPredicate.pas';
 
 {$R *.res}
 

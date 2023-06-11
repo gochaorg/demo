@@ -7,7 +7,7 @@ uses
   DB, ADODB, ComObj,
   Variants,
 
-  Map, Logging;
+  Map, Logging, DBRowPredicate;
 
 type
 
@@ -42,10 +42,13 @@ type
     destructor Destroy; override;
     function GetCount: Integer; virtual;
     function GetItem(index:Integer): IStringMap; virtual;
+
     procedure Add(row:TStringMap); virtual;
     procedure Addi(row:IStringMap); virtual;
     procedure Each( consumer:TDataRowConsumer ); virtual;
     procedure eachi( consumer: TDataRowConsumerI ); virtual;
+
+    procedure Retain( predicate: IDataRowPredicate ); virtual;
   end;
 
   EIndexOutOfBound = class(Exception);
@@ -164,6 +167,20 @@ begin
   for i:=0 to list.Count-1 do begin
     row := list[i];
     consumer(row);
+  end;
+end;
+
+procedure TDBRows.Retain( predicate: IDataRowPredicate );
+var
+  i:Integer;
+  row: TStringMap;
+begin
+  for i:=list.Count-1 downto 0 do begin
+    row := list[i];
+    if not predicate.test(row) then begin
+      list.Delete(i);
+      FreeAndNil(row);
+    end;
   end;
 end;
 

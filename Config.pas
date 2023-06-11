@@ -52,6 +52,9 @@ type
 
     // Строка подключения к DB
     dbConnectionStringValue : WideString;
+
+    // режим отладки
+    debug: boolean;
   public
     // Создание конфига со значениями по умолчанию
     constructor Create();
@@ -97,8 +100,11 @@ type
     // свойство dbConnectionString
     function getDbConnectionString: WideString;
     procedure setDbConnectionString( str:WideString );
-    
+
+    // кол-во ссылок
     function getRefCount(): Integer;
+
+    function isDebug(): Boolean;
   end;
 
   // Ошибка сохранения конфига
@@ -141,6 +147,8 @@ begin
   dbConnectionStringValue := sample.dbConnectionStringValue;
   dbUserNameValue := sample.dbUserNameValue;
   dbPasswordValue := sample.dbPasswordValue;
+
+  debug := sample.debug;
 end;
 
 constructor TConfig.Create;
@@ -149,6 +157,8 @@ begin
   dbConnectionStringValue := DEFAULT_DB_CONNECTION_STRING;
   dbUserNameValue := DEFAULT_DB_USERNAME;
   dbPasswordValue := DEFAULT_DB_PASSWORD;
+
+  debug := true;
 end;
 
 procedure TConfig.Load(const fileName: WideString);
@@ -161,6 +171,8 @@ begin
       dbConnectionStringValue := iniFile.ReadString(DB_SECTION, DB_CONNECTION_STRING_KEY, DEFAULT_DB_CONNECTION_STRING);
       dbUserNameValue := iniFile.ReadString(DB_SECTION, DB_USERNAME_KEY, DEFAULT_DB_USERNAME);
       dbPasswordValue := iniFile.ReadString(DB_SECTION, DB_PASSWORD_KEY, DEFAULT_DB_PASSWORD);
+
+      debug := iniFile.ReadBool('debug', 'default', true);
     except
       on e: EIniFileException do raise EConfigLoad.Create(e.Message);
     end;    
@@ -179,6 +191,8 @@ begin
       iniFile.WriteString(DB_SECTION, DB_CONNECTION_STRING_KEY, dbConnectionStringValue);
       iniFile.WriteString(DB_SECTION, DB_USERNAME_KEY, dbUserNameValue);
       iniFile.WriteString(DB_SECTION, DB_PASSWORD_KEY, dbPasswordValue);
+
+      iniFile.WriteBool('debug', 'default', debug);
     except
       on e: EIniFileException do raise EConfigSave.Create(e.Message);
     end;  
@@ -236,6 +250,11 @@ end;
 function TConfig.getRefCount: Integer;
 begin
   result := RefCount;
+end;
+
+function TConfig.isDebug: Boolean;
+begin
+  result := self.debug;
 end;
 
 initialization

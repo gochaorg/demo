@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, Grids, DBGrids, StdCtrls, ExtCtrls, DB, ADODB,
 
-  CarModelFrame, Logging, Map, DBRows;
+  CarModelFrame, Logging, Map, DBRows, DBRowPredicate;
 
 type
   // Визуальныей элемент - список/таблица моделей авто
@@ -68,18 +68,38 @@ begin
   ADOQuery1.Active := true;
 end;
 
+procedure TCarsModelsController.refreshCurrent();
+begin
+  ADOQuery1.Refresh;
+end;
+
+procedure TCarsModelsController.refreshAll();
+begin
+  ADOQuery1.Active := false;
+  ADOQuery1.Active := true;
+  dbViewPreparer.prepareGrid(Self.ClassName, _carModelDBGrid);
+end;
+
 procedure TCarsModelsController._newButtonClick(Sender: TObject);
 var
   insertDialog : TCarModelController;
+  rows: TDBRows;
 begin
   insertDialog := TCarModelController.Create(self);
+  rows := TDBRows.Create;
   try
     if insertDialog.insertDialog( ADOQuery1.Connection ) then begin
       refreshAll;
+
+      extend(_carModelDBGrid).SelectAndFocus(
+        TDataRowValueEqualsPredicate.Create('id', insertDialog.getInsertedId)
+      );
+
       _carModelDBGrid.SetFocus;
     end;
   finally
-    freeAndNil(insertDialog);
+    FreeAndNil(insertDialog);
+    FreeAndNil(rows);
   end;
 end;
 
@@ -107,18 +127,6 @@ begin
       FreeAndNil(updateDialog);
     end;
   end;
-end;
-
-procedure TCarsModelsController.refreshCurrent();
-begin
-  ADOQuery1.Refresh;
-end;
-
-procedure TCarsModelsController.refreshAll();
-begin
-  ADOQuery1.Active := false;
-  ADOQuery1.Active := true;
-  dbViewPreparer.prepareGrid(Self.ClassName, _carModelDBGrid);
 end;
 
 procedure TCarsModelsController._deleteButtonClick(Sender: TObject);
