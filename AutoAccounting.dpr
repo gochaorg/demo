@@ -10,7 +10,11 @@ uses
   AutoFrame in 'AutoFrame.pas' {AutoController: TFrame},
   CarsModelsFrame in 'CarsModelsFrame.pas' {CarsModelsController: TFrame},
   DBView in 'DBView.pas',
-  CarModelFrame in 'CarModelFrame.pas' {CarModelController};
+  CarModelFrame in 'CarModelFrame.pas' {CarModelController},
+  Map in 'Map.pas',
+  DBRows in 'DBRows.pas',
+  DBRowPredicate in 'DBRowPredicate.pas',
+  DBRowsLogger in 'DBRowsLogger.pas';
 
 {$R *.res}
 
