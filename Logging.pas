@@ -30,6 +30,7 @@ type
   TPrefixBuilder = function():string of object;
   TPrefixLog = class(TInterfacedObject,ILog)
     private
+      needPrefix: boolean;
       prefixBuilder: TPrefixBuilder;
       targetLog: ILog;
     public
@@ -128,6 +129,14 @@ end;
 
 { TPrefixLog }
 
+constructor TPrefixLog.Create(logTo: ILog; prefix: TPrefixBuilder);
+begin
+  inherited Create();
+  self.targetLog := logTo;
+  self.prefixBuilder := prefix;
+  self.needPrefix := true;
+end;
+
 destructor TPrefixLog.Destroy;
 begin
   self.prefixBuilder := nil;
@@ -135,21 +144,22 @@ begin
   inherited Destroy;
 end;
 
-constructor TPrefixLog.Create(logTo: ILog; prefix: TPrefixBuilder);
-begin
-  inherited Create();
-  self.targetLog := logTo;
-  self.prefixBuilder := prefix;
-end;
-
 procedure TPrefixLog.print(const messageText: string);
 var
   newMessage: string;
   prefixMessage: string;
 begin
-  prefixMessage := prefixBuilder();
-  newMessage := prefixMessage + messageText;
-  targetLog.print(newMessage);
+  if self.needPrefix then
+    begin
+      self.needPrefix := false;
+      prefixMessage := prefixBuilder();
+      newMessage := prefixMessage + messageText;
+      targetLog.print(newMessage);
+    end
+  else
+    begin
+      targetLog.print(messageText);
+    end;
 end;
 
 procedure TPrefixLog.println(const messageText: string);
@@ -157,9 +167,17 @@ var
   newMessage: string;
   prefixMessage: string;
 begin
-  prefixMessage := prefixBuilder();
-  newMessage := prefixMessage + messageText;
-  targetLog.println(newMessage);
+  if self.needPrefix then
+    begin
+      prefixMessage := prefixBuilder();
+      newMessage := prefixMessage + messageText;
+      targetLog.println(newMessage);
+    end
+  else
+    begin
+      targetLog.println(messageText);
+      self.needPrefix := true;
+    end;
 end;
 
 { TConstPrefixLog }
@@ -179,9 +197,6 @@ function TConstPrefixLog.getMessage: string;
 begin
   result := self.prefix;
 end;
-
-var
-  prefixTest : TConstPrefixLog;
 
 { TDateTimePrefixLog }
 
@@ -204,11 +219,10 @@ begin
 end;
 
 initialization
-  prefixTest := TConstPrefixLog.Create('[prefix] ');
-
   log := TFileLog.Create(GetCurrentDir()+'\app.log', false);
-  log := TPrefixLog.Create(log, TConstPrefixLog.Create('[prefix] ').getMessage);
-  
+  log := TPrefixLog.Create(log, TDateTimePrefixLog.Create.getMessage);
+  log := TPrefixLog.Create(log, TConstPrefixLog.Create(' >> ').getMessage);
+
   log.println('start logging');
 
 end.

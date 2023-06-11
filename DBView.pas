@@ -3,10 +3,10 @@ unit DBView;
 interface
 
 uses
-  DBGrids,
-  DB,
+  DBGrids, DB,
+  Classes, SysUtils,
 
-  Map;
+  Logging, Map;
 
 type
   // Подгатовка визуальных таблиц
@@ -28,25 +28,27 @@ type
   end;
 
   // Функция прнимающая строку
-  TDataRowConsumer = procedure (row:IStringMap) of object;
+  TDataRowConsumer = procedure (row:TStringMap) of object;
 
+  /////////////////////////////////////////////////////////////
   // Расширение функций по работе с grid
   IDBGridExtension = interface
     // Возвращает кол-во строк в TDBGrid
-    function getRowsCount(): Integer;
+    function GetRowsCount(): Integer;
 
     // Выборка строк
     // Аргументы
     //   selected - выделенные строки
     //   unselected - не выделенные строки
-    //   consumer - применик
-    procedure fetchRows(
+    //   consumer - применик, см TDBRows.add
+    procedure FetchRows(
       selected: Boolean;
       unselected:Boolean;
       consumer:TDataRowConsumer
     );
   end;
 
+  /////////////////////////////////////////////////////////////
   // Дополнительные функции по работе с grid
   TDBGridExt = class(TInterfacedObject, IDBGridExtension)
     private
@@ -56,14 +58,59 @@ type
     function Ext(): IDBGridExtension;
     destructor Destroy; override;
 
-    function getRowsCount(): Integer; virtual;
-    procedure fetchRows(
+    function GetRowsCount(): Integer; virtual;
+    procedure FetchRows(
       selected: Boolean;
       unselected:Boolean;
       consumer:TDataRowConsumer
     ); virtual;
   end;
 
+  /////////////////////////////////////////////////////////////
+  // Выборка строк
+  IDBRows = interface
+    // Возвращает кол-во строк в выборке
+    function GetCount: Integer;
+
+    // Возвращает строку по индексу
+    function GetItem(index:Integer): IStringMap;
+
+    // Добавляет строку в выборку
+    procedure Add(row:TStringMap);
+
+    // Обход всех строк в выборке и передача каждой в приемник
+    // Аргументы
+    //   consumer - применик
+    procedure Each( consumer:TDataRowConsumer );
+  end;
+
+  TDBRows = class(TInterfacedObject,IDBRows)
+  private
+    list: TList;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function GetCount: Integer; virtual;
+    function GetItem(index:Integer): IStringMap; virtual;
+    procedure Add(row:TStringMap); virtual;
+    procedure Each( consumer:TDataRowConsumer ); virtual;
+  end;
+
+  EIndexOutOfBound = class(Exception);
+
+  ///////////////////////////////////////
+  IDBRowsLogger = interface
+  end;
+  TDBRowsLogger = class(TInterfacedObject,IDBRowsLogger)
+    private
+      logger: ILog;
+    public
+      constructor Create( logger:ILog );
+      destructor Destroy; override;
+      procedure Add(row:TStringMap); virtual;
+  end;
+
+  //////////////////////////////////////////////////////////////
   // Расширение функций по работе с grid
   function extend( const grid: TDBGrid ): IDBGridExtension;
 
@@ -73,7 +120,7 @@ var
 implementation
 
 uses
-  Dialogs, SysUtils;
+  Dialogs, Variants;
 
 const
   CARS_MODEL = 'TCarsModelsController';
@@ -138,7 +185,7 @@ begin
   result := self;
 end;
 
-procedure TDBGridExt.fetchRows(
+procedure TDBGridExt.FetchRows(
   selected, unselected: Boolean;
   consumer: TDataRowConsumer
 );
@@ -176,8 +223,10 @@ begin
                   end;
                 end;
             finally
-              self.grid.DataSource.DataSet.Next;
               //FreeAndNil(row);
+              row.Destroy;
+              row := nil;
+              self.grid.DataSource.DataSet.Next;
             end;
           end;
         finally
@@ -190,7 +239,7 @@ begin
   end;
 end;
 
-function TDBGridExt.getRowsCount: Integer;
+function TDBGridExt.GetRowsCount: Integer;
 begin
   result := 0;
   if assigned(self.grid) then begin
@@ -205,6 +254,95 @@ end;
 function extend( const grid: TDBGrid ): IDBGridExtension;
 begin
   result := TDBGridExt.Create(grid).Ext;
+end;
+
+{ TDBRows }
+
+constructor TDBRows.Create;
+begin
+  inherited Create;
+  list := TList.Create;
+end;
+
+destructor TDBRows.Destroy;
+var
+  i: Integer;
+  row: TStringMap;
+begin
+  for i:=0 to list.Count-1 do begin
+    row := list.Items[i];
+    FreeAndNil(row);
+  end;
+  list.Clear;
+
+  FreeAndNil(list);
+  inherited Destroy;
+end;
+
+procedure TDBRows.Add(row: TStringMap);
+var
+  rowCopy: TStringMap;
+begin
+  rowCopy := TStringMap.Copy(row);
+  list.Add( rowCopy );
+end;
+
+
+function TDBRows.GetCount: Integer;
+begin
+  result := list.Count;
+end;
+
+function TDBRows.GetItem(index: Integer): IStringMap;
+var
+  row : TStringMap;
+begin
+  if index<0 then
+    raise EIndexOutOfBound.Create('index (='+IntToStr(index)+') param < 0');
+
+  if index>=list.Count then
+    raise EIndexOutOfBound.Create(
+      'index (='+IntToStr(index)+
+      ') param > list.count(='+IntToStr(list.Count)+')');
+
+  row := list[index];
+  result := row;
+end;
+
+procedure TDBRows.Each(consumer: TDataRowConsumer);
+var
+  i:Integer;
+  row: TStringMap;
+begin
+  for i:=0 to list.Count-1 do begin
+    row := list[i];
+    consumer(row);
+  end;
+end;
+
+{ TDBRowsLogger }
+
+constructor TDBRowsLogger.Create(logger: ILog);
+begin
+  inherited Create;
+  self.logger := logger;
+end;
+
+destructor TDBRowsLogger.Destroy;
+begin
+  self.logger := nil;
+  inherited Destroy;
+end;
+
+procedure TDBRowsLogger.Add(row: TStringMap);
+var
+  i: Integer;
+  key: string;
+  value: variant;
+  value_str: string;
+begin
+  self.logger.print('row: ');
+  self.logger.println( row.toString );
 end;
 
 initialization

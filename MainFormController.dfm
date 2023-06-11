@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 750
-  Top = 243
+  Left = 749
+  Top = 217
   Width = 688
   Height = 471
   Caption = 'MainForm'
@@ -90,6 +90,13 @@ object MainForm: TMainForm
       object connectToDBMenuItem: TMenuItem
         Caption = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1077' '#1089' '#1041#1044
         OnClick = connectToDBMenuItemClick
+      end
+    end
+    object test1: TMenuItem
+      Caption = 'test'
+      object test2: TMenuItem
+        Caption = 'test'
+        OnClick = test2Click
       end
     end
   end

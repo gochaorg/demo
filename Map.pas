@@ -37,13 +37,14 @@ interface
       //   предыдущее значение
       function delete( name:string ):variant;
 
-      function toString(): WideString;
+      function toString(): string;
     end;
     TStringMap = class(TInterfacedObject, IStringMap)
       private
         list: TList;
       public
         constructor Create();
+        constructor Copy(sample: TStringMap);
         destructor Destroy(); override;
 
         function count: Integer; virtual;
@@ -54,7 +55,7 @@ interface
         function put( name:string; value:variant ):variant; virtual;
         function delete( name:string ):variant; virtual;
 
-        function toString(): WideString; virtual;
+        function toString(): string; virtual;
     end;
 
     IStringPair = interface(IInterface)
@@ -118,6 +119,20 @@ begin
   list := TList.Create();
 end;
 
+constructor TStringMap.Copy(sample: TStringMap);
+var
+  i:Integer;
+  name:string;
+begin
+  inherited Create();
+  list := TList.Create();
+
+  for i:=0 to sample.count-1 do begin
+    name := sample.key(i);
+    put( name, sample.get(name) );
+  end;
+end;
+
 destructor TStringMap.Destroy;
 var
   i:Integer;
@@ -125,7 +140,7 @@ var
 begin
   for i:=0 to list.Count-1 do begin
     pair := list.Items[i];
-    FreeAndNil(pair);
+    pair.Destroy;
   end;
   list.Clear;
 
@@ -218,7 +233,7 @@ begin
   for i:=0 to list.Count-1 do begin
     pair := list.Items[i];
     if pair.name = name then begin
-      result := pair.value;
+      //result := pair.value;
       pair.value := value;
       found := true;
       break;
@@ -231,40 +246,29 @@ begin
   end;
 end;
 
-function TStringMap.toString(): WideString;
+function TStringMap.toString(): string;
 var
   i: Integer;
   pair: TStringPair;
-  str: PChar;
-  value: WideString;
-  tstr: TStringList;
+  str: string;
+  value: string;
 begin
-  tstr := TStringList.Create;
-  tstr.Append('{');
-
-  str := WideString('{');
+  str := '{';
   for i:=0 to list.Count-1 do begin
     pair := list.Items[i];
+
     if i>0 then begin
-      str := concat(str, WideString(', '));
-      tstr.Append(', ');
+      str := str + ', ';
     end;
-    str := format('%s%s',[str,PChar(pair.name)]);
-    tstr.Append(pair.name);
 
-    str := concat(str,WideString(':'));
-    tstr.Append(':');
+    str := str + pair.name;
+    str := str + ':';
 
-    value := WideString(VarToStr(pair.value));
-    tstr.Append(VarToStr(pair.value));
-
-    str := concat(str,value);
+    value := VarToStr(pair.value);
+    str := str + value;
   end;
-  str := concat(str,WideString('}'));
-  tstr.Append('}');
-  // tstr.Text;
-
-  result := tstr.Text;
+  str := str + '}';
+  result := str;
 end;
 
 end.

@@ -110,7 +110,9 @@ end;
 
 procedure TCarsModelsController.refreshAll;
 begin
-  ADOQuery1.Refresh;
+  ADOQuery1.Active := false;
+  ADOQuery1.Active := true;
+  //ADOQuery1.Refresh;
 end;
 
 procedure TCarsModelsController.dumpRow(row: IStringMap);
