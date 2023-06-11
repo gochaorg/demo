@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, Grids, DBGrids, StdCtrls, ExtCtrls, DB, ADODB,
 
-  CarModelFrame, Logging, Map;
+  CarModelFrame, Logging, Map, DBRows;
 
 type
   // Визуальныей элемент - список/таблица моделей авто
@@ -33,7 +33,7 @@ type
     procedure _deleteButtonClick(Sender: TObject);
   private
     procedure refreshAll();
-    procedure dumpRow( row:IStringMap );
+    procedure refreshCurrent();
   public
     { Public declarations }
     procedure activateDataView();
@@ -48,7 +48,7 @@ uses
 
 { TCarsModelsController }
 
-procedure TCarsModelsController.activateDataView;
+procedure TCarsModelsController.activateDataView();
 begin
   //_ADOTable.Active := true;
   ADOQuery1.Active := true;
@@ -76,6 +76,7 @@ begin
   try
     if insertDialog.insertDialog( ADOQuery1.Connection ) then begin
       refreshAll;
+      _carModelDBGrid.SetFocus;
     end;
   finally
     freeAndNil(insertDialog);
@@ -100,7 +101,7 @@ begin
     try
       if updateDialog.updateDialog(
         ADOQuery1.Connection, id_int, varToWideStr(name) ) then begin
-        refreshAll;
+        refreshCurrent;
       end;
     finally
       FreeAndNil(updateDialog);
@@ -108,29 +109,47 @@ begin
   end;
 end;
 
-procedure TCarsModelsController.refreshAll;
+procedure TCarsModelsController.refreshCurrent();
 begin
   ADOQuery1.Refresh;
 end;
 
-procedure TCarsModelsController.dumpRow(row: IStringMap);
+procedure TCarsModelsController.refreshAll();
 begin
-  log.println('accept row: '+row.toString());
+  ADOQuery1.Active := false;
+  ADOQuery1.Active := true;
+  dbViewPreparer.prepareGrid(Self.ClassName, _carModelDBGrid);
 end;
 
 procedure TCarsModelsController._deleteButtonClick(Sender: TObject);
 var
   rows: TDBRows;
-  rowLogger: TDBRowsLogger;
+  rowDelete:  TDBRowsSqlExec;
+  query: TADOQuery;
 begin
   rows := TDBRows.Create;
-  rowLogger := TDBRowsLogger.Create(log);
+
+  query := TADOQuery.Create(self);
+  query.Connection := ADOQuery1.Connection;
+  query.SQL.Text := 'delete from cars_model where [id] = :ID';
+
+  rowDelete := TDBRowsSqlExec.Create(query);
+  rowDelete.Map('id', 'id');
   try
     extend(_carModelDBGrid).fetchRows(true,false, rows.Add);
-    rows.Each(rowLogger.Add);
+    rows.Each(rowDelete.Delete);
+    if rowDelete.getErrorsCount > 0 then
+      begin
+        ShowMessage('В процессе удаления обнаружены ошибки');
+      end
+    else
+      begin
+        refreshAll;
+      end;
   finally
+    FreeAndNil(query);
     FreeAndNil(rows);
-    FreeAndNil(rowLogger);
+    FreeAndNil(rowDelete);
   end;
 end;
 

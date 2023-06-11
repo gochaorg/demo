@@ -26,11 +26,8 @@ type
     ADOMainConnection: TADOConnection;
     TFrame11: TAutoController;
     carsModelsController: TCarsModelsController;
-    test1: TMenuItem;
-    test2: TMenuItem;
     procedure configDBMenuItemClick(Sender: TObject);
     procedure connectToDBMenuItemClick(Sender: TObject);
-    procedure test2Click(Sender: TObject);
   public
   end;
 
@@ -67,19 +64,5 @@ begin
   end;
 end;
 
-// todo delete
-procedure TMainForm.test2Click(Sender: TObject);
-var
-  imap: IStringMap;
-begin
-  imap := TStringMap.Create;
-  imap.put('a', 1);
-  imap.put('b', 'aaaa');
-  imap.put('c', 'bbbb');
-  imap.put('d', 'dddd');
-  imap.put('e', 'eeeeeeeeeeeeeeeeeeeeeeeeeeeee');
-  imap.put('f', 'ffffffffffffffffffffffffffffff');
-  ShowMessage(imap.toString);
-end;
 
 end.

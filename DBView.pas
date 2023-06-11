@@ -27,8 +27,55 @@ type
     procedure setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );
   end;
 
+  // Используется для обновдления
+  TDataRowSelectionUpdate = class(TObject)
+    private
+      index: Integer;
+      row: TStringMap;
+      hasSelectedValue: boolean;
+      setSelectedValue: boolean;
+      hasFocusValue: boolean;
+      setFocusValue: boolean;
+    public
+      // Создание
+      //   row - данные строки, удалять надо самостоятельно
+      //   index - индекс строки
+      constructor Create(
+        row:TStringMap;
+        index:Integer;
+        hasSelection:boolean;
+        hasFocus:boolean
+      );
+      destructor Destory;
+
+      // Возвращает текущую строку (данные)
+      function getRow:TStringMap; virtual;
+
+      // Текущая строка выбрана ?
+      function isSelected:boolean; virtual;
+
+      // Установить строку как выбранную
+      procedure setSelect(selected:boolean); virtual;
+
+      // Для текущей строки выборанность изменена ?
+      function isSelectChanged:boolean; virtual;
+
+      // Текущая строка содержит фокус
+      function hasFocus:boolean; virtual;
+
+      // Установить фокус на строку
+      procedure setFocus(focus:boolean); virtual;
+
+      // Для текущей строки следует сменить фокус
+      function isFocusChanged:boolean; virtual;
+  end;
+
   // Функция прнимающая строку
-  TDataRowConsumer = procedure (row:TStringMap) of object;
+  TDataRowConsumer  = procedure (row:TStringMap) of object;
+  TDataRowConsumerI = procedure (row:IStringMap) of object;
+
+  // Функция обновляющая выделение строки
+  TDataRowSelectUpdater = procedure (row:TDataRowSelectionUpdate) of object;
 
   /////////////////////////////////////////////////////////////
   // Расширение функций по работе с grid
@@ -54,60 +101,19 @@ type
     private
       grid: TDBGrid;
     public
-    constructor Create( const grid:TDBGrid );
-    function Ext(): IDBGridExtension;
-    destructor Destroy; override;
-
-    function GetRowsCount(): Integer; virtual;
-    procedure FetchRows(
-      selected: Boolean;
-      unselected:Boolean;
-      consumer:TDataRowConsumer
-    ); virtual;
-  end;
-
-  /////////////////////////////////////////////////////////////
-  // Выборка строк
-  IDBRows = interface
-    // Возвращает кол-во строк в выборке
-    function GetCount: Integer;
-
-    // Возвращает строку по индексу
-    function GetItem(index:Integer): IStringMap;
-
-    // Добавляет строку в выборку
-    procedure Add(row:TStringMap);
-
-    // Обход всех строк в выборке и передача каждой в приемник
-    // Аргументы
-    //   consumer - применик
-    procedure Each( consumer:TDataRowConsumer );
-  end;
-
-  TDBRows = class(TInterfacedObject,IDBRows)
-  private
-    list: TList;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    function GetCount: Integer; virtual;
-    function GetItem(index:Integer): IStringMap; virtual;
-    procedure Add(row:TStringMap); virtual;
-    procedure Each( consumer:TDataRowConsumer ); virtual;
-  end;
-
-  EIndexOutOfBound = class(Exception);
-
-  ///////////////////////////////////////
-  IDBRowsLogger = interface
-  end;
-  TDBRowsLogger = class(TInterfacedObject,IDBRowsLogger)
-    private
-      logger: ILog;
-    public
-      constructor Create( logger:ILog );
+      constructor Create( const grid:TDBGrid );
+      function Ext(): IDBGridExtension;
       destructor Destroy; override;
-      procedure Add(row:TStringMap); virtual;
+
+      function GetRowsCount(): Integer; virtual;
+
+      procedure FetchRows(
+        selected: Boolean;
+        unselected:Boolean;
+        consumer:TDataRowConsumer
+      ); virtual;
+
+      procedure UpdateSelection(updater: TDataRowSelectUpdater); virtual;
   end;
 
   //////////////////////////////////////////////////////////////
@@ -256,93 +262,130 @@ begin
   result := TDBGridExt.Create(grid).Ext;
 end;
 
-{ TDBRows }
-
-constructor TDBRows.Create;
-begin
-  inherited Create;
-  list := TList.Create;
-end;
-
-destructor TDBRows.Destroy;
+procedure TDBGridExt.UpdateSelection(updater: TDataRowSelectUpdater);
 var
-  i: Integer;
+  bm: TBookmark;
+  i,c: Integer;
   row: TStringMap;
+  rowUpdate: TDataRowSelectionUpdate;
+  savedActiveRecNo: Integer;
+  restoreActiveRecNo: Integer;
 begin
-  for i:=0 to list.Count-1 do begin
-    row := list.Items[i];
-    FreeAndNil(row);
+  if assigned(self.grid) then begin
+    if assigned(self.grid.DataSource) then begin
+      if assigned(self.grid.DataSource.DataSet) then begin
+        savedActiveRecNo := self.grid.DataSource.DataSet.RecNo;
+        restoreActiveRecNo := savedActiveRecNo;
+        bm := self.grid.DataSource.DataSet.GetBookmark;
+        self.grid.DataSource.DataSet.DisableControls;
+        self.grid.DataSource.DataSet.First;
+        try
+          for i:=0 to self.grid.DataSource.DataSet.RecordCount-1 do begin
+            row := TStringMap.Create;
+            rowUpdate := TDataRowSelectionUpdate.Create(
+              row,
+              i,
+              self.grid.SelectedRows.CurrentRowSelected,
+              savedActiveRecNo = (i+1)
+            );
+            try
+              // build data
+              for c:=0 to self.grid.DataSource.DataSet.Fields.Count-1 do begin
+                row.put(
+                  self.grid.Columns.Items[c].FieldName,
+                  self.grid.Fields[c].Value
+                );
+              end;
+              updater( rowUpdate );
+              if rowUpdate.isFocusChanged then begin
+                restoreActiveRecNo := (i+1);
+              end;
+              if rowUpdate.isSelectChanged then begin
+                self.grid.SelectedRows.CurrentRowSelected := rowUpdate.isSelected;
+              end;
+            finally
+              FreeAndNil(rowUpdate);
+              FreeAndNil(row);
+              self.grid.DataSource.DataSet.Next;
+            end;
+          end;
+        finally
+          self.grid.DataSource.DataSet.EnableControls;
+          if restoreActiveRecNo = savedActiveRecNo then
+            begin
+              self.grid.DataSource.DataSet.GotoBookmark(bm);
+            end
+          else
+            begin
+              if restoreActiveRecNo > 0 then
+              begin
+                self.grid.DataSource.DataSet.RecNo := restoreActiveRecNo;
+              end;
+            end;
+          self.grid.DataSource.DataSet.FreeBookmark(bm);
+        end;
+      end;
+    end;
   end;
-  list.Clear;
-
-  FreeAndNil(list);
-  inherited Destroy;
 end;
 
-procedure TDBRows.Add(row: TStringMap);
-var
-  rowCopy: TStringMap;
-begin
-  rowCopy := TStringMap.Copy(row);
-  list.Add( rowCopy );
-end;
+{ TDataRowSelectionUpdate }
 
-
-function TDBRows.GetCount: Integer;
-begin
-  result := list.Count;
-end;
-
-function TDBRows.GetItem(index: Integer): IStringMap;
-var
-  row : TStringMap;
-begin
-  if index<0 then
-    raise EIndexOutOfBound.Create('index (='+IntToStr(index)+') param < 0');
-
-  if index>=list.Count then
-    raise EIndexOutOfBound.Create(
-      'index (='+IntToStr(index)+
-      ') param > list.count(='+IntToStr(list.Count)+')');
-
-  row := list[index];
-  result := row;
-end;
-
-procedure TDBRows.Each(consumer: TDataRowConsumer);
-var
-  i:Integer;
+constructor TDataRowSelectionUpdate.Create(
   row: TStringMap;
+  index: Integer;
+  hasSelection:boolean;
+  hasFocus:boolean
+);
 begin
-  for i:=0 to list.Count-1 do begin
-    row := list[i];
-    consumer(row);
-  end;
+  inherited Create();
+  self.row := row;
+  self.index := index;
+  self.hasSelectedValue := hasSelection;
+  self.setSelectedValue := hasSelection;
+  self.hasFocusValue := hasFocus;
+  self.setFocusValue := hasFocus;
 end;
 
-{ TDBRowsLogger }
-
-constructor TDBRowsLogger.Create(logger: ILog);
+destructor TDataRowSelectionUpdate.Destory;
 begin
-  inherited Create;
-  self.logger := logger;
+  self.row := nil;
+  inherited Destroy();
 end;
 
-destructor TDBRowsLogger.Destroy;
+function TDataRowSelectionUpdate.getRow: TStringMap;
 begin
-  self.logger := nil;
-  inherited Destroy;
+  result := self.row;
 end;
 
-procedure TDBRowsLogger.Add(row: TStringMap);
-var
-  i: Integer;
-  key: string;
-  value: variant;
-  value_str: string;
+function TDataRowSelectionUpdate.hasFocus: boolean;
 begin
-  self.logger.print('row: ');
-  self.logger.println( row.toString );
+  result := self.hasFocusValue;
+end;
+
+function TDataRowSelectionUpdate.isFocusChanged: boolean;
+begin
+  result := self.hasFocusValue <> self.setFocusValue;
+end;
+
+function TDataRowSelectionUpdate.isSelectChanged: boolean;
+begin
+  result := self.hasSelectedValue <> self.setSelectedValue;
+end;
+
+function TDataRowSelectionUpdate.isSelected: boolean;
+begin
+  result := self.hasSelectedValue;
+end;
+
+procedure TDataRowSelectionUpdate.setFocus(focus: boolean);
+begin
+  self.setFocusValue := true;
+end;
+
+procedure TDataRowSelectionUpdate.setSelect(selected: boolean);
+begin
+  self.setSelectedValue := true;
 end;
 
 initialization

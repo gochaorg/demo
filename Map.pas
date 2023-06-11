@@ -45,6 +45,7 @@ interface
       public
         constructor Create();
         constructor Copy(sample: TStringMap);
+        constructor Copyi(sample: IStringMap);
         destructor Destroy(); override;
 
         function count: Integer; virtual;
@@ -132,6 +133,21 @@ begin
     put( name, sample.get(name) );
   end;
 end;
+
+constructor TStringMap.Copyi(sample: IStringMap);
+var
+  i:Integer;
+  name:string;
+begin
+  inherited Create();
+  list := TList.Create();
+
+  for i:=0 to sample.count-1 do begin
+    name := sample.key(i);
+    put( name, sample.get(name) );
+  end;
+end;
+
 
 destructor TStringMap.Destroy;
 var

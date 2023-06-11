@@ -92,13 +92,6 @@ object MainForm: TMainForm
         OnClick = connectToDBMenuItemClick
       end
     end
-    object test1: TMenuItem
-      Caption = 'test'
-      object test2: TMenuItem
-        Caption = 'test'
-        OnClick = test2Click
-      end
-    end
   end
   object ADOMainConnection: TADOConnection
     ConnectionString = 

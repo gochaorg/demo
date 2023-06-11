@@ -11,7 +11,8 @@ uses
   CarsModelsFrame in 'CarsModelsFrame.pas' {CarsModelsController: TFrame},
   DBView in 'DBView.pas',
   CarModelFrame in 'CarModelFrame.pas' {CarModelController},
-  Map in 'Map.pas';
+  Map in 'Map.pas',
+  DBRows in 'DBRows.pas';
 
 {$R *.res}
 
