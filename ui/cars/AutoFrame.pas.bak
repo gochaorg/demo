@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, DB, ExtCtrls, Grids, DBGrids;
+  Dialogs, StdCtrls, DB, ExtCtrls, Grids, DBGrids, ADODB;
 
 type
   TAutoController = class(TFrame)
@@ -13,9 +13,9 @@ type
     newButton: TButton;
     editButton: TButton;
     deleteButton: TButton;
-    autoDataSource: TDataSource;
-    DBGrid1: TDBGrid;
-    procedure Button1Click(Sender: TObject);
+    carsDataSource: TDataSource;
+    carsDBGrid: TDBGrid;
+    carsADOQuery: TADOQuery;
   private
     { Private declarations }
   public
@@ -26,9 +26,12 @@ implementation
 
 {$R *.dfm}
 
-procedure TAutoController.Button1Click(Sender: TObject);
+procedure TAutoController.activateDataView();
 begin
-  ShowMessage('!!');
+  //_ADOTable.Active := true;
+  carsADOQuery.Active := true;
+  dbViewPreparer.prepareGrid(Self.ClassName, _carModelDBGrid);
 end;
+
 
 end.

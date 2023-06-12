@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 749
-  Top = 217
+  Left = 792
+  Top = 222
   Width = 688
   Height = 471
   Caption = 'MainForm'
@@ -19,7 +19,7 @@ object MainForm: TMainForm
     Top = 0
     Width = 672
     Height = 412
-    ActivePage = TabSheet5
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
@@ -36,7 +36,7 @@ object MainForm: TMainForm
     object TabSheet4: TTabSheet
       Caption = #1040#1074#1090#1086
       ImageIndex = 3
-      inline TFrame11: TAutoController
+      inline carsController: TCarsController
         Left = 0
         Top = 0
         Width = 664
@@ -46,9 +46,15 @@ object MainForm: TMainForm
         inherited topPanel: TPanel
           Width = 664
         end
-        inherited DBGrid1: TDBGrid
+        inherited carsDBGrid: TDBGrid
           Width = 664
           Height = 343
+        end
+        inherited carsDataSource: TDataSource
+          Left = 200
+        end
+        inherited carsADOQuery: TADOQuery
+          Connection = ADOMainConnection
         end
       end
     end
@@ -76,8 +82,8 @@ object MainForm: TMainForm
     end
   end
   object MainMenu1: TMainMenu
-    Left = 312
-    Top = 232
+    Left = 288
+    Top = 224
     object configMenu: TMenuItem
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
       object configDBMenuItem: TMenuItem

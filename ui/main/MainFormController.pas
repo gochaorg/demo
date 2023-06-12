@@ -6,8 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, ADODB, StdCtrls, Menus, ComObj,
 
-  Config, DBConfForm, ComCtrls, ExtCtrls, Grids, DBGrids, AutoFrame,
-  CarsModelsFrame, Map;
+  Config, DBConfForm, ComCtrls, ExtCtrls, Grids, DBGrids,
+  CarsModelsFrame, Map, CarsFrame;
 
 type
   // Главное окно программы
@@ -24,8 +24,8 @@ type
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
     ADOMainConnection: TADOConnection;
-    TFrame11: TAutoController;
     carsModelsController: TCarsModelsController;
+    carsController: TCarsController;
     procedure configDBMenuItemClick(Sender: TObject);
     procedure connectToDBMenuItemClick(Sender: TObject);
   public
@@ -57,6 +57,7 @@ begin
   try
     ADOMainConnection.Open(applicationConfigItf.dbUsername, applicationConfigItf.dbPassword);
     carsModelsController.activateDataView();
+    carsController.activateDataView();
   except
     on e: EOleException do begin
       ShowMessage('Ошибка соединения:'+e.Message);

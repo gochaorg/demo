@@ -16,6 +16,8 @@ type
     //   grid - сетка
     procedure prepareGrid( const className:string; const grid:TDBGrid );
   private
+    // Скрыть конкретные колонки
+    procedure hideColumn( const grid:TDBGrid; const name:string );
 
     // Скрывает колонки которые относятся в версии данных
     procedure hideVersionColumns( const grid:TDBGrid );
@@ -31,6 +33,7 @@ implementation
 
 const
   CARS_MODEL = 'TCarsModelsController';
+  CARS = 'TCarsController';
 
 constructor TDBViewConfig.Create;
 begin
@@ -44,7 +47,12 @@ procedure TDBViewConfig.prepareGrid(
 begin
   if className = CARS_MODEL then begin
     hideVersionColumns(grid);
-    setColumnWidth(grid, 'name', 500);
+    setColumnWidth(grid, 'name', 150);
+  end;
+  if className = CARS then begin
+    hideColumn(grid, 'model_id');
+    setColumnWidth(grid, 'legal_number', 130);
+    setColumnWidth(grid, 'model_name', 150);
   end;
 end;
 
@@ -68,6 +76,20 @@ begin
   for ci := 0 to (grid.Columns.Count-1) do begin
     tcol := grid.Columns[ci];
     if SameText(tcol.FieldName,name) then begin tcol.Width := width; end;
+  end;
+end;
+
+procedure TDBViewConfig.hideColumn
+( const grid: TDBGrid;
+  const name: string
+);
+var
+  tcol : TColumn;
+  ci : Integer;
+begin
+  for ci := 0 to (grid.Columns.Count-1) do begin
+    tcol := grid.Columns[ci];
+    if SameText(tcol.FieldName,name) then begin tcol.Visible := false; end;
   end;
 end;
 

@@ -1,4 +1,4 @@
-object AutoController: TAutoController
+object CarsController: TCarsController
   Left = 0
   Top = 0
   Width = 487
@@ -18,6 +18,7 @@ object AutoController: TAutoController
       Height = 25
       Caption = #1054#1073#1085#1086#1074#1080#1090#1100
       TabOrder = 0
+      OnClick = refreshButtonClick
     end
     object newButton: TButton
       Left = 88
@@ -26,6 +27,7 @@ object AutoController: TAutoController
       Height = 25
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       TabOrder = 1
+      OnClick = newButtonClick
     end
     object editButton: TButton
       Left = 168
@@ -34,6 +36,7 @@ object AutoController: TAutoController
       Height = 25
       Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
       TabOrder = 2
+      OnClick = editButtonClick
     end
     object deleteButton: TButton
       Left = 272
@@ -42,15 +45,16 @@ object AutoController: TAutoController
       Height = 25
       Caption = #1059#1076#1072#1083#1080#1090#1100
       TabOrder = 3
+      OnClick = deleteButtonClick
     end
   end
-  object DBGrid1: TDBGrid
+  object carsDBGrid: TDBGrid
     Left = 0
     Top = 41
     Width = 487
     Height = 240
     Align = alClient
-    DataSource = autoDataSource
+    DataSource = carsDataSource
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
@@ -58,8 +62,21 @@ object AutoController: TAutoController
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
   end
-  object autoDataSource: TDataSource
+  object carsDataSource: TDataSource
+    AutoEdit = False
+    DataSet = carsADOQuery
     Left = 304
     Top = 104
+  end
+  object carsADOQuery: TADOQuery
+    Parameters = <>
+    SQL.Strings = (
+      
+        'select c.id, legal_number, c.model as model_id, cm.name as model' +
+        '_name, wear, bearth_year, maintenance '
+      'from cars c'
+      'left join cars_model cm on (cm.id = c.model)')
+    Left = 112
+    Top = 96
   end
 end
