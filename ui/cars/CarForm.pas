@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
 
-  ADODB, ComObj, DB, Logging, MyDate;
+  ADODB, ComObj, DB, Logging, MyDate, CarSql, DMLOperation;
 
 type
   TMode = (InsertMode, UpdateMode);
@@ -84,8 +84,28 @@ begin
 end;
 
 procedure TCarController.insertData;
+var
+  builder: ICarDataBuilder;
+  modelInfo: TCarModelInfo;
+  dmlOp: IDMLOperation;
+  id: Variant;
 begin
+  builder := TCarDataBuilder.Create;
+  builder.setLegalNumber(legalNumberEdit.Text);
 
+  modelInfo := modelListBox.Items.Objects[ modelListBox.ItemIndex ] as TCarModelInfo;
+  builder.setModelId(modelInfo.id);
+
+  builder.setWear(wearEdit.Text);
+  builder.setBirthYear(birthYearEdit.Text);
+  builder.setMaintainceDate(maintainceEdit.Text);
+
+  dmlOp := builder.buildInsert;
+  id := dmlOp.Execute( self.connection );
+
+  self.insertedId := id;
+  self.insertSuccessfully := true;
+  Close;
 end;
 
 function TCarController.insertDialog(connection: TADOConnection): Boolean;
@@ -180,6 +200,7 @@ end;
 
 procedure TCarController.setConnection(connection: TADOConnection);
 begin
+  self.connection := connection;
   self.insertADOQuery.Connection := connection;
   self.updateADOQuery.Connection := connection;
   self.carsModelADOQuery.Connection := connection;

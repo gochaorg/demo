@@ -12,7 +12,8 @@ interface
     year: Integer;
     month: Integer;
     date: Integer;
-    constructor Create(year: Integer; month:Integer; date:Integer);
+    constructor Create(const year: Integer; const month:Integer; const date:Integer);
+    constructor Copy(const myDate: TMyDate);
     destructor Destroy; override;
     function toString(): WideString;
   end;
@@ -23,7 +24,7 @@ interface
     date: TMyDate;
     // номер символа следующего за датой
     endIndex: Integer;
-    constructor Create(date: TMyDate; endIndex:Integer);
+    constructor Create(const date: TMyDate; const endIndex:Integer);
     destructor Destroy; override;
   end;
 
@@ -34,7 +35,7 @@ interface
   // ќжидаемый формат yyyy-mm-dd
   //  str - строка
   //  from - номер символа начина€ с которого производить парсинг
-  function parseDate( str: WideString; from:Integer ):TMyDateParsed;
+  function parseDate( const str: WideString; const from:Integer ):TMyDateParsed;
 
 implementation
 
@@ -42,12 +43,20 @@ uses Math;
 
 { TDate }
 
-constructor TMyDate.Create(year, month, date: Integer);
+constructor TMyDate.Copy(const myDate: TMyDate);
 begin
   inherited Create;
-  self.year := year;
+  self.year  := myDate.year;
+  self.month := myDate.month;
+  self.date  := myDate.date;
+end;
+
+constructor TMyDate.Create(const year, month, date: Integer);
+begin
+  inherited Create;
+  self.year  := year;
   self.month := month;
-  self.date := date;
+  self.date  := date;
 end;
 
 destructor TMyDate.Destroy;
@@ -81,7 +90,7 @@ end;
 
 { TDateParsed }
 
-constructor TMyDateParsed.Create(date: TMyDate; endIndex:Integer);
+constructor TMyDateParsed.Create(const date: TMyDate; const endIndex:Integer);
 begin
   inherited Create;
   self.date := date;
@@ -94,7 +103,7 @@ begin
   inherited Destroy;
 end;
 
-function parseDate( str: WideString; from:Integer ):TMyDateParsed;
+function parseDate( const str: WideString; const from:Integer ):TMyDateParsed;
 var
   dres : TMyDate;
   p : Integer;
