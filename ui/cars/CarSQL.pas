@@ -16,12 +16,6 @@ type
 
 // Шаблон строитель
 ICarDataBuilder = interface
-  // Строит операцию добавления машины в БД
-  function buildInsert(): IDMLOperation;
-
-  // Строит операцию обновления машины в БД
-  function buildUpdate(): IDMLOperation;
-
   procedure setCarID( id:Integer );
   procedure setLegalNumber( num: WideString );
   procedure setModelId( id:Integer );
@@ -83,9 +77,6 @@ TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
 
     procedure setMaintainceDate( date:TMyDate; own:boolean ); overload;
     procedure setMaintainceDate( date:WideString ); overload;
-
-    function buildInsert(): IDMLOperation;
-    function buildUpdate(): IDMLOperation;
   private
     // Проверка данных
     //   insert = true  - проверка для операции buildInsert
@@ -260,6 +251,7 @@ begin
   end;
 end;
 
+{
 function TCarDataBuilder.buildInsert: IDMLOperation;
 var
   validation: IDataValidation;
@@ -301,5 +293,6 @@ function TCarDataBuilder.buildUpdate: IDMLOperation;
 begin
 
 end;
+}
 
 end.

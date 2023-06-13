@@ -100,12 +100,12 @@ begin
   builder.setBirthYear(birthYearEdit.Text);
   builder.setMaintainceDate(maintainceEdit.Text);
 
-  dmlOp := builder.buildInsert;
-  id := dmlOp.Execute( self.connection );
+  //dmlOp := builder.buildInsert;
+  //id := dmlOp.Run( self.insertADOQuery );
 
-  self.insertedId := id;
-  self.insertSuccessfully := true;
-  Close;
+  //self.insertedId := id;
+  //self.insertSuccessfully := true;
+  //Close;
 end;
 
 function TCarController.insertDialog(connection: TADOConnection): Boolean;

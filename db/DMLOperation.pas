@@ -149,10 +149,27 @@ begin
 end;
 
 function TSqlInsertOperation.Run(query: TADOQuery): Variant;
+var
+  i:Integer;
+  name:string;
+  p: TParameter;
 begin
-  query.Close;
+    query.Close;
+    query.Parameters.Clear;
+    query.SQL.Clear;
+    query.SQL.Add(self.sql);
 
-  try
+    for i:=0 to self.params.count - 1 do begin
+      name := self.params.key(i);
+      //query.Parameters.CreateParameter(name,ftUnknown,pdInput,0,self.params.get(name));
+
+      //p := query.Parameters.AddParameter;
+      //p.Name := name;
+      //p.Value := self.params.get(name);
+
+      query.Parameters.ParamByName(name).Value := self.params.get(name);
+    end;
+
     query.Open;
     query.First;
     while not query.Eof do begin
@@ -160,10 +177,6 @@ begin
       query.Next;
     end;
     query.Close;
-  finally
-    query.Connection := nil;
-    FreeAndNil(query);
-  end;
 end;
 
 end.
