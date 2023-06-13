@@ -19,6 +19,8 @@ IDMLOperation = interface
   // Возвращает
   //   id добавленной или обновленной записи
   function Execute( connection: TADOConnection ): Variant;
+
+  function Run( query: TADOQuery ): Variant;
 end;
 
 // Выполнение операции Insert и получение сгенерированного идентификатора
@@ -41,6 +43,7 @@ TSqlInsertOperation = class(TInterfacedObject,IDMLOperation)
     );
     destructor Destroy; override;
     function Execute( connection: TADOConnection ): Variant;
+    function Run( query: TADOQuery ): Variant;
 end;
 
 implementation
@@ -132,6 +135,24 @@ begin
 
     query.Parameters.Refresh;
 
+    query.Open;
+    query.First;
+    while not query.Eof do begin
+      result := query.FieldByName(self.generatedIdColumn).Value;
+      query.Next;
+    end;
+    query.Close;
+  finally
+    query.Connection := nil;
+    FreeAndNil(query);
+  end;
+end;
+
+function TSqlInsertOperation.Run(query: TADOQuery): Variant;
+begin
+  query.Close;
+
+  try
     query.Open;
     query.First;
     while not query.Eof do begin
