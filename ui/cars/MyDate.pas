@@ -2,7 +2,9 @@ unit MyDate;
 
 interface
   uses
-    SysUtils;
+    SysUtils,
+
+    Logging;
 
   type
 
@@ -159,6 +161,8 @@ begin
 
   while p <= length(str) do
   begin
+    log.println('p='+IntToStr(p)+' c='+str[p]+' state='+IntToStr(state));
+
     if state = 0 then begin
       y0 := getDigit;
       if y0 < 0 then raise EParseException.Create('expect digit, but found '+str[p]);
@@ -166,6 +170,7 @@ begin
     end else
     if state = 1 then begin
       y1 := getDigit;
+      log.println( 'y1='+intToStr(y1) );
       if y1 < 0 then raise EParseException.Create('expect digit, but found '+str[p]);
       state := 2;
     end else
@@ -200,7 +205,7 @@ begin
     if state = 8 then begin
       d0 := getDigit;
       if d0 < 0 then raise EParseException.Create('expect digit, but found '+str[p]);
-      state := 1;
+      state := 9;
     end else
     if state = 9 then begin
       d1 := getDigit;
@@ -213,16 +218,14 @@ begin
     p := p + 1;
   end;
 
-  if not state = 9 then raise
-    EParseException.Create('not fully parsed');
+  if not state = 9 then raise EParseException.Create('not fully parsed');
 
   dres := TMyDate.Create(
-    y0 * 1000 + y1 * 100 + y2 * 10 + y3,
+    (y0 * 1000) + (y1 * 100) + (y2 * 10) + y3,
     m0 * 10 + m1,
     d0 * 10 + d1
   );
   result := TMyDateParsed.Create(dres, p);
-
 end;
 
 end.
