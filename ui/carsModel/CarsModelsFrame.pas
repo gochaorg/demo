@@ -35,8 +35,8 @@ type
     procedure _editButtonClick(Sender: TObject);
     procedure _deleteButtonClick(Sender: TObject);
   private
-    procedure refreshAll();
-    procedure refreshCurrent();
+    procedure RefreshAll();
+    procedure RefreshCurrent();
   public
     { Public declarations }
     procedure activateDataView();

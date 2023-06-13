@@ -175,7 +175,7 @@ begin
       debug := iniFile.ReadBool('debug', 'default', true);
     except
       on e: EIniFileException do raise EConfigLoad.Create(e.Message);
-    end;    
+    end;
   finally
     FreeAndNil( iniFile );
   end;
@@ -195,7 +195,7 @@ begin
       iniFile.WriteBool('debug', 'default', debug);
     except
       on e: EIniFileException do raise EConfigSave.Create(e.Message);
-    end;  
+    end;
   finally
     FreeAndNil( iniFile );
   end;
@@ -213,46 +213,46 @@ end;
 
 // свойство dbConnectionString
 
-function TConfig.getDbConnectionString: WideString;
+function TConfig.GetDbConnectionString: WideString;
 begin
   result := self.dbConnectionStringValue;
 end;
 
-procedure TConfig.setDbConnectionString(str: WideString);
+procedure TConfig.SetDbConnectionString(str: WideString);
 begin
   self.dbConnectionStringValue := str;
 end;
 
 // свойство dbPassword
 
-function TConfig.getDbPassword: WideString;
+function TConfig.GetDbPassword: WideString;
 begin
   result := self.dbPasswordValue;
 end;
 
-procedure TConfig.setDbPassword(password: WideString);
+procedure TConfig.SetDbPassword(password: WideString);
 begin
   self.dbPasswordValue := password;
 end;
 
 // свойство DbUsername
 
-function TConfig.getDbUsername: WideString;
+function TConfig.GetDbUsername: WideString;
 begin
   result := self.dbUserNameValue;
 end;
 
-procedure TConfig.setDbUsername(userName: WideString);
+procedure TConfig.SetDbUsername(userName: WideString);
 begin
   self.dbUserNameValue := userName;
 end;
 
-function TConfig.getRefCount: Integer;
+function TConfig.GetRefCount: Integer;
 begin
   result := RefCount;
 end;
 
-function TConfig.isDebug: Boolean;
+function TConfig.IsDebug: Boolean;
 begin
   result := self.debug;
 end;

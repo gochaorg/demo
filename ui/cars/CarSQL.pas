@@ -18,44 +18,44 @@ type
 // для создания либо запроса insert либо update
 ICarDataBuilder = interface
   // Сброс состояния, надо заново указать значения
-  procedure reset;
+  procedure Reset;
 
   // Указывает id машины, необходимо для update
-  procedure setCarID( id:Integer );
+  procedure SetCarID( id:Integer );
 
   // Указывает Гос номер
-  procedure setLegalNumber( num: WideString );
+  procedure SetLegalNumber( num: WideString );
 
   // Указывает ссылку на модель
-  procedure setModelId( id:Integer );
+  procedure SetModelId( id:Integer );
 
   // Указывает пробег
-  procedure setWear( wear:Integer ); overload;
-  procedure setWear( wear:WideString ); overload;
+  procedure SetWear( wear:Integer ); overload;
+  procedure SetWear( wear:WideString ); overload;
 
   // Указывает год выпуска
-  procedure setBirthYear( year:Integer ); overload;
-  procedure setBirthYear( year:WideString ); overload;
+  procedure SetBirthYear( year:Integer ); overload;
+  procedure SetBirthYear( year:WideString ); overload;
 
   // Указывает дату прохождения ТО
-  procedure setMaintainceDate( date:TMyDate; own:boolean ); overload;
-  procedure setMaintainceDate( date:WideString ); overload;
+  procedure SetMaintainceDate( date:TMyDate; own:boolean ); overload;
+  procedure SetMaintainceDate( date:WideString ); overload;
 
   // Проверка данных перед INSERT
-  function validateInsert: IDataValidation;
+  function ValidateInsert: IDataValidation;
 
   // Создает операцию INSERT.
   // Если какие данные указаны не верно,
   //   то генерирует исключение ECarDataBuilder
-  function buildInsert: IDMLOperation;
+  function BuildInsert: IDMLOperation;
 
   // Проверка данных перед UPDATE
-  function validateUpdate: IDataValidation;
+  function ValidateUpdate: IDataValidation;
 
   // Создает операцию UPDATE.
   // Если какие данные указаны не верно,
   //   то генерирует исключение ECarDataBuilder
-  function buildUpdate: IDMLOperation;
+  function BuildUpdate: IDMLOperation;
 end;
 
 TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
@@ -91,33 +91,33 @@ TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
     constructor Create;
     destructor Destroy; override;
 
-    procedure reset;
-    
-    procedure setCarID( id:Integer );
+    procedure Reset;
 
-    procedure setLegalNumber( str: WideString );
+    procedure SetCarID( id:Integer );
 
-    procedure setModelId( id:Integer );
+    procedure SetLegalNumber( str: WideString );
 
-    procedure setWear( wear:Integer ); overload;
-    procedure setWear( wear:WideString ); overload;
+    procedure SetModelId( id:Integer );
 
-    procedure setBirthYear( year:Integer ); overload;
-    procedure setBirthYear( year:WideString ); overload;
+    procedure SetWear( wear:Integer ); overload;
+    procedure SetWear( wear:WideString ); overload;
 
-    procedure setMaintainceDate( date:TMyDate; own:boolean ); overload;
-    procedure setMaintainceDate( date:WideString ); overload;
+    procedure SetBirthYear( year:Integer ); overload;
+    procedure SetBirthYear( year:WideString ); overload;
 
-    function validateInsert: IDataValidation;
-    function buildInsert: IDMLOperation;
+    procedure SetMaintainceDate( date:TMyDate; own:boolean ); overload;
+    procedure SetMaintainceDate( date:WideString ); overload;
 
-    function validateUpdate: IDataValidation;
-    function buildUpdate: IDMLOperation;
+    function ValidateInsert: IDataValidation;
+    function BuildInsert: IDMLOperation;
+
+    function ValidateUpdate: IDataValidation;
+    function BuildUpdate: IDMLOperation;
   private
     // Проверка данных
     //   insert = true  - проверка для операции buildInsert
     //   insert = false - проверка для операции buildUpdate
-    function validate(insert:boolean):IDataValidation;
+    function Validate(insert:boolean):IDataValidation;
 end;
 
 // Ошибка создания/валидации при построение операций
@@ -154,7 +154,7 @@ end;
 
 //------------------------------------------------------
 
-procedure TCarDataBuilder.reset;
+procedure TCarDataBuilder.Reset;
 begin
   self.birthYearExists := false;
   self.birthYearConvError := '';
@@ -174,13 +174,13 @@ end;
 
 //------------------------------------------------------
 
-procedure TCarDataBuilder.setBirthYear(year: Integer);
+procedure TCarDataBuilder.SetBirthYear(year: Integer);
 begin
   self.birthYear := year;
   self.birthYearExists := true;
 end;
 
-procedure TCarDataBuilder.setBirthYear(year: WideString);
+procedure TCarDataBuilder.SetBirthYear(year: WideString);
 begin
   try
     self.setBirthYear(StrToInt(year));
@@ -194,7 +194,7 @@ end;
 
 //------------------------------------------------------
 
-procedure TCarDataBuilder.setCarID(id: Integer);
+procedure TCarDataBuilder.SetCarID(id: Integer);
 begin
   self.updateId := id;
   Self.updateIdExists := true;
@@ -202,7 +202,7 @@ end;
 
 //------------------------------------------------------
 
-procedure TCarDataBuilder.setLegalNumber(str: WideString);
+procedure TCarDataBuilder.SetLegalNumber(str: WideString);
 begin
   self.legalNumber := str;
   self.legalNumberExists := true;
@@ -210,7 +210,7 @@ end;
 
 //------------------------------------------------------
 
-procedure TCarDataBuilder.setMaintainceDate(date: TMyDate; own: boolean);
+procedure TCarDataBuilder.SetMaintainceDate(date: TMyDate; own: boolean);
 begin
   if assigned(self.maintainceDate) and self.maintainceDateOwn then
   begin
@@ -222,7 +222,7 @@ begin
   self.maintainceDateExists := true;
 end;
 
-procedure TCarDataBuilder.setMaintainceDate(date: WideString);
+procedure TCarDataBuilder.SetMaintainceDate(date: WideString);
 var
   maintainceDateParsed: TMyDateParsed;
   maintainceDate: TMyDate;
@@ -245,20 +245,20 @@ begin
   end;
 end;
 
-procedure TCarDataBuilder.setModelId(id: Integer);
+procedure TCarDataBuilder.SetModelId(id: Integer);
 begin
   self.modelId := id;
   self.modelIdExists := true;
 end;
 
-procedure TCarDataBuilder.setWear(wear: Integer);
+procedure TCarDataBuilder.SetWear(wear: Integer);
 begin
   self.wear := wear;
   self.wearExists := true;
   self.wearConvError := '';
 end;
 
-procedure TCarDataBuilder.setWear(wear: WideString);
+procedure TCarDataBuilder.SetWear(wear: WideString);
 begin
   if length(wear)>0 then begin
     try
@@ -275,17 +275,17 @@ begin
   end;
 end;
 
-function TCarDataBuilder.validateInsert: IDataValidation;
+function TCarDataBuilder.ValidateInsert: IDataValidation;
 begin
   result := validate(true);
 end;
 
-function TCarDataBuilder.validateUpdate: IDataValidation;
+function TCarDataBuilder.ValidateUpdate: IDataValidation;
 begin
   result := validate(false);
 end;
 
-function TCarDataBuilder.validate(insert:boolean): IDataValidation;
+function TCarDataBuilder.Validate(insert:boolean): IDataValidation;
 var
   validation: IDataValidationMut;
 begin
@@ -325,7 +325,7 @@ begin
   end;
 end;
 
-function TCarDataBuilder.buildInsert: IDMLOperation;
+function TCarDataBuilder.BuildInsert: IDMLOperation;
 var
   validation: IDataValidation;
   params: TStringMap;
@@ -374,7 +374,7 @@ begin
   result := TSqlInsertOperation.Create( sql, params, '_id');
 end;
 
-function TCarDataBuilder.buildUpdate: IDMLOperation;
+function TCarDataBuilder.BuildUpdate: IDMLOperation;
 var
   validation: IDataValidation;
   params: TStringMap;

@@ -17,10 +17,10 @@ interface
     constructor Create(const year: Integer; const month:Integer; const date:Integer);
     constructor Copy(const myDate: TMyDate);
     destructor Destroy; override;
-    function toString(): WideString;
-    function toMSSQLDateTime2(): WideString;
+    function ToString(): WideString;
+    function ToMSSQLDateTime2(): WideString;
   private
-    function pad(str:WideString; len:Integer):WideString;
+    function Pad(str:WideString; len:Integer):WideString;
   end;
 
   // Результат парсинга
@@ -40,7 +40,7 @@ interface
   // Ожидаемый формат yyyy-mm-dd
   //  str - строка
   //  from - номер символа начиная с которого производить парсинг
-  function parseDate( const str: WideString; const from:Integer ):TMyDateParsed;
+  function ParseDate( const str: WideString; const from:Integer ):TMyDateParsed;
 
 implementation
 
@@ -75,7 +75,7 @@ begin
   inherited;
 end;
 
-function TMyDate.pad(str:WideString; len:Integer):WideString;
+function TMyDate.Pad(str:WideString; len:Integer):WideString;
 var
   i:Integer;
 begin
@@ -88,7 +88,7 @@ begin
   end;
 end;
 
-function TMyDate.toString: WideString;
+function TMyDate.ToString: WideString;
 begin
   result :=
     pad(IntToStr(self.year),4) +
@@ -98,7 +98,7 @@ begin
     pad(IntToStr(self.date),2);
 end;
 
-function TMyDate.toMSSQLDateTime2: WideString;
+function TMyDate.ToMSSQLDateTime2: WideString;
 begin
   result :=
     pad(IntToStr(self.year),4) +
@@ -124,7 +124,7 @@ begin
   inherited Destroy;
 end;
 
-function parseDate( const str: WideString; const from:Integer ):TMyDateParsed;
+function ParseDate( const str: WideString; const from:Integer ):TMyDateParsed;
 var
   dres : TMyDate;
   p : Integer;

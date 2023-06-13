@@ -28,6 +28,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    // Режим InsertMode / UpdateMode
     mode: TMode;
     connection: TADOConnection;
 
@@ -39,15 +40,16 @@ type
     insertSuccessfully: Boolean;
     updateSuccessfully: Boolean;
 
+    // Валидация и построение SQL
     carDataBuilder: TCarDataBuilder;
   private
-    procedure clearCarsModelListbox();
-    procedure insertData();
-    procedure updateData();
-    procedure setConnection( connection: TADOConnection );
-    procedure refreshModelList();
-    procedure validateInput(Sender: TObject);
-    function validate():boolean;
+    procedure ClearCarsModelListbox();
+    procedure InsertData();
+    procedure UpdateData();
+    procedure SetConnection( connection: TADOConnection );
+    procedure RefreshModelList();
+    procedure ValidateInput(Sender: TObject);
+    function Validate():boolean;
   public
     // Открыть диалог для добавления
     // Аргументы
@@ -55,10 +57,10 @@ type
     // Возвращает
     //   true - успешно добавлена запись
     //   false - не добавлена
-    function insertDialog(connection: TADOConnection): Boolean;
+    function InsertDialog(connection: TADOConnection): Boolean;
 
     // Возвращает id добавленной записи
-    function getInsertedId(): Integer;
+    function GetInsertedId(): Integer;
 
     // Открыть диалог для обновления
     // Аргументы
@@ -72,7 +74,7 @@ type
     // Возвращает
     //   true - успено обновлена запись
     //   false - ошибка
-    function updateDialog(
+    function UpdateDialog(
       connection: TADOConnection;
       id: Integer;
       legalNumber: WideString;
@@ -104,14 +106,13 @@ begin
   clearCarsModelListbox;
 end;
 
-function TCarController.getInsertedId: Integer;
+function TCarController.GetInsertedId: Integer;
 begin
   result := self.insertedId;
 end;
 
-procedure TCarController.insertData;
+procedure TCarController.InsertData;
 var
-  modelInfo: TCarModelInfo;
   dmlOp: IDMLOperation;
   id: Variant;
 begin
@@ -135,7 +136,7 @@ begin
   end;
 end;
 
-function TCarController.insertDialog(connection: TADOConnection): Boolean;
+function TCarController.InsertDialog(connection: TADOConnection): Boolean;
 begin
   log.println('insertDialog open');
 
@@ -158,9 +159,8 @@ begin
   end;
 end;
 
-procedure TCarController.updateData;
+procedure TCarController.UpdateData;
 var
-  modelInfo: TCarModelInfo;
   dmlOp: IDMLOperation;
   id: Variant;
 begin
@@ -183,7 +183,7 @@ begin
   end;
 end;
 
-function TCarController.updateDialog(
+function TCarController.UpdateDialog(
   connection: TADOConnection;
   id: Integer;
   legalNumber: WideString;
@@ -239,10 +239,10 @@ begin
       begin
         updateData();
       end;
-  end;    
+  end;
 end;
 
-procedure TCarController.refreshModelList;
+procedure TCarController.RefreshModelList;
 var
   model: TCarModelInfo;
   index: Integer;
@@ -282,7 +282,7 @@ begin
 
       if selectIndex >=0 then
         self.modelListBox.ItemIndex := selectIndex;
-        
+
     except
       on e:EOleException do begin
         log.println('got error: '+e.Message);
@@ -294,7 +294,7 @@ begin
   end;
 end;
 
-procedure TCarController.setConnection(connection: TADOConnection);
+procedure TCarController.SetConnection(connection: TADOConnection);
 begin
   self.connection := connection;
   self.insertADOQuery.Connection := connection;
@@ -302,7 +302,7 @@ begin
   self.carsModelADOQuery.Connection := connection;
 end;
 
-procedure TCarController.clearCarsModelListbox;
+procedure TCarController.ClearCarsModelListbox;
 var
   i : Integer;
 begin
@@ -312,12 +312,12 @@ begin
   self.modelListBox.Items.Clear;
 end;
 
-procedure TCarController.validateInput(Sender: TObject);
+procedure TCarController.ValidateInput(Sender: TObject);
 begin
   validate;
 end;
 
-function TCarController.validate: boolean;
+function TCarController.Validate: boolean;
   procedure ok;
   begin
     errLabel.Caption := '';
@@ -360,7 +360,7 @@ begin
     end else begin
       validation := self.carDataBuilder.validateUpdate;
     end;
-    
+
     if not validation.isOk then begin
       err( validation.getMessage );
     end;
