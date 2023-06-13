@@ -28,6 +28,8 @@ ICarDataBuilder = interface
 
   procedure setMaintainceDate( date:TMyDate; own:boolean ); overload;
   procedure setMaintainceDate( date:WideString ); overload;
+
+  function buildInsert: IDMLOperation;
 end;
 
 TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
@@ -77,6 +79,8 @@ TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
 
     procedure setMaintainceDate( date:TMyDate; own:boolean ); overload;
     procedure setMaintainceDate( date:WideString ); overload;
+
+    function buildInsert: IDMLOperation;
   private
     // ѕроверка данных
     //   insert = true  - проверка дл€ операции buildInsert
@@ -251,7 +255,6 @@ begin
   end;
 end;
 
-{
 function TCarDataBuilder.buildInsert: IDMLOperation;
 var
   validation: IDataValidation;
@@ -278,17 +281,16 @@ begin
   begin
     sql :=
       'insert into cars (legal_number, model, wear, bearth_year, maintenance) '+
-      'values (:legal_number, :model, :wear, :bearth_year, '+
-      ' convert( datetime2, :maintenance, 23 )'+
-      ');' +
+      'values (:legal_number, :model, :wear, :bearth_year, :maintenance);' +
       'select @@IDENTITY as _id';
 
-    params.put('maintenance',  self.maintainceDate.toString);
+    params.put('maintenance',  self.maintainceDate.toMSSQLDateTime2);
   end;
 
   result := TSqlInsertOperation.Create( sql, params, '_id');
 end;
 
+{
 function TCarDataBuilder.buildUpdate: IDMLOperation;
 begin
 

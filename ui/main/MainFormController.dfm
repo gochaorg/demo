@@ -19,20 +19,11 @@ object MainForm: TMainForm
     Top = 0
     Width = 672
     Height = 412
-    ActivePage = TabSheet1
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = #1055#1091#1090#1077#1074#1099#1077' '#1083#1080#1089#1090#1099
-      object Button1: TButton
-        Left = 24
-        Top = 32
-        Width = 75
-        Height = 25
-        Caption = 'Button1'
-        TabOrder = 0
-        OnClick = Button1Click
-      end
     end
     object TabSheet2: TTabSheet
       Caption = #1042#1086#1076#1080#1090#1077#1083#1080

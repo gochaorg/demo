@@ -16,6 +16,9 @@ interface
     constructor Copy(const myDate: TMyDate);
     destructor Destroy; override;
     function toString(): WideString;
+    function toMSSQLDateTime2(): WideString;
+  private
+    function pad(str:WideString; len:Integer):WideString;
   end;
 
   // Результат парсинга
@@ -64,21 +67,20 @@ begin
   inherited;
 end;
 
-function TMyDate.toString: WideString;
-  function pad(str:WideString; len:Integer):WideString;
-  var
-    i:Integer;
+function TMyDate.pad(str:WideString; len:Integer):WideString;
+var
+  i:Integer;
+begin
+  result := str;
+  if length(str) < len then
   begin
-    if length(str) < len then
-    begin
-      result := str;
-      for i:=1 to (len - length(str)) do begin
-        result := '0' + result;
-      end;
-    end else begin
-      result := str;
+    for i:=1 to (len - length(str)) do begin
+      result := '0' + result;
     end;
   end;
+end;
+
+function TMyDate.toString: WideString;
 begin
   result :=
     pad(IntToStr(self.year),4) +
@@ -86,6 +88,17 @@ begin
     pad(IntToStr(self.month),2) +
     '-'+
     pad(IntToStr(self.date),2);
+end;
+
+function TMyDate.toMSSQLDateTime2: WideString;
+begin
+  result :=
+    pad(IntToStr(self.year),4) +
+    '-'+
+    pad(IntToStr(self.month),2) +
+    '-'+
+    pad(IntToStr(self.date),2) +
+    ' 00:00:00.000';
 end;
 
 { TDateParsed }
