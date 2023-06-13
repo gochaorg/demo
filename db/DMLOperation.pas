@@ -3,7 +3,7 @@ unit DMLOperation;
 interface
 
 uses
-  DB, ADODB, SysUtils,
+  DB, ADODB, SysUtils, Variants,
 
   Logging,
   Map;
@@ -19,8 +19,6 @@ IDMLOperation = interface
   // Возвращает
   //   id добавленной или обновленной записи
   function Execute( connection: TADOConnection ): Variant;
-
-  function Run( query: TADOQuery ): Variant;
 end;
 
 // Выполнение операции Insert и получение сгенерированного идентификатора
@@ -43,7 +41,22 @@ TSqlInsertOperation = class(TInterfacedObject,IDMLOperation)
     );
     destructor Destroy; override;
     function Execute( connection: TADOConnection ): Variant;
-    function Run( query: TADOQuery ): Variant;
+end;
+
+// Выполнение операции update
+TSqlUpdateOperation = class(TInterfacedObject,IDMLOperation)
+  private
+    sql: WideString;
+    params: TStringMap;
+    idParam: WideString;
+  public
+    constructor Create(
+      sql:WideString;
+      params:TStringMap;
+      idParam: WideString
+    );
+  destructor Destroy; override;
+  function Execute( connection: TADOConnection ): Variant;
 end;
 
 implementation
@@ -72,19 +85,26 @@ function TSqlInsertOperation.Execute(connection: TADOConnection): Variant;
 var
   query: TADOQuery;
   name: String;
+  param_value: variant;
   i: Integer;
-  p: TParameter;
 begin
+  log.println('TSqlInsertOperation.Execute');
+  log.println('query := TADOQuery.Create(nil)');
   query := TADOQuery.Create(nil);
   try
     query.Connection := connection;
 
+    log.println('query.SQL.Text := '+self.sql);
     query.SQL.Text := self.sql;
     for i:=0 to self.params.count - 1 do begin
       name := self.params.key(i);
-      query.Parameters.ParamByName(name).Value := self.params.get(name);
+      param_value := self.params.get(name);
+
+      log.println('param '+name+' = '+VarToStr(param_value));
+      query.Parameters.ParamByName(name).Value := param_value;
     end;
 
+    log.println('query.Open');
     query.Open;
     query.First;
     while not query.Eof do begin
@@ -93,40 +113,65 @@ begin
     end;
     query.Close;
   finally
+    log.println('Free TADOQuery');
     query.Connection := nil;
     FreeAndNil(query);
   end;
 end;
 
-function TSqlInsertOperation.Run(query: TADOQuery): Variant;
-var
-  i:Integer;
-  name:string;
-  p: TParameter;
-begin
-    query.Close;
-    query.Parameters.Clear;
-    query.SQL.Clear;
-    query.SQL.Add(self.sql);
+{ TSqlUpdateOperation }
 
+constructor TSqlUpdateOperation.Create(
+  sql: WideString;
+  params: TStringMap;
+  idParam: WideString);
+begin
+  inherited Create;
+  self.sql := sql;
+  self.params := params;
+  self.idParam := idParam;
+end;
+
+destructor TSqlUpdateOperation.Destroy;
+begin
+  FreeAndNil(self.params);
+  inherited Destroy;
+end;
+
+function TSqlUpdateOperation.Execute( connection: TADOConnection ): Variant;
+var
+  query: TADOQuery;
+  name: String;
+  i: Integer;
+  param_value: variant;
+  update_count: Integer;
+begin
+  result := UnAssigned();
+
+  log.println('TSqlUpdateOperation.Execute');
+  log.println('query := TADOQuery.Create(nil)');
+  query := TADOQuery.Create(nil);
+  try
+    query.Connection := connection;
+
+    log.println('query.SQL.Text := '+self.sql);
+    query.SQL.Text := self.sql;
     for i:=0 to self.params.count - 1 do begin
       name := self.params.key(i);
-      //query.Parameters.CreateParameter(name,ftUnknown,pdInput,0,self.params.get(name));
+      param_value := self.params.get(name);
 
-      //p := query.Parameters.AddParameter;
-      //p.Name := name;
-      //p.Value := self.params.get(name);
-
-      query.Parameters.ParamByName(name).Value := self.params.get(name);
+      log.println('param '+name+' = '+VarToStr(param_value));
+      query.Parameters.ParamByName(name).Value := param_value;
     end;
 
-    query.Open;
-    query.First;
-    while not query.Eof do begin
-      result := query.FieldByName(self.generatedIdColumn).Value;
-      query.Next;
-    end;
-    query.Close;
+    log.println('query.ExecSQL');
+    update_count := query.ExecSQL;
+
+    log.println('  update count '+IntToStr(update_count));
+  finally
+    query.Connection := nil;
+    FreeAndNil(query);
+  end;
 end;
 
 end.

@@ -3,10 +3,10 @@ unit CarsFrame;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, DB, ExtCtrls, Grids, DBGrids, ADODB,
 
-  DBRows, DBRowPredicate, DBView,
+  DBRows, DBRowPredicate, DBView, Map,
   CarForm,
   DBViewConfig;
 
@@ -82,8 +82,33 @@ begin
 end;
 
 procedure TCarsController.editButtonClick(Sender: TObject);
+var
+  updateDialog : TCarController;
+  curRow: TStringMap;
 begin
- //
+  curRow := TStringMap.Create;
+  try
+    if extend(carsDBGrid).GetFocusedRow(curRow) then begin
+      updateDialog := TCarController.Create(self);
+      try
+        if updateDialog.updateDialog(
+          self.carsADOQuery.Connection,
+          curRow.get('id'),
+          curRow.get('legal_number'),
+          curRow.get('model_id'),
+          curRow.get('wear'),
+          curRow.get('birth_year'),
+          curRow.get('maintenance'),
+        ) then begin
+          refreshCurrent;
+        end;
+      finally;
+        FreeAndNil(updateDialog);
+      end;
+    end;
+  finally
+    FreeAndNil(curRow);
+  end;
 end;
 
 procedure TCarsController.deleteButtonClick(Sender: TObject);

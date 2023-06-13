@@ -15,21 +15,47 @@ uses
 type
 
 // Шаблон строитель
+// для создания либо запроса insert либо update
 ICarDataBuilder = interface
+  // Сброс состояния, надо заново указать значения
+  procedure reset;
+
+  // Указывает id машины, необходимо для update
   procedure setCarID( id:Integer );
+
+  // Указывает Гос номер
   procedure setLegalNumber( num: WideString );
+
+  // Указывает ссылку на модель
   procedure setModelId( id:Integer );
 
+  // Указывает пробег
   procedure setWear( wear:Integer ); overload;
   procedure setWear( wear:WideString ); overload;
 
+  // Указывает год выпуска
   procedure setBirthYear( year:Integer ); overload;
   procedure setBirthYear( year:WideString ); overload;
 
+  // Указывает дату прохождения ТО
   procedure setMaintainceDate( date:TMyDate; own:boolean ); overload;
   procedure setMaintainceDate( date:WideString ); overload;
 
+  // Проверка данных перед INSERT
+  function validateInsert: IDataValidation;
+
+  // Создает операцию INSERT.
+  // Если какие данные указаны не верно,
+  //   то генерирует исключение ECarDataBuilder
   function buildInsert: IDMLOperation;
+
+  // Проверка данных перед UPDATE
+  function validateUpdate: IDataValidation;
+
+  // Создает операцию UPDATE.
+  // Если какие данные указаны не верно,
+  //   то генерирует исключение ECarDataBuilder
+  function buildUpdate: IDMLOperation;
 end;
 
 TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
@@ -65,6 +91,8 @@ TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
     constructor Create;
     destructor Destroy; override;
 
+    procedure reset;
+    
     procedure setCarID( id:Integer );
 
     procedure setLegalNumber( str: WideString );
@@ -80,7 +108,11 @@ TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
     procedure setMaintainceDate( date:TMyDate; own:boolean ); overload;
     procedure setMaintainceDate( date:WideString ); overload;
 
+    function validateInsert: IDataValidation;
     function buildInsert: IDMLOperation;
+
+    function validateUpdate: IDataValidation;
+    function buildUpdate: IDMLOperation;
   private
     // Проверка данных
     //   insert = true  - проверка для операции buildInsert
@@ -120,6 +152,28 @@ begin
   inherited Destroy;
 end;
 
+//------------------------------------------------------
+
+procedure TCarDataBuilder.reset;
+begin
+  self.birthYearExists := false;
+  self.birthYearConvError := '';
+
+  self.legalNumberExists := false;
+
+  self.maintainceDateExists := false;
+  self.maintainceDateConvError := '';
+
+  self.modelIdExists := false;
+
+  self.updateIdExists := false;
+
+  self.wearExists := false;
+  self.wearConvError := '';
+end;
+
+//------------------------------------------------------
+
 procedure TCarDataBuilder.setBirthYear(year: Integer);
 begin
   self.birthYear := year;
@@ -138,17 +192,23 @@ begin
   end;
 end;
 
+//------------------------------------------------------
+
 procedure TCarDataBuilder.setCarID(id: Integer);
 begin
   self.updateId := id;
   Self.updateIdExists := true;
 end;
 
+//------------------------------------------------------
+
 procedure TCarDataBuilder.setLegalNumber(str: WideString);
 begin
   self.legalNumber := str;
   self.legalNumberExists := true;
 end;
+
+//------------------------------------------------------
 
 procedure TCarDataBuilder.setMaintainceDate(date: TMyDate; own: boolean);
 begin
@@ -215,6 +275,16 @@ begin
   end;
 end;
 
+function TCarDataBuilder.validateInsert: IDataValidation;
+begin
+  result := validate(true);
+end;
+
+function TCarDataBuilder.validateUpdate: IDataValidation;
+begin
+  result := validate(false);
+end;
+
 function TCarDataBuilder.validate(insert:boolean): IDataValidation;
 var
   validation: IDataValidationMut;
@@ -261,13 +331,13 @@ var
   params: TStringMap;
   sql: String;
 begin
-  validation := validate(true);
+  validation := validateInsert;
   if not validation.isOk then
     raise ECarDataBuilder.Create(validation.getMessage);
 
   sql :=
-    'insert into cars (legal_number, model, wear, bearth_year) '+
-    'values (:legal_number, :model, :wear, :bearth_year '+
+    'insert into cars (legal_number, model, wear, birth_year) '+
+    'values (:legal_number, :model, :wear, :birth_year '+
     '); ' +
     'select @@IDENTITY as _id';
 
@@ -275,13 +345,27 @@ begin
   params.put('legal_number', self.legalNumber);
   params.put('model',        self.modelId );
   params.put('wear',         self.wear);
-  params.put('bearth_year',  self.birthYear);
+  params.put('birth_year',   self.birthYear);
 
   if maintainceDateExists then
   begin
+    // Нашел странный баг
+    // если использовать SQL
+    //
+    // insert into cars (... maintenance )
+    //   values (... convert( datetime2, :M_DATE, 23 )
+    //
+    // где M_DATE - параметр '2020-01-01'
+    // то блин валиться с EOleAccessViolation
+    // если просто передавать как строку
+    //
+    // insert into cars (... maintenance )
+    //   values (... convert( datetime2, '2020-01-01', 23 )
+    //
+    // то проблем нет
     sql :=
-      'insert into cars (legal_number, model, wear, bearth_year, maintenance) '+
-      'values (:legal_number, :model, :wear, :bearth_year, :maintenance);' +
+      'insert into cars (legal_number, model, wear, birth_year, maintenance) '+
+      'values (:legal_number, :model, :wear, :birth_year, :maintenance);' +
       'select @@IDENTITY as _id';
 
     params.put('maintenance',  self.maintainceDate.toMSSQLDateTime2);
@@ -290,11 +374,47 @@ begin
   result := TSqlInsertOperation.Create( sql, params, '_id');
 end;
 
-{
 function TCarDataBuilder.buildUpdate: IDMLOperation;
+var
+  validation: IDataValidation;
+  params: TStringMap;
+  sql: String;
 begin
+  validation := validateUpdate;
+  if not validation.isOk then
+    raise ECarDataBuilder.Create(validation.getMessage);
 
+  sql :=
+    'update cars set '+
+    ' legal_number = :legal_number,'+
+    ' model = :model,'+
+    ' wear = :wear,'+
+    ' birth_year = :birth_year,'+
+    ' maintenance = null'+
+    ' where id = :id';
+
+  params := TStringMap.Create;
+  params.put('legal_number', self.legalNumber);
+  params.put('model',        self.modelId );
+  params.put('wear',         self.wear);
+  params.put('birth_year',   self.birthYear);
+  params.put('id',           self.updateId);
+
+  if maintainceDateExists then
+  begin
+  sql :=
+    'update cars set '+
+    ' legal_number = :legal_number,'+
+    ' model = :model,'+
+    ' wear = :wear,'+
+    ' birth_year = :birth_year,'+
+    ' maintenance = :maintenance'+
+    ' where id = :id';
+
+    params.put('maintenance',  self.maintainceDate.toMSSQLDateTime2);
+  end;
+
+  result := TSqlUpdateOperation.Create( sql, params, 'id');
 end;
-}
 
 end.

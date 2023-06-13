@@ -71,9 +71,14 @@ object CarsController: TCarsController
   object carsADOQuery: TADOQuery
     Parameters = <>
     SQL.Strings = (
-      
-        'select c.id, legal_number, c.model as model_id, cm.name as model' +
-        '_name, wear, bearth_year, maintenance '
+      'select '
+      #9'c.id, '
+      #9'legal_number, '
+      #9'c.model as model_id, '
+      #9'cm.name as model_name, '
+      #9'wear, '
+      #9'birth_year, '
+      #9'maintenance '
       'from cars c'
       'left join cars_model cm on (cm.id = c.model)')
     Left = 112

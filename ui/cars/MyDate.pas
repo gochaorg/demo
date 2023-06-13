@@ -46,6 +46,12 @@ implementation
 
 uses Math;
 
+var
+  // Вести лог функции parseDate ?
+  parseDateDebug : boolean;
+
+
+
 { TDate }
 
 constructor TMyDate.Copy(const myDate: TMyDate);
@@ -148,6 +154,9 @@ begin
   p := from;
 
   state := 0;
+  y0 := 0; y1 := 0; y2 := 0; y3 := 0;
+  m0 := 0; m1 := 0;
+  d0 := 0; d1 := 0;
   // 0 - y
   // 1 - yy
   // 2 - yyy
@@ -161,7 +170,8 @@ begin
 
   while p <= length(str) do
   begin
-    log.println('p='+IntToStr(p)+' c='+str[p]+' state='+IntToStr(state));
+    if parseDateDebug then
+      log.println('p='+IntToStr(p)+' c='+str[p]+' state='+IntToStr(state));
 
     if state = 0 then begin
       y0 := getDigit;
@@ -170,7 +180,6 @@ begin
     end else
     if state = 1 then begin
       y1 := getDigit;
-      log.println( 'y1='+intToStr(y1) );
       if y1 < 0 then raise EParseException.Create('expect digit, but found '+str[p]);
       state := 2;
     end else
@@ -227,5 +236,8 @@ begin
   );
   result := TMyDateParsed.Create(dres, p);
 end;
+
+initialization
+  parseDateDebug := false;
 
 end.

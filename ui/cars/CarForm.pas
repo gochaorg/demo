@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
 
-  ADODB, ComObj, DB, Logging, MyDate, CarSql, DMLOperation;
+  ADODB, ComObj, DB, Logging, MyDate, CarSql, DMLOperation, Validation;
 
 type
   TMode = (InsertMode, UpdateMode);
@@ -29,12 +29,17 @@ type
     procedure FormShow(Sender: TObject);
   private
     mode: TMode;
-
     connection: TADOConnection;
+
     insertedId: Integer;
+
     updatingId: Integer;
+    sourceModelId: Integer;
+
     insertSuccessfully: Boolean;
     updateSuccessfully: Boolean;
+
+    carDataBuilder: TCarDataBuilder;
   private
     procedure clearCarsModelListbox();
     procedure insertData();
@@ -56,10 +61,26 @@ type
     function getInsertedId(): Integer;
 
     // Открыть диалог для обновления
+    // Аргументы
+    //   connection - соединение с СУБД
+    //   id - идентификатор машины
+    //   legalNumber - гос номер
+    //   modelId - ссылка на модель машины
+    //   wear - пробег
+    //   birthYear - год выпуска
+    //   maintenance - дата прохождения ТО
     // Возвращает
     //   true - успено обновлена запись
     //   false - ошибка
-    function updateDialog(connection: TADOConnection; id: Integer; name: WideString): Boolean;
+    function updateDialog(
+      connection: TADOConnection;
+      id: Integer;
+      legalNumber: WideString;
+      modelId: Integer;
+      wear: Integer;
+      birthYear: Integer;
+      maintenance: WideString
+    ): Boolean;
   end;
 
 var
@@ -78,6 +99,11 @@ type
 
 { TCarController }
 
+procedure TCarController.FormDestroy(Sender: TObject);
+begin
+  clearCarsModelListbox;
+end;
+
 function TCarController.getInsertedId: Integer;
 begin
   result := self.insertedId;
@@ -85,62 +111,117 @@ end;
 
 procedure TCarController.insertData;
 var
-  builder: ICarDataBuilder;
   modelInfo: TCarModelInfo;
   dmlOp: IDMLOperation;
   id: Variant;
 begin
-  builder := TCarDataBuilder.Create;
-  builder.setLegalNumber(legalNumberEdit.Text);
-
-  modelInfo := modelListBox.Items.Objects[ modelListBox.ItemIndex ] as TCarModelInfo;
-  builder.setModelId(modelInfo.id);
-
-  builder.setWear(wearEdit.Text);
-  builder.setBirthYear(birthYearEdit.Text);
-  builder.setMaintainceDate(maintainceEdit.Text);
-
-  dmlOp := builder.buildInsert;
-  id := dmlOp.Execute( self.connection );
-
-  self.insertedId := id;
-  self.insertSuccessfully := true;
-  Close;
+  if assigned(self.carDataBuilder) then begin
+    try
+      dmlOp := self.carDataBuilder.buildInsert;
+      id := dmlOp.Execute( self.connection );
+      self.insertedId := id;
+      self.insertSuccessfully := true;
+      Close;
+    except
+      on e:ECarDataBuilder do begin
+        log.println('incorrect data input '+e.Message);
+        ShowMessage('Введенны не корректные данные '+e.Message);
+      end;
+      on e:EOleException do begin
+        log.println('insert car error: '+e.Message);
+        ShowMessage('Ощибка добавления машины '+e.Message);
+      end;
+    end;
+  end;
 end;
 
 function TCarController.insertDialog(connection: TADOConnection): Boolean;
 begin
+  log.println('insertDialog open');
+
+  self.carDataBuilder := TCarDataBuilder.Create;
   self.setConnection(connection);
   self.mode := InsertMode;
   self.Caption := 'Добавление машины';
   self.okButton.Caption := 'Добавить';
   self.insertSuccessfully := false;
+  self.sourceModelId := -1;
   try
     refreshModelList;
     validateInput(self);
     ShowModal;
+    result := insertSuccessfully;
+    log.println('insertDialog closed, successfully='+boolToStr(result));
   finally
+    FreeAndNil(self.carDataBuilder);
     self.setConnection(nil);
   end;
 end;
 
 procedure TCarController.updateData;
+var
+  modelInfo: TCarModelInfo;
+  dmlOp: IDMLOperation;
+  id: Variant;
 begin
-
+  if assigned(self.carDataBuilder) then begin
+    try
+      dmlOp := self.carDataBuilder.buildUpdate;
+      id := dmlOp.Execute( self.connection );
+      self.updateSuccessfully := true;
+      Close;
+    except
+      on e:ECarDataBuilder do begin
+        log.println('incorrect data input '+e.Message);
+        ShowMessage('Введенны не корректные данные '+e.Message);
+      end;
+      on e:EOleException do begin
+        log.println('update car error: '+e.Message);
+        ShowMessage('Ощибка обновления данных машины '+e.Message);
+      end;
+    end;
+  end;
 end;
 
-function TCarController.updateDialog(connection: TADOConnection;
-  id: Integer; name: WideString): Boolean;
+function TCarController.updateDialog(
+  connection: TADOConnection;
+  id: Integer;
+  legalNumber: WideString;
+  modelId: Integer;
+  wear: Integer;
+  birthYear: Integer;
+  maintenance: WideString
+): Boolean;
 begin
+  log.println('updateDialog open');
+  log.println('  carId='+IntToStr(id));
+  log.println('  legalNumber='+legalNumber);
+  log.println('  modelId='+intToStr(modelId));
+  log.println('  wear='+IntToStr(wear));
+  log.println('  birthYear='+IntToStr(birthYear));
+  log.println('  maintenance='+maintenance);
+
+  self.carDataBuilder := TCarDataBuilder.Create;
   self.setConnection(connection);
   self.mode := UpdateMode;
+
+  self.updatingId := id;
+  self.legalNumberEdit.Text := legalNumber;
+  self.sourceModelId := modelId;
+  self.wearEdit.Text := IntToStr(wear);
+  self.birthYearEdit.Text := IntToStr(birthYear);
+  self.maintainceEdit.Text := maintenance;
+
   self.Caption := 'Обновление машины';
-  self.okButton.Caption := 'обновить';
+  self.okButton.Caption := 'Обновить';
   self.updateSuccessfully := false;
   try
     refreshModelList;
     ShowModal;
+    result := updateSuccessfully;
+    log.println('updateDialog closed, successfully='+boolToStr(result));
   finally
+    FreeAndNil(self.carDataBuilder);
     self.setConnection(nil);
   end;
 end;
@@ -164,15 +245,22 @@ end;
 procedure TCarController.refreshModelList;
 var
   model: TCarModelInfo;
+  index: Integer;
+  selectIndex: Integer;
+
 begin
+  selectIndex:=-1;
   clearCarsModelListbox;
   try
     try
-      log.println('try refreshModelList');
+      log.println('refreshModelList');
 
       self.carsModelADOQuery.Open;
       self.carsModelADOQuery.First;
+      index := -1;
       while not self.carsModelADOQuery.Eof do begin
+        index := index + 1;
+
         model := TCarModelInfo.Create;
 
         model.name :=
@@ -185,8 +273,16 @@ begin
           VarToStr(model.name),
           model
         );
+
+        if self.carsModelADOQuery.FieldByName('id').Value =
+          self.sourceModelId then selectIndex := index;
+
         self.carsModelADOQuery.Next;
       end;
+
+      if selectIndex >=0 then
+        self.modelListBox.ItemIndex := selectIndex;
+        
     except
       on e:EOleException do begin
         log.println('got error: '+e.Message);
@@ -204,11 +300,6 @@ begin
   self.insertADOQuery.Connection := connection;
   self.updateADOQuery.Connection := connection;
   self.carsModelADOQuery.Connection := connection;
-end;
-
-procedure TCarController.FormDestroy(Sender: TObject);
-begin
-  clearCarsModelListbox;
 end;
 
 procedure TCarController.clearCarsModelListbox;
@@ -241,37 +332,37 @@ function TCarController.validate: boolean;
     validate := false;
   end;
 var
-  wearNum:Integer;
-  birthYearNum:Integer;
-  maintainceDate: TMyDateParsed;
+  validation: IDataValidation;
+  modelInfo: TCarModelInfo;
 begin
   ok;
 
-  if length(legalNumberEdit.Text)<1 then err('Не введен Гос номер');
-  if modelListBox.ItemIndex < 0 then err('Не выбрана модель');
+  if assigned(self.carDataBuilder) then begin
+    self.carDataBuilder.reset;
 
-  try
-    wearNum := StrToInt(wearEdit.Text);
-  except
-    on e:EConvertError do err('Пробег - не число');
-  end;
-  if wearNum < 0 then err('Пробег - отрицательное число');
+    if self.mode = UpdateMode then
+      self.carDataBuilder.setCarID(self.updatingId);
 
-  try
-    birthYearNum := StrToInt(birthYearEdit.Text);
-  except
-    on e:EConvertError do err('Год выпуска - не число');
-  end;
-  if birthYearNum < 0 then err('Год выпуска - отрицательное число');
+    self.carDataBuilder.setLegalNumber(legalNumberEdit.Text);
 
-  if length(maintainceEdit.Text) > 0 then begin
-    try
-      maintainceDate := parseDate(maintainceEdit.Text,1);
-      FreeAndNil(maintainceDate);
-    except
-      on e:EParseException do begin
-        err('Дата обслуживания ТО задана не верно');
-      end;
+    if self.modelListBox.ItemIndex>=0 then begin
+      modelInfo := self.modelListBox.Items.Objects[ self.modelListBox.ItemIndex ]
+        as TCarModelInfo;
+      self.carDataBuilder.setModelId(modelInfo.id);
+    end;
+
+    self.carDataBuilder.setWear(wearEdit.Text);
+    self.carDataBuilder.setBirthYear(birthYearEdit.Text);
+    self.carDataBuilder.setMaintainceDate(maintainceEdit.Text);
+
+    if self.mode = InsertMode then begin
+      validation := self.carDataBuilder.validateInsert;
+    end else begin
+      validation := self.carDataBuilder.validateUpdate;
+    end;
+    
+    if not validation.isOk then begin
+      err( validation.getMessage );
     end;
   end;
 end;

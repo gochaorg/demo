@@ -79,6 +79,14 @@ type
 
     // Выбирает и устанавливает фокус на указанные строки
     procedure SelectAndFocus( predicate: IDataRowPredicate );
+
+    // Получает значения текущей строки
+    // Аргументы
+    //   row - ссылка на текущую строку
+    // Результат
+    //   true - данные успещно получены
+    //   false - текущая строка не выбрана
+    function GetFocusedRow( var row:TStringMap ): boolean;
   end;
 
   /////////////////////////////////////////////////////////////
@@ -102,6 +110,8 @@ type
       procedure UpdateSelection( updater: TDataRowSelectUpdater ); virtual;
 
       procedure SelectAndFocus( predicate: IDataRowPredicate ); virtual;
+
+      function GetFocusedRow( var row:TStringMap ): boolean;
   end;
 
   //////////////////////////////////////////////////////////////
@@ -194,6 +204,28 @@ begin
           self.grid.DataSource.DataSet.EnableControls;
           self.grid.DataSource.DataSet.GotoBookmark(bm);
           self.grid.DataSource.DataSet.FreeBookmark(bm);
+        end;
+      end;
+    end;
+  end;
+end;
+
+function TDBGridExt.GetFocusedRow(var row: TStringMap): boolean;
+var
+  c : Integer;
+begin
+  result := false;
+  if assigned(self.grid) then begin
+    if assigned(self.grid.DataSource) then begin
+      if assigned(self.grid.DataSource.DataSet) then begin
+        if self.grid.DataSource.DataSet.RecNo>0 then begin
+          for c:=0 to self.grid.DataSource.DataSet.Fields.Count-1 do begin
+            row.put(
+              self.grid.Columns.Items[c].FieldName,
+              self.grid.Fields[c].Value
+            );
+          end;
+          result := true;
         end;
       end;
     end;
