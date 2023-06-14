@@ -24,7 +24,10 @@ uses
   Validation in 'validate\Validation.pas',
   DispatchersFrame in 'ui\dispatcher\DispatchersFrame.pas' {DispatchersController: TFrame},
   DriversFrame in 'ui\drivers\DriversFrame.pas' {DriversController: TFrame},
-  WaybillsFrame in 'ui\waybills\WaybillsFrame.pas' {waybillsController: TFrame};
+  WaybillsFrame in 'ui\waybills\WaybillsFrame.pas' {waybillsController: TFrame},
+  DriverForm in 'ui\drivers\DriverForm.pas' {DriverController},
+  DriverSQL in 'ui\drivers\DriverSQL.pas',
+  IntegerList in 'IntegerList.pas';
 
 {$R *.res}
 
@@ -32,6 +35,7 @@ begin
   Application.Initialize;
   //Application.CreateForm(TCarModelController, CarModelController);
   Application.CreateForm(TMainForm, MainForm);
+  Application.CreateForm(TDriverController, DriverController);
   try
     applicationConfigObj.Load();
   except

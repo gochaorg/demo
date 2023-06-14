@@ -9,7 +9,7 @@ uses
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig,
 
-  CarForm
+  CarForm, CarSQL
   ;
 
 type

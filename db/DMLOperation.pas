@@ -48,12 +48,10 @@ TSqlUpdateOperation = class(TInterfacedObject,IDMLOperation)
   private
     sql: WideString;
     params: TStringMap;
-    idParam: WideString;
   public
     constructor Create(
       sql:WideString;
-      params:TStringMap;
-      idParam: WideString
+      params:TStringMap
     );
   destructor Destroy; override;
   function Execute( connection: TADOConnection ): Variant;
@@ -123,13 +121,12 @@ end;
 
 constructor TSqlUpdateOperation.Create(
   sql: WideString;
-  params: TStringMap;
-  idParam: WideString);
+  params: TStringMap
+);
 begin
   inherited Create;
   self.sql := sql;
   self.params := params;
-  self.idParam := idParam;
 end;
 
 destructor TSqlUpdateOperation.Destroy;

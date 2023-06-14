@@ -7,12 +7,19 @@ uses
   SysUtils,
   ADODB,
 
+  IntegerList,
   MyDate,
   DMLOperation,
   Validation,
   Map;
 
 type
+
+// Ошибка создания/валидации при построение операций
+ECarDataBuilder = class(Exception);
+
+// Ошибка создания/валидации при построение операций
+ECarDataEraser = class(Exception);
 
 // Шаблон строитель
 // для создания либо запроса insert либо update
@@ -120,12 +127,37 @@ TCarDataBuilder = class(TInterfacedObject,ICarDataBuilder)
     function Validate(insert:boolean):IDataValidation;
 end;
 
-// Ошибка создания/валидации при построение операций
-ECarDataBuilder = class(Exception);
+// Шаблон строитель - создание операции DELETE
+ICarDataEraser = interface
+  // Сброс состояния, надо заново указать значения
+  procedure Reset;
+
+  // Указывает id машины которую надо удалить
+  procedure AddCarId( id:Integer );
+
+  // Проверяет данные перед формированием операции
+  function ValidateDelete: IDataValidation;
+
+  // Создает операцию DELETE
+  // Если какие данные указаны не верно,
+  //   то генерирует исключение ECarDataBuilder
+  function BuildDelete: IDMLOperation;
+end;
+
+TCarDataEraser = class(TInterfacedObject,ICarDataEraser)
+  private
+    idList: TIntegerList;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    
+    procedure Reset;
+    procedure AddCarId( id:Integer );
+    function ValidateDelete: IDataValidation;
+    function BuildDelete: IDMLOperation;
+end;
 
 implementation
-
-
 
 { TCarDataBuilder }
 
@@ -414,7 +446,61 @@ begin
     params.put('maintenance',  self.maintainceDate.toMSSQLDateTime2);
   end;
 
-  result := TSqlUpdateOperation.Create( sql, params, 'id');
+  result := TSqlUpdateOperation.Create( sql, params);
 end;
+
+{ TCarDataEraser }
+
+constructor TCarDataEraser.Create;
+begin
+  inherited Create;
+  self.idList := TIntegerList.Create;
+end;
+
+destructor TCarDataEraser.Destroy;
+begin
+  FreeAndNil(self.idList);
+  inherited Destroy;
+end;
+
+procedure TCarDataEraser.Reset;
+begin
+  self.idList.Clear;
+end;
+
+procedure TCarDataEraser.AddCarId(id: Integer);
+begin
+  self.idList.Add(id);
+end;
+
+function TCarDataEraser.ValidateDelete: IDataValidation;
+var
+  validation : TDataValidation;
+begin
+  validation := TDataValidation.Create;
+  if self.idList.isEmpty then begin
+    validation.addError('Не указан id удаляемой записи');
+  end;
+  result := validation;
+end;
+
+function TCarDataEraser.BuildDelete: IDMLOperation;
+var
+  validation : IDataValidation;
+  params: TStringMap;
+  sql: String;
+begin
+  validation := self.ValidateDelete;
+  if not validation.isOk then begin
+    raise ECarDataEraser.Create('Данные не подготовленны '+validation.getMessage);
+  end;
+
+  sql :=
+    'delete from cars where id in ('+self.idList.toString(', ')+')';
+
+  params := TStringMap.Create;
+  result := TSqlUpdateOperation.Create(sql,params);
+end;
+
 
 end.
