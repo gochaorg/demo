@@ -22,19 +22,18 @@ type
     // Возвращает строку по индексу
     function GetItem(index:Integer): IStringMap;
 
-    // Добавляет строку в выборку
-    procedure Add(row:TStringMap);
-
     // Обход всех строк в выборке и передача каждой в приемник
     // Аргументы
     //   consumer - применик
     procedure Each( consumer:TDataRowConsumer );
-    procedure eachi( consumer: TDataRowConsumerI );
+
+    // Добавляет строку в выборку
+    procedure Add(row:TStringMap);
 
     // Удаляет строки кроме указанныъ
     // Аргументы
     //   predicate - указывает условие (предикат) какие строки надо оставить
-    procedure Retain( predicate: IDataRowPredicate ); 
+    procedure Retain( predicate: IDataRowPredicate );
   end;
 
   TDBRows = class(TInterfacedObject,IDBRows)
@@ -43,13 +42,12 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
+    procedure Each( consumer:TDataRowConsumer ); virtual;
     function GetCount: Integer; virtual;
     function GetItem(index:Integer): IStringMap; virtual;
 
     procedure Add(row:TStringMap); virtual;
-    procedure Addi(row:IStringMap); virtual;
-    procedure Each( consumer:TDataRowConsumer ); virtual;
-    procedure eachi( consumer: TDataRowConsumerI ); virtual;
 
     procedure Retain( predicate: IDataRowPredicate ); virtual;
   end;
@@ -90,15 +88,6 @@ begin
   list.Add( rowCopy );
 end;
 
-procedure TDBRows.Addi(row: IStringMap);
-var
-  rowCopy: TStringMap;
-begin
-  rowCopy := TStringMap.Copyi(row);
-  list.Add( rowCopy );
-end;
-
-
 function TDBRows.GetCount: Integer;
 begin
   result := list.Count;
@@ -121,17 +110,6 @@ begin
 end;
 
 procedure TDBRows.Each(consumer: TDataRowConsumer);
-var
-  i:Integer;
-  row: TStringMap;
-begin
-  for i:=0 to list.Count-1 do begin
-    row := list[i];
-    consumer(row);
-  end;
-end;
-
-procedure TDBRows.eachi(consumer: TDataRowConsumerI);
 var
   i:Integer;
   row: TStringMap;
