@@ -26,6 +26,7 @@ object DriversController: TDriversController
       Height = 25
       Caption = #1053#1086#1074#1099#1081
       TabOrder = 1
+      OnClick = newButtonClick
     end
     object editButton: TButton
       Left = 176

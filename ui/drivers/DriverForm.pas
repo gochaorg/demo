@@ -104,8 +104,20 @@ end;
 function TDriverController.InsertDialog(
   connection: TADOConnection): Boolean;
 begin
+  log.println('InsertDialog');
+
   try
     self.connection := connection;
+    self.mode := InsertMode;
+    self.Caption := 'Добавление водителя';
+    self.okButton.Caption := 'Добавить';
+    self.insertSuccessfully := false;
+
+
+    validateInput(self);
+    self.ShowModal;
+    result := insertSuccessfully;
+    log.println('InsertDialog insertSuccessfully='+BoolToStr(result));
   finally
     self.connection := nil;
   end;
@@ -142,8 +154,27 @@ function TDriverController.UpdateDialog(
   name, birthDate: WideString
 ): Boolean;
 begin
+  log.println('UpdateDialog');
+  log.println('  name='+name);
+  log.println('  birthDate='+birthDate);
+  log.println('  id='+IntToStr(id));
+
   try
     self.connection := connection;
+    self.mode := UpdateMode;
+    self.Caption := 'Обновление водителя';
+    self.okButton.Caption := 'Обновить';
+    self.updateSuccessfully := false;
+
+    self.updatingId := id;
+    self.nameEdit.Text := name;
+    self.birthDayEdit.Text := birthDate;
+
+    validateInput(self);
+    self.ShowModal;
+
+    result := updateSuccessfully;
+    log.println('InsertDialog updateSuccessfully='+BoolToStr(result));
   finally
     self.connection := nil;
   end;

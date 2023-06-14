@@ -7,7 +7,9 @@ uses
   Dialogs, Grids, DBGrids, ExtCtrls, StdCtrls, DB, ADODB,
 
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
-  DBViewConfig
+  DBViewConfig,
+
+  DriverForm
   ;
 
 type
@@ -20,6 +22,7 @@ type
     deleteButton: TButton;
     driversDataSource: TDataSource;
     driversADOQuery: TADOQuery;
+    procedure newButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -51,5 +54,25 @@ begin
   dbViewPreparer.prepareGrid(Self.ClassName, driversDBGrid);
 end;
 
+
+procedure TDriversController.newButtonClick(Sender: TObject);
+var
+  insertDialog : TDriverController;
+begin
+  insertDialog := TDriverController.Create(self);
+  try
+    if insertDialog.InsertDialog(driversADOQuery.Connection) then begin
+      refreshAll;
+
+      extend(driversDBGrid).SelectAndFocus(
+        TDataRowValueEqualsPredicate.Create('id', insertDialog.getInsertedId)
+      );
+
+      driversDBGrid.SetFocus;
+    end;
+  finally
+    FreeAndNil(insertDialog);
+  end;
+end;
 
 end.
