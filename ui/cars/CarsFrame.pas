@@ -7,8 +7,10 @@ uses
   Dialogs, StdCtrls, DB, ExtCtrls, Grids, DBGrids, ADODB,
 
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
-  CarForm,
-  DBViewConfig;
+  DBViewConfig,
+
+  CarForm
+  ;
 
 type
   TCarsController = class(TFrame)

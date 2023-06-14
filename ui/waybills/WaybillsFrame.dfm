@@ -50,11 +50,25 @@ object waybillsController: TwaybillsController
     Width = 467
     Height = 224
     Align = alClient
+    DataSource = waybillsDataSource
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
+  end
+  object waybillsDataSource: TDataSource
+    AutoEdit = False
+    DataSet = waybillsADOQuery
+    Left = 96
+    Top = 112
+  end
+  object waybillsADOQuery: TADOQuery
+    Parameters = <>
+    SQL.Strings = (
+      'select * from waybills')
+    Left = 192
+    Top = 72
   end
 end

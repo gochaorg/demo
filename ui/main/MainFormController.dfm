@@ -1,8 +1,8 @@
 object MainForm: TMainForm
-  Left = 367
-  Top = 401
+  Left = 519
+  Top = 369
   Width = 691
-  Height = 463
+  Height = 480
   Caption = 'MainForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,17 +18,17 @@ object MainForm: TMainForm
     Left = 0
     Top = 0
     Width = 675
-    Height = 404
-    ActivePage = TabSheet2
+    Height = 421
+    ActivePage = carsModelTabSheet
     Align = alClient
     TabOrder = 0
-    object TabSheet1: TTabSheet
+    object waybillsTabSheet: TTabSheet
       Caption = #1055#1091#1090#1077#1074#1099#1077' '#1083#1080#1089#1090#1099
-      inline TwaybillsController1: TwaybillsController
+      inline waybillsController: TwaybillsController
         Left = 0
         Top = 0
         Width = 667
-        Height = 376
+        Height = 393
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
@@ -36,37 +36,43 @@ object MainForm: TMainForm
         end
         inherited waybillsDBGrid: TDBGrid
           Width = 667
-          Height = 335
+          Height = 352
+        end
+        inherited waybillsADOQuery: TADOQuery
+          Connection = ADOMainConnection
         end
       end
     end
-    object TabSheet2: TTabSheet
+    object driversTabSheet: TTabSheet
       Caption = #1042#1086#1076#1080#1090#1077#1083#1080
       ImageIndex = 1
-      inline TDriversController1: TDriversController
+      inline driversController: TDriversController
         Left = 0
         Top = 0
         Width = 667
-        Height = 376
+        Height = 393
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
           Width = 667
         end
-        inherited DBGrid1: TDBGrid
+        inherited driversDBGrid: TDBGrid
           Width = 667
-          Height = 335
+          Height = 352
+        end
+        inherited driversADOQuery: TADOQuery
+          Connection = ADOMainConnection
         end
       end
     end
-    object TabSheet3: TTabSheet
+    object dispatchersTabSheet: TTabSheet
       Caption = #1044#1080#1089#1087#1077#1090#1095#1077#1088#1072
       ImageIndex = 2
-      inline TDispatchersController1: TDispatchersController
+      inline dispatchersController: TDispatchersController
         Left = 0
         Top = 0
         Width = 667
-        Height = 376
+        Height = 393
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
@@ -74,18 +80,21 @@ object MainForm: TMainForm
         end
         inherited dispatchersDBGrid: TDBGrid
           Width = 667
-          Height = 335
+          Height = 352
+        end
+        inherited dispatchersADOQuery: TADOQuery
+          Connection = ADOMainConnection
         end
       end
     end
-    object TabSheet4: TTabSheet
+    object carsTabSheet: TTabSheet
       Caption = #1040#1074#1090#1086
       ImageIndex = 3
       inline carsController: TCarsController
         Left = 0
         Top = 0
         Width = 667
-        Height = 376
+        Height = 393
         Align = alClient
         TabOrder = 0
         inherited topPanel: TPanel
@@ -93,7 +102,7 @@ object MainForm: TMainForm
         end
         inherited carsDBGrid: TDBGrid
           Width = 667
-          Height = 335
+          Height = 352
         end
         inherited carsDataSource: TDataSource
           Left = 200
@@ -103,14 +112,14 @@ object MainForm: TMainForm
         end
       end
     end
-    object TabSheet5: TTabSheet
+    object carsModelTabSheet: TTabSheet
       Caption = #1052#1086#1076#1077#1083#1080' '#1072#1074#1090#1086
       ImageIndex = 4
       inline carsModelsController: TCarsModelsController
         Left = 0
         Top = 0
         Width = 667
-        Height = 376
+        Height = 393
         Align = alClient
         TabOrder = 0
         inherited _topPanel: TPanel
@@ -118,7 +127,7 @@ object MainForm: TMainForm
         end
         inherited _carModelDBGrid: TDBGrid
           Width = 667
-          Height = 335
+          Height = 352
         end
         inherited ADOQuery1: TADOQuery
           Connection = ADOMainConnection

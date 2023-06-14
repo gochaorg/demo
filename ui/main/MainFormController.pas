@@ -7,7 +7,7 @@ uses
   Dialogs, DB, ADODB, StdCtrls, Menus, ComObj, Grids, DBGrids,
 
   Config, DBConfForm, ComCtrls, ExtCtrls,
-  CarsModelsFrame, Map, CarsFrame, Logging, DispatcherFrame, DriversFrame,
+  CarsModelsFrame, Map, CarsFrame, Logging, DispatchersFrame, DriversFrame,
   WaybillsFrame;
 
 type
@@ -19,17 +19,17 @@ type
     dbConnectMenu: TMenuItem;
     connectToDBMenuItem: TMenuItem;
     PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    TabSheet3: TTabSheet;
-    TabSheet4: TTabSheet;
-    TabSheet5: TTabSheet;
+    waybillsTabSheet: TTabSheet;
+    driversTabSheet: TTabSheet;
+    dispatchersTabSheet: TTabSheet;
+    carsTabSheet: TTabSheet;
+    carsModelTabSheet: TTabSheet;
     ADOMainConnection: TADOConnection;
     carsModelsController: TCarsModelsController;
     carsController: TCarsController;
-    TDispatchersController1: TDispatchersController;
-    TDriversController1: TDriversController;
-    TwaybillsController1: TwaybillsController;
+    dispatchersController: TDispatchersController;
+    driversController: TDriversController;
+    waybillsController: TwaybillsController;
     procedure configDBMenuItemClick(Sender: TObject);
     procedure connectToDBMenuItemClick(Sender: TObject);
   public
@@ -60,8 +60,11 @@ procedure TMainForm.connectToDBMenuItemClick(Sender: TObject);
 begin
   try
     ADOMainConnection.Open(applicationConfigItf.dbUsername, applicationConfigItf.dbPassword);
-    carsModelsController.activateDataView();
-    carsController.activateDataView();
+    carsModelsController.ActivateDataView;
+    carsController.ActivateDataView;
+    dispatchersController.ActivateDataView;
+    driversController.ActivateDataView;
+    waybillsController.ActivateDataView;
   except
     on e: EOleException do begin
       ShowMessage('Ошибка соединения:'+e.Message);

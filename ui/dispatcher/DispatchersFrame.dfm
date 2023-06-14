@@ -27,6 +27,7 @@ object DispatchersController: TDispatchersController
       Height = 25
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       TabOrder = 1
+      OnClick = newButtonClick
     end
     object editButton: TButton
       Left = 168
@@ -67,6 +68,8 @@ object DispatchersController: TDispatchersController
   end
   object dispatchersADOQuery: TADOQuery
     Parameters = <>
+    SQL.Strings = (
+      'select * from dispatchers')
     Left = 104
     Top = 136
   end

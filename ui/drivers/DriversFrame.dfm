@@ -1,13 +1,13 @@
 object DriversController: TDriversController
   Left = 0
   Top = 0
-  Width = 427
+  Width = 429
   Height = 240
   TabOrder = 0
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 427
+    Width = 429
     Height = 41
     Align = alTop
     TabOrder = 0
@@ -44,17 +44,31 @@ object DriversController: TDriversController
       TabOrder = 3
     end
   end
-  object DBGrid1: TDBGrid
+  object driversDBGrid: TDBGrid
     Left = 0
     Top = 41
-    Width = 427
+    Width = 429
     Height = 199
     Align = alClient
+    DataSource = driversDataSource
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
+  end
+  object driversDataSource: TDataSource
+    AutoEdit = False
+    DataSet = driversADOQuery
+    Left = 48
+    Top = 112
+  end
+  object driversADOQuery: TADOQuery
+    Parameters = <>
+    SQL.Strings = (
+      'select * from drivers')
+    Left = 112
+    Top = 128
   end
 end
