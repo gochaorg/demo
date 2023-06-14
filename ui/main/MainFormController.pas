@@ -7,7 +7,8 @@ uses
   Dialogs, DB, ADODB, StdCtrls, Menus, ComObj, Grids, DBGrids,
 
   Config, DBConfForm, ComCtrls, ExtCtrls,
-  CarsModelsFrame, Map, CarsFrame, Logging;
+  CarsModelsFrame, Map, CarsFrame, Logging, DispatcherFrame, DriversFrame,
+  WaybillsFrame;
 
 type
   // Главное окно программы
@@ -26,6 +27,9 @@ type
     ADOMainConnection: TADOConnection;
     carsModelsController: TCarsModelsController;
     carsController: TCarsController;
+    TDispatchersController1: TDispatchersController;
+    TDriversController1: TDriversController;
+    TwaybillsController1: TwaybillsController;
     procedure configDBMenuItemClick(Sender: TObject);
     procedure connectToDBMenuItemClick(Sender: TObject);
   public

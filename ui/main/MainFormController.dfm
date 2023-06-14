@@ -1,8 +1,8 @@
 object MainForm: TMainForm
-  Left = 429
-  Top = 306
-  Width = 688
-  Height = 471
+  Left = 367
+  Top = 401
+  Width = 691
+  Height = 463
   Caption = 'MainForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,21 +17,66 @@ object MainForm: TMainForm
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 672
-    Height = 412
-    ActivePage = TabSheet4
+    Width = 675
+    Height = 404
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = #1055#1091#1090#1077#1074#1099#1077' '#1083#1080#1089#1090#1099
+      inline TwaybillsController1: TwaybillsController
+        Left = 0
+        Top = 0
+        Width = 667
+        Height = 376
+        Align = alClient
+        TabOrder = 0
+        inherited Panel1: TPanel
+          Width = 667
+        end
+        inherited waybillsDBGrid: TDBGrid
+          Width = 667
+          Height = 335
+        end
+      end
     end
     object TabSheet2: TTabSheet
       Caption = #1042#1086#1076#1080#1090#1077#1083#1080
       ImageIndex = 1
+      inline TDriversController1: TDriversController
+        Left = 0
+        Top = 0
+        Width = 667
+        Height = 376
+        Align = alClient
+        TabOrder = 0
+        inherited Panel1: TPanel
+          Width = 667
+        end
+        inherited DBGrid1: TDBGrid
+          Width = 667
+          Height = 335
+        end
+      end
     end
     object TabSheet3: TTabSheet
       Caption = #1044#1080#1089#1087#1077#1090#1095#1077#1088#1072
       ImageIndex = 2
+      inline TDispatchersController1: TDispatchersController
+        Left = 0
+        Top = 0
+        Width = 667
+        Height = 376
+        Align = alClient
+        TabOrder = 0
+        inherited Panel1: TPanel
+          Width = 667
+        end
+        inherited dispatchersDBGrid: TDBGrid
+          Width = 667
+          Height = 335
+        end
+      end
     end
     object TabSheet4: TTabSheet
       Caption = #1040#1074#1090#1086
@@ -39,16 +84,16 @@ object MainForm: TMainForm
       inline carsController: TCarsController
         Left = 0
         Top = 0
-        Width = 664
-        Height = 384
+        Width = 667
+        Height = 376
         Align = alClient
         TabOrder = 0
         inherited topPanel: TPanel
-          Width = 664
+          Width = 667
         end
         inherited carsDBGrid: TDBGrid
-          Width = 664
-          Height = 343
+          Width = 667
+          Height = 335
         end
         inherited carsDataSource: TDataSource
           Left = 200
@@ -64,16 +109,16 @@ object MainForm: TMainForm
       inline carsModelsController: TCarsModelsController
         Left = 0
         Top = 0
-        Width = 664
-        Height = 384
+        Width = 667
+        Height = 376
         Align = alClient
         TabOrder = 0
         inherited _topPanel: TPanel
-          Width = 664
+          Width = 667
         end
         inherited _carModelDBGrid: TDBGrid
-          Width = 664
-          Height = 343
+          Width = 667
+          Height = 335
         end
         inherited ADOQuery1: TADOQuery
           Connection = ADOMainConnection

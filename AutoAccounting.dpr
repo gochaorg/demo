@@ -21,7 +21,10 @@ uses
   MyDate in 'ui\cars\MyDate.pas',
   CarSQL in 'ui\cars\CarSQL.pas',
   DMLOperation in 'db\DMLOperation.pas',
-  Validation in 'validate\Validation.pas';
+  Validation in 'validate\Validation.pas',
+  DispatcherFrame in 'ui\dispatcher\DispatcherFrame.pas' {DispatchersController: TFrame},
+  DriversFrame in 'ui\drivers\DriversFrame.pas' {DriversController: TFrame},
+  WaybillsFrame in 'ui\waybills\WaybillsFrame.pas' {waybillsController: TFrame};
 
 {$R *.res}
 
