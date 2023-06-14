@@ -19,6 +19,7 @@ interface
     destructor Destroy; override;
     function ToString(): WideString;
     function ToMSSQLDateTime2(): WideString;
+    function ToDateTime(): TDateTime;
   private
     function Pad(str:WideString; len:Integer):WideString;
   end;
@@ -235,6 +236,11 @@ begin
     d0 * 10 + d1
   );
   result := TMyDateParsed.Create(dres, p);
+end;
+
+function TMyDate.ToDateTime: TDateTime;
+begin
+  result := EncodeDate( self.year, self.month, self.date );
 end;
 
 initialization
