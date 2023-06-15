@@ -1,6 +1,6 @@
 object CarController: TCarController
-  Left = 1427
-  Top = 158
+  Left = 1430
+  Top = 160
   Width = 341
   Height = 443
   Caption = 'CarController'

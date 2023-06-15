@@ -18,6 +18,7 @@ object DriversController: TDriversController
       Height = 25
       Caption = #1054#1073#1085#1086#1074#1080#1090#1100
       TabOrder = 0
+      OnClick = refreshButtonClick
     end
     object newButton: TButton
       Left = 96
@@ -35,6 +36,7 @@ object DriversController: TDriversController
       Height = 25
       Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
       TabOrder = 2
+      OnClick = editButtonClick
     end
     object deleteButton: TButton
       Left = 280
@@ -43,6 +45,7 @@ object DriversController: TDriversController
       Height = 25
       Caption = #1059#1076#1072#1083#1080#1090#1100
       TabOrder = 3
+      OnClick = deleteButtonClick
     end
   end
   object driversDBGrid: TDBGrid

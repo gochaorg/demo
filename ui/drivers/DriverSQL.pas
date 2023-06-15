@@ -203,7 +203,7 @@ begin
   sql := 'update drivers set'+
     ' name = :name,'+
     ' birth_day = :birth_day'+
-    ' where id := id';
+    ' where id = :id';
 
   params := TStringMap.Create;
   params.put('name', self.name);

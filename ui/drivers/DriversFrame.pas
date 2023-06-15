@@ -23,6 +23,9 @@ type
     driversDataSource: TDataSource;
     driversADOQuery: TADOQuery;
     procedure newButtonClick(Sender: TObject);
+    procedure editButtonClick(Sender: TObject);
+    procedure deleteButtonClick(Sender: TObject);
+    procedure refreshButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -44,7 +47,7 @@ end;
 
 procedure TDriversController.RefreshCurrent();
 begin
-  driversDBGrid.Refresh;
+  driversADOQuery.Refresh;
 end;
 
 procedure TDriversController.RefreshAll();
@@ -73,6 +76,70 @@ begin
   finally
     FreeAndNil(insertDialog);
   end;
+end;
+
+procedure TDriversController.editButtonClick(Sender: TObject);
+var
+  curRow: TStringMap;
+  updateDialog : TDriverController;
+begin
+  curRow := TStringMap.Create;
+  try
+    if extend(driversDBGrid).GetFocusedRow(curRow) then begin
+      updateDialog := TDriverController.Create(self);
+      try
+        if updateDialog.UpdateDialog(
+          driversADOQuery.Connection,
+          curRow.get('id'),
+          curRow.get('name'),
+          curRow.get('birth_day')
+        ) then begin
+          RefreshCurrent;
+        end;
+      finally
+        updateDialog.Close;
+      end;
+    end;
+  finally
+    FreeAndNil(curRow);
+  end;
+end;
+
+procedure TDriversController.deleteButtonClick(Sender: TObject);
+var
+  rows: TDBRows;
+  rowDelete:  TDBRowsSqlExec;
+  query: TADOQuery;
+begin
+  rows := TDBRows.Create;
+
+  query := TADOQuery.Create(nil);
+  query.Connection := driversADOQuery.Connection;
+  query.SQL.Text := 'delete from drivers where [id] = :ID';
+
+  rowDelete := TDBRowsSqlExec.Create(query);
+  rowDelete.Map('id', 'id');
+  try
+    extend(driversDBGrid).fetchRows(true,false, rows.Add);
+    rows.Each(rowDelete.Execute);
+    if rowDelete.getErrorsCount > 0 then
+      begin
+        ShowMessage('В процессе удаления обнаружены ошибки');
+      end
+    else
+      begin
+        refreshAll;
+      end;
+  finally
+    FreeAndNil(query);
+    FreeAndNil(rows);
+    FreeAndNil(rowDelete);
+  end;
+end;
+
+procedure TDriversController.refreshButtonClick(Sender: TObject);
+begin
+  RefreshAll;
 end;
 
 end.
