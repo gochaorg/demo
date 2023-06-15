@@ -22,6 +22,8 @@ type
     dispatchersADOQuery: TADOQuery;
     procedure refreshButtonClick(Sender: TObject);
     procedure newButtonClick(Sender: TObject);
+    procedure editButtonClick(Sender: TObject);
+    procedure deleteButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -62,6 +64,16 @@ end;
 procedure TDispatchersController.newButtonClick(Sender: TObject);
 begin
   // 
+end;
+
+procedure TDispatchersController.editButtonClick(Sender: TObject);
+begin
+  //
+end;
+
+procedure TDispatchersController.deleteButtonClick(Sender: TObject);
+begin
+  //
 end;
 
 end.

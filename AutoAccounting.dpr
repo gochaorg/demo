@@ -27,15 +27,15 @@ uses
   WaybillsFrame in 'ui\waybills\WaybillsFrame.pas' {waybillsController: TFrame},
   DriverForm in 'ui\drivers\DriverForm.pas' {DriverController},
   DriverSQL in 'ui\drivers\DriverSQL.pas',
-  IntegerList in 'IntegerList.pas';
+  IntegerList in 'IntegerList.pas',
+  DispatcherSQL in 'ui\dispatcher\DispatcherSQL.pas',
+  DispatcherForm in 'ui\dispatcher\DispatcherForm.pas' {DispatcherController};
 
 {$R *.res}
 
 begin
   Application.Initialize;
-  //Application.CreateForm(TCarModelController, CarModelController);
   Application.CreateForm(TMainForm, MainForm);
-  Application.CreateForm(TDriverController, DriverController);
   try
     applicationConfigObj.Load();
   except

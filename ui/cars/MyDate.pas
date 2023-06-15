@@ -41,7 +41,26 @@ interface
   // Ожидаемый формат yyyy-mm-dd
   //  str - строка
   //  from - номер символа начиная с которого производить парсинг
+  // Генерирует ошибку EParseException в стучае ошибки
   function ParseDate( const str: WideString; const from:Integer ):TMyDateParsed;
+
+  // Парсинг даты
+  // Ожидаемый формат yyyy-mm-dd
+  //  str - строка
+  //  from - номер символа начиная с которого производить парсинг
+  //  date - суюда будет записан результат дата
+  //  nextFrom - номер символа следующего за концом даты
+  //  error - сообщение о ошибке
+  // Возвращает
+  //  true - успешно
+  //  false - ошибка
+  function TryParseDate(
+    const str: WideString;
+    const from: Integer;
+    var date: TMyDate;
+    var nextFrom: Integer;
+    var error: WideString
+  ): boolean; overload;
 
 implementation
 
@@ -241,6 +260,234 @@ end;
 function TMyDate.ToDateTime: TDateTime;
 begin
   result := EncodeDate( self.year, self.month, self.date );
+end;
+
+///////////////////////////
+function TryParseDate(
+  const str: WideString;
+  const from: Integer;
+  var date: TMyDate;
+  var nextFrom: Integer;
+  var error: WideString
+): boolean; overload;
+var
+  dres : TMyDate;
+  p : Integer;
+  state : Integer;
+
+  y0,y1,y2,y3 : Integer;
+  m0,m1 : Integer;
+  d0,d1 : Integer;
+
+  function getDigit():Integer;
+  begin
+    result := -1;
+    if str[p] = WideChar('0') then result := 0 else
+    if str[p] = WideChar('1') then result := 1 else
+    if str[p] = WideChar('2') then result := 2 else
+    if str[p] = WideChar('3') then result := 3 else
+    if str[p] = WideChar('4') then result := 4 else
+    if str[p] = WideChar('5') then result := 5 else
+    if str[p] = WideChar('6') then result := 6 else
+    if str[p] = WideChar('7') then result := 7 else
+    if str[p] = WideChar('8') then result := 8 else
+    if str[p] = WideChar('9') then result := 9;
+  end;
+
+  function isLeapYear(year:Integer):boolean;
+  begin
+    result := false;
+    if (year mod 400) = 0 then result := true
+    else if (year mod 100) = 0 then result := false
+    else if (year mod 4) = 0 then result := true;
+  end;
+
+  function getMonthLen(year,mon:Integer):Integer;
+  begin
+    result := 0;
+    if mon = 1 then result := 31
+    else if (mon = 2) and (isLeapYear(year)) then result := 29
+    else if (mon = 2) and (not isLeapYear(year)) then result := 28
+    else if mon = 3  then result := 31
+    else if mon = 4  then result := 30
+    else if mon = 5  then result := 31
+    else if mon = 6  then result := 30
+    else if mon = 7  then result := 31
+    else if mon = 8  then result := 31
+    else if mon = 9  then result := 30
+    else if mon = 10 then result := 31
+    else if mon = 11 then result := 30
+    else if mon = 12 then result := 31;
+  end;
+
+begin
+  if parseDateDebug then begin
+    log.println('TryParseDate');
+    log.println('  str='+str);
+    log.println('  from='+IntToStr(from));
+  end;
+
+  if from > length(str) then begin
+    error := 'from out side of string';
+    result := false;
+  end else begin
+    p := from;
+
+    state := 0;
+    y0 := 0; y1 := 0; y2 := 0; y3 := 0;
+    m0 := 0; m1 := 0;
+    d0 := 0; d1 := 0;
+    // 0 - y
+    // 1 - yy
+    // 2 - yyy
+    // 3 - yyyy
+    // 4 - yyyy-
+    // 5 - yyyy-m
+    // 6 - yyyy-mm
+    // 7 - yyyy-mm-
+    // 8 - yyyy-mm-d
+    // 9 - yyyy-mm-dd
+
+    while p <= length(str) do
+    begin
+      if parseDateDebug then
+        log.println('p='+IntToStr(p)+' c='+str[p]+' state='+IntToStr(state));
+
+      if state = 0 then begin
+        y0 := getDigit;
+        if y0 < 0 then begin
+          error := 'expect digit, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 1;
+        end;
+      end else
+      if state = 1 then begin
+        y1 := getDigit;
+        if y1 < 0 then begin
+          error := 'expect digit, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 2;
+        end;
+      end else
+      if state = 2 then begin
+        y2 := getDigit;
+        if y2 < 0 then begin
+          error := 'expect digit, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 3;
+        end;
+      end else
+      if state = 3 then begin
+        y3 := getDigit;
+        if y3 < 0 then begin
+          error := 'expect digit, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 4;
+        end;
+      end else
+      if state = 4 then begin
+        if not (str[p] = WideChar('-')) then begin
+          error :=  'expect -, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 5;
+        end;
+      end else
+      if state = 5 then begin
+        m0 := getDigit;
+        if m0 < 0 then begin
+          error := 'expect digit, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 6;
+        end;
+      end else
+      if state = 6 then begin
+        m1 := getDigit;
+        if m1 < 0 then begin
+          error := 'expect digit, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 7;
+        end;
+      end else
+      if state = 7 then begin
+        if not (str[p] = WideChar('-')) then begin
+          error := 'expect -, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 8;
+        end;
+      end else
+      if state = 8 then begin
+        d0 := getDigit;
+        if d0 < 0 then begin
+          error := 'expect digit, but found '+str[p];
+          state := -1;
+        end else begin
+          state := 9;
+        end;
+      end else
+      if state = 9 then begin
+        d1 := getDigit;
+        if d1 < 0 then begin
+          error := 'expect digit, but found '+str[p];
+          state := -1;
+        end else begin
+          p := p + 1;
+          break;
+        end;
+      end else
+      if state = -1 then begin
+        break;
+      end;
+
+      ////
+      p := p + 1;
+    end;
+  end;
+
+  if state = -1 then begin
+    result := false;
+  end else
+  if not state = 9 then begin
+    error := 'not fully parsed';
+    result := false;
+  end;
+
+  nextFrom := p;
+
+  date.year := (y0 * 1000) + (y1 * 100) + (y2 * 10) + y3;
+  date.month := m0 * 10 + m1;
+  date.date := d0 * 10 + d1;
+
+  if date.date < 1 then begin
+    result := false;
+    error := 'Дата меньше 1';
+  end else
+  if date.date > 31 then begin
+    result := false;
+    error := 'Дата больше 31';
+  end else
+  if date.month < 1 then begin
+    result := false;
+    error := 'Месяц меньше 1';
+  end else
+  if date.month > 12 then begin
+    result := false;
+    error := 'Месяц больше 12';
+  end else begin
+    if date.date > getMonthLen(date.year,date.month) then begin
+      result := false;
+      error := 'Указано больще кол-во дней чем есть в месяце';
+    end else begin
+      result := true;
+    end;
+  end;
 end;
 
 initialization
