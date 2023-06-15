@@ -7,7 +7,9 @@ uses
   Dialogs, ExtCtrls, Grids, DBGrids, StdCtrls, DB, ADODB,
 
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
-  DBViewConfig
+  DBViewConfig,
+
+  DispatcherForm
   ;
 
 type
@@ -62,18 +64,82 @@ begin
 end;
 
 procedure TDispatchersController.newButtonClick(Sender: TObject);
+var
+  insertDialog : TDispatcherController;
 begin
-  // 
+  insertDialog := TDispatcherController.Create(self);
+  try
+    if insertDialog.InsertDialog(dispatchersADOQuery.Connection) then begin
+      refreshAll;
+
+      extend(dispatchersDBGrid).SelectAndFocus(
+        TDataRowValueEqualsPredicate.Create('id', insertDialog.getInsertedId)
+      );
+
+      dispatchersDBGrid.SetFocus;
+    end;
+  finally
+    FreeAndNil(insertDialog);
+  end;
 end;
 
 procedure TDispatchersController.editButtonClick(Sender: TObject);
+var
+  curRow: TStringMap;
+  updateDialog : TDispatcherController;
 begin
-  //
+  curRow := TStringMap.Create;
+  try
+    if extend(dispatchersDBGrid).GetFocusedRow(curRow) then begin
+      updateDialog := TDispatcherController.Create(self);
+      try
+        if updateDialog.UpdateDialog(
+          dispatchersADOQuery.Connection,
+          curRow.get('id'),
+          curRow.get('name'),
+          curRow.get('birth_day')
+        ) then begin
+          RefreshCurrent;
+        end;
+      finally
+        updateDialog.Close;
+      end;
+    end;
+  finally
+    FreeAndNil(curRow);
+  end;
 end;
 
 procedure TDispatchersController.deleteButtonClick(Sender: TObject);
+var
+  rows: TDBRows;
+  rowDelete:  TDBRowsSqlExec;
+  query: TADOQuery;
 begin
-  //
+  rows := TDBRows.Create;
+
+  query := TADOQuery.Create(nil);
+  query.Connection := dispatchersADOQuery.Connection;
+  query.SQL.Text := 'delete from dispatchers where [id] = :ID';
+
+  rowDelete := TDBRowsSqlExec.Create(query);
+  rowDelete.Map('id', 'id');
+  try
+    extend(dispatchersDBGrid).fetchRows(true,false, rows.Add);
+    rows.Each(rowDelete.Execute);
+    if rowDelete.getErrorsCount > 0 then
+      begin
+        ShowMessage('В процессе удаления обнаружены ошибки');
+      end
+    else
+      begin
+        refreshAll;
+      end;
+  finally
+    FreeAndNil(query);
+    FreeAndNil(rows);
+    FreeAndNil(rowDelete);
+  end;
 end;
 
 end.
