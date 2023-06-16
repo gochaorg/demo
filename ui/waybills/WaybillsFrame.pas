@@ -3,11 +3,13 @@ unit WaybillsFrame;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, DBGrids, ExtCtrls, StdCtrls, DB, ADODB,
 
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
-  DBViewConfig
+  DBViewConfig,
+
+  WaybillForm
   ;
 
 type
@@ -21,6 +23,7 @@ type
     deleteButton: TButton;
     waybillsDataSource: TDataSource;
     waybillsADOQuery: TADOQuery;
+    procedure newButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -49,6 +52,13 @@ begin
   waybillsADOQuery.Active := false;
   waybillsADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, waybillsDBGrid);
+end;
+
+procedure TWaybillsController.newButtonClick(Sender: TObject);
+var
+  insertDialog : TWaybillController;
+begin
+  //
 end;
 
 end.

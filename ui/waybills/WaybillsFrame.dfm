@@ -18,6 +18,7 @@ object waybillsController: TwaybillsController
       Height = 25
       Caption = #1053#1086#1074#1099#1081
       TabOrder = 0
+      OnClick = newButtonClick
     end
     object editButton: TButton
       Left = 168

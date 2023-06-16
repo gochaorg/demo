@@ -146,7 +146,7 @@ object WaybillController: TWaybillController
     Top = 288
     Width = 393
     Height = 153
-    Caption = 'carGroupBox'
+    Caption = #1040#1074#1090#1086
     TabOrder = 3
     DesignSize = (
       393

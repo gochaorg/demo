@@ -21,8 +21,8 @@ object DriverController: TDriverController
   object errLabel: TLabel
     Left = 8
     Top = 104
-    Width = 265
-    Height = 41
+    Width = 39
+    Height = 13
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'errLabel'
     Font.Charset = DEFAULT_CHARSET

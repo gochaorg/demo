@@ -12,6 +12,7 @@ uses
   Validation, Logging;
 
 type
+  // Режим InsertMode / UpdateMode
   TMode = (InsertMode, UpdateMode);
 
   TDriverController = class(TForm)
