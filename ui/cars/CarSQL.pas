@@ -150,11 +150,87 @@ TCarDataEraser = class(TInterfacedObject,ICarDataEraser)
   public
     constructor Create;
     destructor Destroy; override;
-    
+
     procedure Reset;
     procedure AddCarId( id:Integer );
     function ValidateDelete: IDataValidation;
     function BuildDelete: IDMLOperation;
+end;
+
+// Описывает машину
+TCar = class
+  private
+    carIdValue: Integer;
+    legalNumberValue: WideString;
+    birthYearValue: Integer;
+
+    maintenanceValue: TDateTime;
+    maintenanceExistsValue: boolean;
+
+    wearValue: Integer;
+    modelIdValue: Integer;
+    modelNameValue: WideString;
+  public
+    // Гос номер
+    property legalNumber:WideString read legalNumberValue;
+
+    // Год выпуска
+    property birthYear:Integer read birthYearValue;
+
+    // Дата прохождения ТО, если hasMaintenance = true
+    property maintenance:TDateTime read maintenanceValue;
+
+    // Есть дата прохождения ТО
+    property hasMaintenance:boolean read maintenanceExistsValue;
+
+    // Пробег
+    property wear:Integer read wearValue;
+
+    // Модель машины - идентификатор
+    property modelId:Integer read modelIdValue;
+
+    // Модель машины - название
+    property modelName:WideString read modelNameValue;
+
+    constructor Create(
+      carId: Integer;
+      legalNumber: WideString;
+      birthYear: Integer;
+      maintenance: TDateTime;
+      maintenanceExists: boolean;
+      wear: Integer;
+      modelId: Integer;
+      modelName: WideString
+    );
+end;
+
+// Функция принимающая машину
+// значение не передается во владение
+TCarConsumer = procedure ( car: TCar ) of object;
+
+// Поиск машины
+ICarFinder = interface
+  // Поиск всех мащин
+  //   consumer - функция принимающая машину
+  procedure findAll( consumer:TCarConsumer );
+
+  // Поиск машин совпадающих условию
+  //   what - искомое условие
+  //     либо по гос номеру   - операция like
+  //     либо по марке машины - операция like
+  //   consumer - функция принимающая машину
+  procedure findLike( what:WideString; consumer:TCarConsumer );
+end;
+
+TCarFinder = class (TInterfacedObject,ICarFinder)
+  private
+    connection: TADOConnection;
+  public
+    constructor Create(connection: TADOConnection);
+    destructor Destroy; override;
+
+    procedure findAll( consumer:TCarConsumer );
+    procedure findLike( what:WideString; consumer:TCarConsumer );
 end;
 
 implementation
@@ -502,5 +578,145 @@ begin
   result := TSqlUpdateOperation.Create(sql,params);
 end;
 
+
+{ TCar }
+
+constructor TCar.Create(
+    carId: Integer;
+    legalNumber: WideString;
+    birthYear: Integer;
+    maintenance: TDateTime;
+    maintenanceExists: boolean;
+    wear: Integer;
+    modelId: Integer;
+    modelName: WideString
+);
+begin
+  self.carIdValue := carId;
+  self.legalNumberValue := legalNumber;
+  self.birthYearValue := birthYear;
+  self.maintenanceValue := maintenance;
+  self.maintenanceExistsValue := maintenanceExists;
+  self.wearValue := wear;
+  self.modelIdValue := modelId;
+  self.modelNameValue := modelName;
+end;
+
+{ TCarFinder }
+
+constructor TCarFinder.Create(connection: TADOConnection);
+begin
+  self.connection := connection;
+  inherited Create;
+end;
+
+destructor TCarFinder.Destroy;
+begin
+  self.connection := nil;
+  inherited Destroy;
+end;
+
+////////////
+function readRow(query:TADOQuery):TCar;
+begin
+  if query.FieldValues['maintenance'].IsNull then begin
+    result := TCar.Create(
+      query.FieldValues['car_id'],
+      query.FieldValues['legal_number'],
+      query.FieldValues['birth_year'],
+      0.0,
+      false,
+      query.FieldValues['wear'],
+      query.FieldValues['model_id'],
+      query.FieldValues['model_name'],
+    );
+  end else begin
+    result := TCar.Create(
+      query.FieldValues['car_id'],
+      query.FieldValues['legal_number'],
+      query.FieldValues['birth_year'],
+      query.FieldValues['maintenance'],
+      true,
+      query.FieldValues['wear'],
+      query.FieldValues['model_id'],
+      query.FieldValues['model_name'],
+    );
+  end;
+end;
+////////////
+
+procedure TCarFinder.findAll(consumer: TCarConsumer);
+var
+  query:TADOQuery;
+  car: TCar;
+begin
+  query := TADOQuery.Create(nil);
+  try
+    query.SQL.Text :=
+      'select '+
+      '	c.id as car_id,'+
+      '	c.legal_number as legal_number,'+
+      '	c.model as model_id,'+
+      '	cm.name as model_name,'+
+      '	c.wear as wear,'+
+      '	c.birth_year as birth_year,'+
+      ' c.maintenance as maintenance'+
+      ' from cars c'+
+      ' left join cars_model cm on (cm.id = c.model)'+
+      ' order by c.legal_number';
+    query.Connection := self.connection;
+    query.Open;
+    while not query.Eof do begin
+      car := readRow(query);
+      try
+        consumer(car);
+      finally
+        FreeAndNil(car);
+      end;
+      query.Next;
+    end;
+    query.Close;
+  finally
+    FreeAndNil(query);
+  end;
+end;
+
+procedure TCarFinder.findLike(what: WideString; consumer: TCarConsumer);
+var
+  query:TADOQuery;
+  car: TCar;
+begin
+  query := TADOQuery.Create(nil);
+  try
+    query.SQL.Text :=
+      'select '+
+      '	c.id as car_id,'+
+      '	c.legal_number as legal_number,'+
+      '	c.model as model_id,'+
+      '	cm.name as model_name,'+
+      '	c.wear as wear,'+
+      '	c.birth_year as birth_year,'+
+      ' c.maintenance as maintenance'+
+      ' from cars c'+
+      ' left join cars_model cm on (cm.id = c.model)'+
+      ' where c.legal_number like :what or cm.name like :what'+
+      ' order by c.legal_number';
+    query.Connection := self.connection;
+    query.Parameters.ParamByName('what').Value := what;
+    query.Open;
+    while not query.Eof do begin
+      car := readRow(query);
+      try
+        consumer(car);
+      finally
+        FreeAndNil(car);
+      end;
+      query.Next;
+    end;
+    query.Close;
+  finally
+    FreeAndNil(query);
+  end;
+end;
 
 end.

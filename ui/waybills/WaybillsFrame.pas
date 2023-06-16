@@ -11,6 +11,7 @@ uses
   ;
 
 type
+  //  онтроллер управлени€ путевыми листами
   TWaybillsController = class(TFrame)
     Panel1: TPanel;
     waybillsDBGrid: TDBGrid;

@@ -29,13 +29,15 @@ uses
   DriverSQL in 'ui\drivers\DriverSQL.pas',
   IntegerList in 'IntegerList.pas',
   DispatcherSQL in 'ui\dispatcher\DispatcherSQL.pas',
-  DispatcherForm in 'ui\dispatcher\DispatcherForm.pas' {DispatcherController};
+  DispatcherForm in 'ui\dispatcher\DispatcherForm.pas' {DispatcherController},
+  WaybillForm in 'ui\waybills\WaybillForm.pas' {WaybillController};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
+  Application.CreateForm(TWaybillController, WaybillController);
   try
     applicationConfigObj.Load();
   except

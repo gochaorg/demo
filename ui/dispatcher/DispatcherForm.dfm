@@ -1,6 +1,6 @@
 object DispatcherController: TDispatcherController
-  Left = 1344
-  Top = 272
+  Left = 1348
+  Top = 274
   Width = 384
   Height = 208
   Caption = 'DispatcherController'

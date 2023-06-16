@@ -4,6 +4,7 @@ interface
 
 uses
   SysUtils,
+  ADODB,
 
   MyDate,
   Map,
@@ -75,6 +76,53 @@ TDispatcherDataBuilder = class(TInterfacedObject, IDispatcherDataBuilder)
     function BuildUpdate: IDMLOperation;
   private
     function Validate(insert:boolean): IDataValidation;
+end;
+
+// Запись - диспетчер
+TDispatcher = class
+  private
+    idValue: Integer;
+    nameValue: WideString;
+    birthDayValue: TDateTime;
+  public
+    constructor Create( id:Integer; name:WideString; birthDay:TDateTime );
+
+    // id записи
+    property id:Integer read idValue;
+
+    // Имя
+    property name:WideString read nameValue;
+
+    // День рождения
+    property birthDay:TDateTime read birthDayValue;
+end;
+
+// Функция принимающая запись о диспетчере
+// значение не передается во владение
+TDispatcherConsumer = procedure ( car: TDispatcher ) of object;
+
+// Поиск диспетчеров
+IDispatcherFinder = interface
+  // Поиск всех диспетчеров
+  //   consumer - функция принимающая запись
+  procedure findAll( consumer:TDispatcherConsumer );
+
+  // Поиск диспетчеров совпадающих условию
+  //   what - искомое условие
+  //     по name (имя) - операция like
+  //   consumer - функция принимающая запись
+  procedure findLike( what:WideString; consumer:TDispatcherConsumer );
+end;
+
+TDispatcherFinder = class (TInterfacedObject,IDispatcherFinder)
+  private
+    connection: TADOConnection;
+  public
+    constructor Create(connection: TADOConnection);
+    destructor Destroy; override;
+
+    procedure findAll( consumer:TDispatcherConsumer );
+    procedure findLike( what:WideString; consumer:TDispatcherConsumer );
 end;
 
 implementation
@@ -212,6 +260,106 @@ begin
 
   dmlOp := TSqlUpdateOperation.Create(sql, params);
   result := dmlOp;
+end;
+
+{ TDispatcher }
+
+constructor TDispatcher.Create(
+  id: Integer;
+  name: WideString;
+  birthDay: TDateTime);
+begin
+  self.idValue := id;
+  self.nameValue := name;
+  self.birthDayValue := birthDay;
+end;
+
+{ TDispatcherFinder }
+
+constructor TDispatcherFinder.Create(connection: TADOConnection);
+begin
+  self.connection := connection;
+  inherited Create;
+end;
+
+destructor TDispatcherFinder.Destroy;
+begin
+  self.connection := nil;
+  inherited Destroy;
+end;
+
+function readRow(query:TADOQuery):TDispatcher;
+begin
+  result := TDispatcher.Create(
+    query.FieldValues['id'],
+    query.FieldValues['name'],
+    query.FieldValues['birth_day'],
+  );
+end;
+
+procedure TDispatcherFinder.findAll(consumer: TDispatcherConsumer);
+var
+  query:TADOQuery;
+  dispatcher: TDispatcher;
+begin
+  query := TADOQuery.Create(nil);
+  try
+    query.SQL.Text :=
+      'select '+
+      '	d.id as id,'+
+      '	d.name as name,'+
+      '	d.birth_day as birth_day '+
+      ' from dispatchers d'+
+      ' order by d.name';
+    query.Connection := self.connection;
+    query.Open;
+    while not query.Eof do begin
+      dispatcher := readRow(query);
+      try
+        consumer(dispatcher);
+      finally
+        FreeAndNil(dispatcher);
+      end;
+      query.Next;
+    end;
+    query.Close;
+  finally
+    FreeAndNil(query);
+  end;
+end;
+
+procedure TDispatcherFinder.findLike(what: WideString;
+  consumer: TDispatcherConsumer);
+var
+  query:TADOQuery;
+  dispatcher: TDispatcher;
+begin
+  query := TADOQuery.Create(nil);
+  try
+    query.SQL.Text :=
+      'select '+
+      '	d.id as id,'+
+      '	d.name as name,'+
+      '	d.birth_day as birth_day '+
+      ' from dispatchers d'+
+      ' where d.name like :what'+
+      ' order by d.name';
+    query.Connection := self.connection;
+    query.Parameters.ParamByName('what').Value := what;
+    query.Open;
+    while not query.Eof do begin
+      dispatcher := readRow(query);
+      try
+        consumer(dispatcher);
+      finally
+        FreeAndNil(dispatcher);
+      end;
+      query.Next;
+    end;
+    query.Close;
+  finally
+    FreeAndNil(query);
+  end;
 end;
 
 end.
