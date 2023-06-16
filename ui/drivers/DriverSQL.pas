@@ -3,7 +3,7 @@ unit DriverSQL;
 interface
 
 uses
-  SysUtils,
+  SysUtils, ADODB,
 
   MyDate,
   Map,
@@ -76,6 +76,54 @@ TDriverDataBuilder = class(TInterfacedObject, IDriverDataBuilder)
   private
     function Validate(insert:boolean): IDataValidation;
 end;
+
+// Запись - водитель
+TDriver = class
+  private
+    idValue: Integer;
+    nameValue: WideString;
+    birthDayValue: TDateTime;
+  public
+    constructor Create( id:Integer; name:WideString; birthDay:TDateTime );
+
+    // id записи
+    property id:Integer read idValue;
+
+    // Имя
+    property name:WideString read nameValue;
+
+    // День рождения
+    property birthDay:TDateTime read birthDayValue;
+end;
+
+// Функция принимающая запись о водителе
+// значение не передается во владение
+TDriverConsumer = procedure ( car: TDriver ) of object;
+
+// Поиск диспетчеров
+IDriverFinder = interface
+  // Поиск всех диспетчеров
+  //   consumer - функция принимающая запись
+  procedure findAll( consumer:TDriverConsumer );
+
+  // Поиск диспетчеров совпадающих условию
+  //   what - искомое условие
+  //     по name (имя) - операция like
+  //   consumer - функция принимающая запись
+  procedure findLike( what:WideString; consumer:TDriverConsumer );
+end;
+
+TDriverFinder = class (TInterfacedObject,IDriverFinder)
+  private
+    connection: TADOConnection;
+  public
+    constructor Create(connection: TADOConnection);
+    destructor Destroy; override;
+
+    procedure findAll( consumer:TDriverConsumer );
+    procedure findLike( what:WideString; consumer:TDriverConsumer );
+end;
+
 
 implementation
 
@@ -212,6 +260,106 @@ begin
 
   dmlOp := TSqlUpdateOperation.Create(sql, params);
   result := dmlOp;
+end;
+
+{ TDriver }
+
+constructor TDriver.Create(
+  id: Integer;
+  name: WideString;
+  birthDay: TDateTime);
+begin
+  self.idValue := id;
+  self.nameValue := name;
+  self.birthDayValue := birthDay;
+end;
+
+constructor TDriverFinder.Create(connection: TADOConnection);
+begin
+  self.connection := connection;
+  inherited Create;
+end;
+
+destructor TDriverFinder.Destroy;
+begin
+  self.connection := nil;
+  inherited Destroy;
+end;
+
+function readRow(query:TADOQuery):TDriver;
+begin
+  result := TDriver.Create(
+    query.FieldValues['id'],
+    query.FieldValues['name'],
+    query.FieldValues['birth_day'],
+  );
+end;
+
+procedure TDriverFinder.findAll(consumer: TDriverConsumer);
+var
+  query:TADOQuery;
+  person: TDriver;
+begin
+  query := TADOQuery.Create(nil);
+  try
+    query.SQL.Text :=
+      'select '+
+      '	d.id as id,'+
+      '	d.name as name,'+
+      '	d.birth_day as birth_day '+
+      ' from drivers d'+
+      ' order by d.name';
+    query.Connection := self.connection;
+    query.Open;
+    while not query.Eof do begin
+      person := readRow(query);
+      try
+        consumer(person);
+      finally
+        FreeAndNil(person);
+      end;
+      query.Next;
+    end;
+    query.Close;
+  finally
+    FreeAndNil(query);
+  end;
+end;
+
+procedure TDriverFinder.findLike(
+  what: WideString;
+  consumer: TDriverConsumer
+);
+var
+  query:TADOQuery;
+  person: TDriver;
+begin
+  query := TADOQuery.Create(nil);
+  try
+    query.SQL.Text :=
+      'select '+
+      '	d.id as id,'+
+      '	d.name as name,'+
+      '	d.birth_day as birth_day '+
+      ' from drivers d'+
+      ' where d.name like :what'+
+      ' order by d.name';
+    query.Connection := self.connection;
+    query.Parameters.ParamByName('what').Value := what;
+    query.Open;
+    while not query.Eof do begin
+      person := readRow(query);
+      try
+        consumer(person);
+      finally
+        FreeAndNil(person);
+      end;
+      query.Next;
+    end;
+    query.Close;
+  finally
+    FreeAndNil(query);
+  end;
 end;
 
 end.
