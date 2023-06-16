@@ -162,29 +162,32 @@ TCar = class
   private
     carIdValue: Integer;
     legalNumberValue: WideString;
-    birthYearValue: Integer;
+    //birthYearValue: Integer;
 
-    maintenanceValue: TDateTime;
-    maintenanceExistsValue: boolean;
+    //maintenanceValue: TDateTime;
+    //maintenanceExistsValue: boolean;
 
-    wearValue: Integer;
+    //wearValue: Integer;
     modelIdValue: Integer;
     modelNameValue: WideString;
   public
+    // id запииси
+    property carId:Integer read carIdValue;
+
     // Гос номер
     property legalNumber:WideString read legalNumberValue;
 
     // Год выпуска
-    property birthYear:Integer read birthYearValue;
+    // property birthYear:Integer read birthYearValue;
 
     // Дата прохождения ТО, если hasMaintenance = true
-    property maintenance:TDateTime read maintenanceValue;
+    // property maintenance:TDateTime read maintenanceValue;
 
     // Есть дата прохождения ТО
-    property hasMaintenance:boolean read maintenanceExistsValue;
+    // property hasMaintenance:boolean read maintenanceExistsValue;
 
     // Пробег
-    property wear:Integer read wearValue;
+    // property wear:Integer read wearValue;
 
     // Модель машины - идентификатор
     property modelId:Integer read modelIdValue;
@@ -195,13 +198,15 @@ TCar = class
     constructor Create(
       carId: Integer;
       legalNumber: WideString;
-      birthYear: Integer;
-      maintenance: TDateTime;
-      maintenanceExists: boolean;
-      wear: Integer;
+      //birthYear: Integer;
+      //maintenance: TDateTime;
+      //maintenanceExists: boolean;
+      //wear: Integer;
       modelId: Integer;
       modelName: WideString
     );
+
+    constructor Copy( sample: TCar );
 end;
 
 // Функция принимающая машину
@@ -581,23 +586,23 @@ end;
 
 { TCar }
 
+constructor TCar.Copy(sample: TCar);
+begin
+  self.carIdValue       := sample.carIdValue;
+  self.legalNumberValue := sample.legalNumberValue;
+  self.modelIdValue     := sample.modelIdValue;
+  self.modelNameValue   := sample.modelNameValue;
+end;
+
 constructor TCar.Create(
     carId: Integer;
     legalNumber: WideString;
-    birthYear: Integer;
-    maintenance: TDateTime;
-    maintenanceExists: boolean;
-    wear: Integer;
     modelId: Integer;
     modelName: WideString
 );
 begin
   self.carIdValue := carId;
   self.legalNumberValue := legalNumber;
-  self.birthYearValue := birthYear;
-  self.maintenanceValue := maintenance;
-  self.maintenanceExistsValue := maintenanceExists;
-  self.wearValue := wear;
   self.modelIdValue := modelId;
   self.modelNameValue := modelName;
 end;
@@ -619,6 +624,13 @@ end;
 ////////////
 function readRow(query:TADOQuery):TCar;
 begin
+  result := TCar.Create(
+    query.FieldValues['car_id'],
+    query.FieldValues['legal_number'],
+    query.FieldValues['model_id'],
+    query.FieldValues['model_name'],
+  );
+  {
   if query.FieldValues['maintenance'].IsNull then begin
     result := TCar.Create(
       query.FieldValues['car_id'],
@@ -642,6 +654,7 @@ begin
       query.FieldValues['model_name'],
     );
   end;
+  }
 end;
 ////////////
 
@@ -657,10 +670,7 @@ begin
       '	c.id as car_id,'+
       '	c.legal_number as legal_number,'+
       '	c.model as model_id,'+
-      '	cm.name as model_name,'+
-      '	c.wear as wear,'+
-      '	c.birth_year as birth_year,'+
-      ' c.maintenance as maintenance'+
+      '	cm.name as model_name '+
       ' from cars c'+
       ' left join cars_model cm on (cm.id = c.model)'+
       ' order by c.legal_number';
@@ -693,10 +703,7 @@ begin
       '	c.id as car_id,'+
       '	c.legal_number as legal_number,'+
       '	c.model as model_id,'+
-      '	cm.name as model_name,'+
-      '	c.wear as wear,'+
-      '	c.birth_year as birth_year,'+
-      ' c.maintenance as maintenance'+
+      '	cm.name as model_name '+
       ' from cars c'+
       ' left join cars_model cm on (cm.id = c.model)'+
       ' where c.legal_number like :what or cm.name like :what'+

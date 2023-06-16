@@ -85,6 +85,7 @@ TDriver = class
     birthDayValue: TDateTime;
   public
     constructor Create( id:Integer; name:WideString; birthDay:TDateTime );
+    constructor Copy( sample: TDriver );
 
     // id записи
     property id:Integer read idValue;
@@ -263,6 +264,13 @@ begin
 end;
 
 { TDriver }
+
+constructor TDriver.Copy(sample: TDriver);
+begin
+  self.idValue := sample.idValue;
+  self.nameValue := sample.nameValue;
+  self.birthDayValue := sample.birthDayValue;
+end;
 
 constructor TDriver.Create(
   id: Integer;

@@ -19,7 +19,7 @@ object MainForm: TMainForm
     Top = 0
     Width = 675
     Height = 421
-    ActivePage = carsModelTabSheet
+    ActivePage = waybillsTabSheet
     Align = alClient
     TabOrder = 0
     object waybillsTabSheet: TTabSheet

@@ -58,7 +58,12 @@ procedure TWaybillsController.newButtonClick(Sender: TObject);
 var
   insertDialog : TWaybillController;
 begin
-  //
+  insertDialog := TWaybillController.Create(self);
+  try
+    insertDialog.InsertDialog(waybillsADOQuery.Connection);
+  finally
+    FreeAndNil(insertDialog);
+  end;
 end;
 
 end.

@@ -86,6 +86,7 @@ TDispatcher = class
     birthDayValue: TDateTime;
   public
     constructor Create( id:Integer; name:WideString; birthDay:TDateTime );
+    constructor Copy( sample: TDispatcher );
 
     // id записи
     property id:Integer read idValue;
@@ -263,6 +264,13 @@ begin
 end;
 
 { TDispatcher }
+
+constructor TDispatcher.Copy(sample: TDispatcher);
+begin
+  sample.idValue := sample.idValue;
+  sample.nameValue := sample.nameValue;
+  sample.birthDayValue := sample.birthDayValue;
+end;
 
 constructor TDispatcher.Create(
   id: Integer;

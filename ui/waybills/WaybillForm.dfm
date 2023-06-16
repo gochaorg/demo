@@ -1,7 +1,7 @@
 object WaybillController: TWaybillController
-  Left = 612
-  Top = 142
-  Width = 426
+  Left = 618
+  Top = 144
+  Width = 427
   Height = 576
   Caption = 'WaybillController'
   Color = clBtnFace
@@ -11,8 +11,23 @@ object WaybillController: TWaybillController
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnHide = FormHide
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
+  object errLabel: TLabel
+    Left = 8
+    Top = 496
+    Width = 39
+    Height = 13
+    Caption = 'errLabel'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clMaroon
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
   object outcomeDatetimeEdit: TLabeledEdit
     Left = 8
     Top = 24
@@ -80,6 +95,7 @@ object WaybillController: TWaybillController
           Anchors = [akTop, akRight]
           Caption = #1053#1072#1081#1090#1080
           TabOrder = 0
+          OnClick = dispatcherFindButtonClick
         end
         object dispatcherEdit: TEdit
           Left = 4
@@ -128,6 +144,7 @@ object WaybillController: TWaybillController
           Anchors = [akTop, akRight]
           Caption = #1053#1072#1081#1090#1080
           TabOrder = 0
+          OnClick = driverFindButtonClick
         end
         object driverEdit: TEdit
           Left = 4
@@ -177,6 +194,7 @@ object WaybillController: TWaybillController
       Anchors = [akTop, akRight]
       Caption = #1053#1072#1081#1090#1080
       TabOrder = 2
+      OnClick = carFindButtonClick
     end
   end
   object wearEdit: TLabeledEdit

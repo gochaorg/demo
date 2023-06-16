@@ -30,7 +30,8 @@ uses
   IntegerList in 'IntegerList.pas',
   DispatcherSQL in 'ui\dispatcher\DispatcherSQL.pas',
   DispatcherForm in 'ui\dispatcher\DispatcherForm.pas' {DispatcherController},
-  WaybillForm in 'ui\waybills\WaybillForm.pas' {WaybillController};
+  WaybillForm in 'ui\waybills\WaybillForm.pas' {WaybillController},
+  WaybillSQL in 'ui\waybills\WaybillSQL.pas';
 
 {$R *.res}
 
