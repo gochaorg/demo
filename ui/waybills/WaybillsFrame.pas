@@ -25,6 +25,7 @@ type
     waybillsADOQuery: TADOQuery;
     procedure newButtonClick(Sender: TObject);
     procedure refreshButtonClick(Sender: TObject);
+    procedure editButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -70,6 +71,43 @@ end;
 procedure TWaybillsController.refreshButtonClick(Sender: TObject);
 begin
   RefreshAll;
+end;
+
+procedure TWaybillsController.editButtonClick(Sender: TObject);
+var
+  updateDialog : TWaybillController;
+  curRow: TStringMap;
+begin
+  curRow := TStringMap.Create;
+  try
+    if extend(carsDBGrid).GetFocusedRow(curRow) then begin
+      updateDialog := TWaybillController.Create(self);
+      try
+        if updateDialog.updateDialog(
+          self.carsADOQuery.Connection,
+          curRow.get('id'),
+          curRow.get('income_date_s'),
+          curRow.get('outcome_date_s'),
+          curRow.get('driver_id'),
+          curRow.get('driver_name'),
+          curRow.get('dispatcher_id'),
+          curRow.get('dispatcher_name'),
+          curRow.get('car_id'),
+          curRow.get('car_model_id'),
+          curRow.get('car_model_name'),
+          curRow.get('car_legal_number'),
+          curRow.get('wear'),
+          curRow.get('fuel_cons')
+        ) then begin
+          refreshCurrent;
+        end;
+      finally;
+        FreeAndNil(updateDialog);
+      end;
+    end;
+  finally
+    FreeAndNil(curRow);
+  end;
 end;
 
 end.

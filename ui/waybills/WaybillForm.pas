@@ -100,8 +100,8 @@ type
     function UpdateDialog(
       connection: TADOConnection;
       id: Integer;
-      incomeDate:  TDateTime;
-      outcomeDate: TDateTime;
+      incomeDate:  WideString;
+      outcomeDate: WideString;
       driverId: Integer;
       driverName: WideString;
       dispatcherId: Integer;
@@ -182,8 +182,8 @@ end;
 function TWaybillController.UpdateDialog(
   connection: TADOConnection;
   id: Integer;
-  incomeDate:  TDateTime;
-  outcomeDate: TDateTime;
+  incomeDate:  WideString;
+  outcomeDate: WideString;
   driverId: Integer;
   driverName: WideString;
   dispatcherId: Integer;
@@ -195,8 +195,49 @@ function TWaybillController.UpdateDialog(
   wear: Integer;
   fuelCons: Integer
 ): Boolean;
+var
+  fmt: TFormatSettings;
 begin
   result := false;
+
+  self.connection := connection;
+  self.carFinder := TCarFinder.Create(connection);
+  self.driverFinder := TDriverFinder.Create(connection);
+  self.dispatcherFinder := TDispatcherFinder.Create(connection);
+
+  try
+    self.mode := UpdateMode;
+    self.Caption := 'Обновить путевой лист';
+    self.okButton.Caption := 'Обновить';
+
+    fmt.ShortDateFormat :='yyyy-MM-dd';
+    fmt.DateSeparator :='-';
+    fmt.LongTimeFormat :='HH:nn:ss.zzz';
+    fmt.TimeSeparator :=':';
+
+    self.updatingId := id;
+    self.outcomeDatetimeEdit.Text := outcomeDate;
+    self.incomeDatetimeEdit.Text := incomeDate;
+
+    self.ClearDrivers;
+    self.AddDriver(
+      TDriver.Create(driverId, driverName));
+
+    self.ClearDispatchers;
+    self.AddDispatcher(
+      TDispatcher.Create(dispatcherId, dispatcherName));
+
+    self.ClearCars;
+    self.AddCar(TCar.Create(carId, carLegalNumber, carModelId, carModelName));
+
+    self.wearEdit.Text := IntToStr(wear);
+    self.fuelConsEdit.Text := IntToStr(fuelCons);
+
+    ShowModal;
+    result := updateSuccessfully;
+  finally
+    self.connection := nil;
+  end;
 end;
 
 procedure TWaybillController.FormShow(Sender: TObject);

@@ -259,6 +259,8 @@ var
   validation: IDataValidation;
   params: TStringMap;
   sql: String;
+  fmt: TFormatSettings;
+  date_str: String;
 begin
   validation := validateUpdate;
   if not validation.isOk then
@@ -272,13 +274,23 @@ begin
     ' where '+
     ' id = :id';
 
+  fmt.ShortDateFormat :='yyyy-MM-dd';
+  fmt.DateSeparator :='-';
+  fmt.LongTimeFormat :='HH:nn:ss.zzz';
+  fmt.TimeSeparator :=':';
+
   params := TStringMap.Create;
   params.put('id',           self.waybillId);
   params.put('driver',       self.driverId);
   params.put('dispatcher',   self.dispatcherId);
   params.put('car',          self.carId);
-  params.put('outcome_date', self.outcomeDate);
-  params.put('income_date',  self.incomeDate);
+
+  date_str := DateTimeToStr(self.outcomeDate, fmt);
+  params.put('outcome_date', date_str);
+
+  date_str := DateTimeToStr(self.incomeDate, fmt);
+  params.put('income_date',  date_str);
+  
   params.put('wear',         self.wear);
   params.put('fuel_cons',    self.fuelConsumption);
 

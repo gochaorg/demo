@@ -27,6 +27,7 @@ object waybillsController: TwaybillsController
       Height = 25
       Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
       TabOrder = 1
+      OnClick = editButtonClick
     end
     object deleteButton: TButton
       Left = 272
@@ -69,7 +70,32 @@ object waybillsController: TwaybillsController
   object waybillsADOQuery: TADOQuery
     Parameters = <>
     SQL.Strings = (
-      'select * from waybills')
+      'select '
+      #9'w.id,'
+      #9'w.car as car_id,'
+      #9'c.model as car_model_id,'
+      #9'cm.name as car_model_name,'
+      #9'c.legal_number as car_legal_number,'
+      #9'w.driver as driver_id,'
+      #9'dr.name as driver_name,'
+      #9'w.dispatcher as dispatcher_id,'
+      #9'ds.name as dispatcher_name,'
+      #9'w.outcome_date,'
+      
+        #9'convert( nvarchar(100), w.outcome_date, 23 ) + '#39' '#39' + convert( n' +
+        'varchar(50), w.outcome_date, 108 ) as outcome_date_s,'
+      #9'w.income_date,'
+      
+        #9'convert( nvarchar(100), w.income_date, 23 ) + '#39' '#39' + convert( nv' +
+        'archar(50), w.income_date, 108 ) as income_date_s,'
+      #9'w.fuel_cons,'
+      #9'w.wear'
+      'from '
+      #9'waybills w'
+      #9'left join drivers dr on (dr.id = w.driver)'
+      #9'left join dispatchers ds on (ds.id = w.dispatcher)'
+      #9'left join cars c on (c.id = w.car)'
+      #9'left join cars_model cm on (c.model = cm.id)')
     Left = 192
     Top = 72
   end
