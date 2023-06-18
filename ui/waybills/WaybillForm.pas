@@ -222,16 +222,21 @@ begin
     self.ClearDrivers;
     self.AddDriver(
       TDriver.Create(driverId, driverName));
+    self.driversListBox.ItemIndex := 0;
 
     self.ClearDispatchers;
     self.AddDispatcher(
       TDispatcher.Create(dispatcherId, dispatcherName));
+    self.dispatchersListBox.ItemIndex := 0;
 
     self.ClearCars;
     self.AddCar(TCar.Create(carId, carLegalNumber, carModelId, carModelName));
+    self.carsListBox.ItemIndex := 0;
 
     self.wearEdit.Text := IntToStr(wear);
     self.fuelConsEdit.Text := IntToStr(fuelCons);
+
+    self.Validate;
 
     ShowModal;
     result := updateSuccessfully;

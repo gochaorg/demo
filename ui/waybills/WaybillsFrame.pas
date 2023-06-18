@@ -46,7 +46,7 @@ end;
 
 procedure TWaybillsController.RefreshCurrent();
 begin
-  waybillsDBGrid.Refresh;
+  waybillsADOQuery.Refresh;
 end;
 
 procedure TWaybillsController.RefreshAll();
