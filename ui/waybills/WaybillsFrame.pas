@@ -62,7 +62,15 @@ var
 begin
   insertDialog := TWaybillController.Create(self);
   try
-    insertDialog.InsertDialog(waybillsADOQuery.Connection);
+    if insertDialog.InsertDialog(waybillsADOQuery.Connection) then begin
+      RefreshAll;
+
+      extend(waybillsDBGrid).SelectAndFocus(
+        TDataRowValueEqualsPredicate.Create('id', insertDialog.getInsertedId)
+      );
+
+      waybillsDBGrid.SetFocus;
+    end
   finally
     FreeAndNil(insertDialog);
   end;
@@ -80,11 +88,11 @@ var
 begin
   curRow := TStringMap.Create;
   try
-    if extend(carsDBGrid).GetFocusedRow(curRow) then begin
+    if extend(waybillsDBGrid).GetFocusedRow(curRow) then begin
       updateDialog := TWaybillController.Create(self);
       try
         if updateDialog.updateDialog(
-          self.carsADOQuery.Connection,
+          self.waybillsADOQuery.Connection,
           curRow.get('id'),
           curRow.get('income_date_s'),
           curRow.get('outcome_date_s'),
