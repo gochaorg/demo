@@ -24,6 +24,7 @@ type
     waybillsDataSource: TDataSource;
     waybillsADOQuery: TADOQuery;
     procedure newButtonClick(Sender: TObject);
+    procedure refreshButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -64,6 +65,11 @@ begin
   finally
     FreeAndNil(insertDialog);
   end;
+end;
+
+procedure TWaybillsController.refreshButtonClick(Sender: TObject);
+begin
+  RefreshAll;
 end;
 
 end.

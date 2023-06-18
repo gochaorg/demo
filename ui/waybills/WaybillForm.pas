@@ -363,7 +363,7 @@ end;
 
 procedure TWaybillController.AddDispatcher(dispatcher: TDispatcher);
 begin
-  self.driversListBox.AddItem(
+  self.dispatchersListBox.AddItem(
     dispatcher.name,
     TDispatcher.Copy(dispatcher)
   );

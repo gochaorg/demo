@@ -1,8 +1,8 @@
 object WaybillController: TWaybillController
-  Left = 618
-  Top = 144
-  Width = 427
-  Height = 576
+  Left = 627
+  Top = 168
+  Width = 456
+  Height = 596
   Caption = 'WaybillController'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -31,17 +31,17 @@ object WaybillController: TWaybillController
   object outcomeDatetimeEdit: TLabeledEdit
     Left = 8
     Top = 24
-    Width = 185
+    Width = 201
     Height = 21
-    EditLabel.Width = 71
+    EditLabel.Width = 193
     EditLabel.Height = 13
-    EditLabel.Caption = #1042#1088#1077#1084#1103' '#1074#1099#1077#1079#1076#1072
+    EditLabel.Caption = #1042#1088#1077#1084#1103' '#1074#1099#1077#1079#1076#1072' (yyyy-MM-dd HH:mm:ss)'
     TabOrder = 0
   end
   object incomeDatetimeEdit: TLabeledEdit
-    Left = 200
+    Left = 216
     Top = 24
-    Width = 201
+    Width = 209
     Height = 21
     EditLabel.Width = 101
     EditLabel.Height = 13
@@ -51,18 +51,18 @@ object WaybillController: TWaybillController
   object Panel1: TPanel
     Left = 8
     Top = 48
-    Width = 393
+    Width = 417
     Height = 233
     TabOrder = 2
     object Splitter1: TSplitter
-      Left = 186
+      Left = 201
       Top = 1
       Height = 231
     end
     object dispatcherGroupBox: TGroupBox
       Left = 1
       Top = 1
-      Width = 185
+      Width = 200
       Height = 231
       Align = alLeft
       Caption = #1044#1080#1089#1087#1077#1090#1095#1077#1088
@@ -70,7 +70,7 @@ object WaybillController: TWaybillController
       object dispatchersListBox: TListBox
         Left = 2
         Top = 40
-        Width = 181
+        Width = 196
         Height = 189
         Align = alClient
         ItemHeight = 13
@@ -79,16 +79,16 @@ object WaybillController: TWaybillController
       object dispatcherPanel: TPanel
         Left = 2
         Top = 15
-        Width = 181
+        Width = 196
         Height = 25
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
         DesignSize = (
-          181
+          196
           25)
         object dispatcherFindButton: TButton
-          Left = 115
+          Left = 130
           Top = 1
           Width = 61
           Height = 21
@@ -100,7 +100,7 @@ object WaybillController: TWaybillController
         object dispatcherEdit: TEdit
           Left = 4
           Top = 1
-          Width = 108
+          Width = 123
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 1
@@ -109,9 +109,9 @@ object WaybillController: TWaybillController
       end
     end
     object driverGroupBox: TGroupBox
-      Left = 189
+      Left = 204
       Top = 1
-      Width = 203
+      Width = 212
       Height = 231
       Align = alClient
       Caption = #1042#1086#1076#1080#1090#1077#1083#1100
@@ -119,7 +119,7 @@ object WaybillController: TWaybillController
       object driversListBox: TListBox
         Left = 2
         Top = 40
-        Width = 199
+        Width = 208
         Height = 189
         Align = alClient
         ItemHeight = 13
@@ -128,16 +128,16 @@ object WaybillController: TWaybillController
       object driverFindPanel: TPanel
         Left = 2
         Top = 15
-        Width = 199
+        Width = 208
         Height = 25
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
         DesignSize = (
-          199
+          208
           25)
         object driverFindButton: TButton
-          Left = 133
+          Left = 142
           Top = 1
           Width = 61
           Height = 21
@@ -149,7 +149,7 @@ object WaybillController: TWaybillController
         object driverEdit: TEdit
           Left = 4
           Top = 1
-          Width = 125
+          Width = 134
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 1
@@ -161,17 +161,17 @@ object WaybillController: TWaybillController
   object carGroupBox: TGroupBox
     Left = 8
     Top = 288
-    Width = 393
+    Width = 417
     Height = 153
     Caption = #1040#1074#1090#1086
     TabOrder = 3
     DesignSize = (
-      393
+      417
       153)
     object carEdit: TEdit
       Left = 8
       Top = 16
-      Width = 301
+      Width = 325
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
@@ -180,14 +180,14 @@ object WaybillController: TWaybillController
     object carsListBox: TListBox
       Left = 8
       Top = 40
-      Width = 377
+      Width = 401
       Height = 105
       Anchors = [akLeft, akTop, akRight, akBottom]
       ItemHeight = 13
       TabOrder = 1
     end
     object carFindButton: TButton
-      Left = 312
+      Left = 336
       Top = 16
       Width = 73
       Height = 20
@@ -200,7 +200,7 @@ object WaybillController: TWaybillController
   object wearEdit: TLabeledEdit
     Left = 8
     Top = 464
-    Width = 185
+    Width = 201
     Height = 21
     EditLabel.Width = 59
     EditLabel.Height = 13
@@ -208,9 +208,9 @@ object WaybillController: TWaybillController
     TabOrder = 4
   end
   object fuelConsEdit: TLabeledEdit
-    Left = 200
+    Left = 216
     Top = 464
-    Width = 201
+    Width = 209
     Height = 21
     EditLabel.Width = 112
     EditLabel.Height = 13
@@ -218,7 +218,7 @@ object WaybillController: TWaybillController
     TabOrder = 5
   end
   object okButton: TButton
-    Left = 320
+    Left = 352
     Top = 496
     Width = 75
     Height = 25

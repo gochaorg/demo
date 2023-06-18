@@ -31,7 +31,8 @@ uses
   DispatcherSQL in 'ui\dispatcher\DispatcherSQL.pas',
   DispatcherForm in 'ui\dispatcher\DispatcherForm.pas' {DispatcherController},
   WaybillForm in 'ui\waybills\WaybillForm.pas' {WaybillController},
-  WaybillSQL in 'ui\waybills\WaybillSQL.pas';
+  WaybillSQL in 'ui\waybills\WaybillSQL.pas',
+  MyDateTime in 'MyDateTime.pas';
 
 {$R *.res}
 

@@ -162,12 +162,6 @@ TCar = class
   private
     carIdValue: Integer;
     legalNumberValue: WideString;
-    //birthYearValue: Integer;
-
-    //maintenanceValue: TDateTime;
-    //maintenanceExistsValue: boolean;
-
-    //wearValue: Integer;
     modelIdValue: Integer;
     modelNameValue: WideString;
   public
@@ -176,18 +170,6 @@ TCar = class
 
     // Гос номер
     property legalNumber:WideString read legalNumberValue;
-
-    // Год выпуска
-    // property birthYear:Integer read birthYearValue;
-
-    // Дата прохождения ТО, если hasMaintenance = true
-    // property maintenance:TDateTime read maintenanceValue;
-
-    // Есть дата прохождения ТО
-    // property hasMaintenance:boolean read maintenanceExistsValue;
-
-    // Пробег
-    // property wear:Integer read wearValue;
 
     // Модель машины - идентификатор
     property modelId:Integer read modelIdValue;
@@ -198,10 +180,6 @@ TCar = class
     constructor Create(
       carId: Integer;
       legalNumber: WideString;
-      //birthYear: Integer;
-      //maintenance: TDateTime;
-      //maintenanceExists: boolean;
-      //wear: Integer;
       modelId: Integer;
       modelName: WideString
     );
@@ -630,31 +608,6 @@ begin
     query.FieldValues['model_id'],
     query.FieldValues['model_name'],
   );
-  {
-  if query.FieldValues['maintenance'].IsNull then begin
-    result := TCar.Create(
-      query.FieldValues['car_id'],
-      query.FieldValues['legal_number'],
-      query.FieldValues['birth_year'],
-      0.0,
-      false,
-      query.FieldValues['wear'],
-      query.FieldValues['model_id'],
-      query.FieldValues['model_name'],
-    );
-  end else begin
-    result := TCar.Create(
-      query.FieldValues['car_id'],
-      query.FieldValues['legal_number'],
-      query.FieldValues['birth_year'],
-      query.FieldValues['maintenance'],
-      true,
-      query.FieldValues['wear'],
-      query.FieldValues['model_id'],
-      query.FieldValues['model_name'],
-    );
-  end;
-  }
 end;
 ////////////
 

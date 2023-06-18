@@ -82,9 +82,8 @@ TDriver = class
   private
     idValue: Integer;
     nameValue: WideString;
-    birthDayValue: TDateTime;
   public
-    constructor Create( id:Integer; name:WideString; birthDay:TDateTime );
+    constructor Create( id:Integer; name:WideString );
     constructor Copy( sample: TDriver );
 
     // id записи
@@ -92,9 +91,6 @@ TDriver = class
 
     // Имя
     property name:WideString read nameValue;
-
-    // День рождения
-    property birthDay:TDateTime read birthDayValue;
 end;
 
 // Функция принимающая запись о водителе
@@ -269,17 +265,14 @@ constructor TDriver.Copy(sample: TDriver);
 begin
   self.idValue := sample.idValue;
   self.nameValue := sample.nameValue;
-  self.birthDayValue := sample.birthDayValue;
 end;
 
 constructor TDriver.Create(
   id: Integer;
-  name: WideString;
-  birthDay: TDateTime);
+  name: WideString);
 begin
   self.idValue := id;
   self.nameValue := name;
-  self.birthDayValue := birthDay;
 end;
 
 constructor TDriverFinder.Create(connection: TADOConnection);
@@ -298,8 +291,7 @@ function readRow(query:TADOQuery):TDriver;
 begin
   result := TDriver.Create(
     query.FieldValues['id'],
-    query.FieldValues['name'],
-    query.FieldValues['birth_day'],
+    query.FieldValues['name']
   );
 end;
 

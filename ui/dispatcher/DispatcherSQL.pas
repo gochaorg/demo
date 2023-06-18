@@ -83,9 +83,8 @@ TDispatcher = class
   private
     idValue: Integer;
     nameValue: WideString;
-    birthDayValue: TDateTime;
   public
-    constructor Create( id:Integer; name:WideString; birthDay:TDateTime );
+    constructor Create( id:Integer; name:WideString );
     constructor Copy( sample: TDispatcher );
 
     // id записи
@@ -93,9 +92,6 @@ TDispatcher = class
 
     // Имя
     property name:WideString read nameValue;
-
-    // День рождения
-    property birthDay:TDateTime read birthDayValue;
 end;
 
 // Функция принимающая запись о диспетчере
@@ -267,19 +263,17 @@ end;
 
 constructor TDispatcher.Copy(sample: TDispatcher);
 begin
-  sample.idValue := sample.idValue;
-  sample.nameValue := sample.nameValue;
-  sample.birthDayValue := sample.birthDayValue;
+  self.idValue := sample.idValue;
+  self.nameValue := sample.nameValue;
 end;
 
 constructor TDispatcher.Create(
   id: Integer;
-  name: WideString;
-  birthDay: TDateTime);
+  name: WideString
+  );
 begin
   self.idValue := id;
   self.nameValue := name;
-  self.birthDayValue := birthDay;
 end;
 
 { TDispatcherFinder }
@@ -300,8 +294,7 @@ function readRow(query:TADOQuery):TDispatcher;
 begin
   result := TDispatcher.Create(
     query.FieldValues['id'],
-    query.FieldValues['name'],
-    query.FieldValues['birth_day'],
+    query.FieldValues['name']
   );
 end;
 

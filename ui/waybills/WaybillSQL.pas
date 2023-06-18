@@ -5,6 +5,7 @@ interface
 uses
   SysUtils, ADODB,
 
+  Logging,
   MyDate,
   Map,
   DMLOperation,
@@ -210,10 +211,17 @@ var
   validation: IDataValidation;
   params: TStringMap;
   sql: String;
+  fmt: TFormatSettings;
+  date_str: String;
 begin
   validation := validateInsert;
   if not validation.isOk then
     raise EWaybillDataBuilder.Create(validation.getMessage);
+
+  fmt.ShortDateFormat :='yyyy-MM-dd';
+  fmt.DateSeparator :='-';
+  fmt.LongTimeFormat :='HH:nn:ss.zzz';
+  fmt.TimeSeparator :=':';
 
   sql :=
     'insert into waybills ('+
@@ -228,8 +236,13 @@ begin
   params.put('driver',       self.driverId);
   params.put('dispatcher',   self.dispatcherId);
   params.put('car',          self.carId);
-  params.put('outcome_date', self.outcomeDate);
-  params.put('income_date',  self.incomeDate);
+
+  date_str := DateTimeToStr(self.outcomeDate, fmt);
+  params.put('outcome_date', date_str);
+
+  date_str := DateTimeToStr(self.incomeDate, fmt);
+  params.put('income_date',  date_str);
+
   params.put('wear',         self.wear);
   params.put('fuel_cons',    self.fuelConsumption);
 
@@ -322,11 +335,11 @@ var
 begin
   fmt.ShortDateFormat :='yyyy-MM-dd';
   fmt.DateSeparator :='-';
-  fmt.LongTimeFormat :='HH:mm:ss';
+  fmt.LongTimeFormat :='HH:nn:ss';
   fmt.TimeSeparator :=':';
 
   if TryStrToDatetime( str, datetime, fmt ) then begin
-    self.incomeDate := date;
+    self.incomeDate := datetime;
     self.incomeDateExists := true;
     self.incomeDateConvError := '';
   end else begin
@@ -342,11 +355,11 @@ var
 begin
   fmt.ShortDateFormat :='yyyy-MM-dd';
   fmt.DateSeparator :='-';
-  fmt.LongTimeFormat :='HH:mm:ss';
+  fmt.LongTimeFormat :='HH:nn:ss';
   fmt.TimeSeparator :=':';
 
   if TryStrToDatetime( str, datetime, fmt ) then begin
-    self.outcomeDate := date;
+    self.outcomeDate := datetime;
     self.outcomeDateExists := true;
     self.outcomeDateConvError := '';
   end else begin
