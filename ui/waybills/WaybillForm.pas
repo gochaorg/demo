@@ -1,5 +1,7 @@
 unit WaybillForm;
 
+// Содержит окно (модальное) для редактирования/добавления путевого листа
+
 interface
 
 uses
@@ -14,6 +16,7 @@ type
   // Режим InsertMode / UpdateMode
   TMode = (InsertMode, UpdateMode);
 
+  // Контроллер (окно) редактирования/добаления
   TWaybillController = class(TForm)
     outcomeDatetimeEdit: TLabeledEdit;
     incomeDatetimeEdit: TLabeledEdit;
@@ -47,12 +50,21 @@ type
     // Режим InsertMode / UpdateMode
     mode: TMode;
 
+    // содинение с СУБД
+    // не владет ссылкой
+    // сылка доступна только на момент пока окно открыто
     connection: TADOConnection;
 
+    // ID добавленной записи в СУБД
     insertedId: Integer;
+
+    // ID обновляемой записи
     updatingId: Integer;
 
+    // добавление успешно выполнено
     insertSuccessfully: Boolean;
+
+    // обновление успешно выполнено
     updateSuccessfully: Boolean;
 
     // Валидация и построение SQL
@@ -82,18 +94,18 @@ type
     // Аргументы
     //   connection - соединение с СУБД
     //   id - идентификатор записи
-    //   incomeDate  -
-    //   outcomeDate -
-    //   driverId
-    //   driverName
-    //   dispatcherId
-    //   dispatcherName
-    //   carId
-    //   carModelId
-    //   carModelName
-    //   carLegalNumber
-    //   wear
-    //   fuelCons
+    //   incomeDate  - дата возврата
+    //   outcomeDate - дата выезда
+    //   driverId - id водителя
+    //   driverName - имя водителя
+    //   dispatcherId - id диспетчера
+    //   dispatcherName - имя диспетчера
+    //   carId - id мащины
+    //   carModelId - id модели машины
+    //   carModelName - название модели машины
+    //   carLegalNumber - гос номер машины
+    //   wear - пробег для текущего путевого листа
+    //   fuelCons - кол-во потребленного топлива
     // Возвращает
     //   true - успено обновлена запись
     //   false - ошибка
@@ -115,17 +127,25 @@ type
     ): Boolean;
 
   private
+    // Выполнения INSERT в СУБД
     procedure InsertData;
+
+    // Выполнение UPDATE в СУБД
     procedure UpdateData;
+
+    // Проверка введенных данных
     function Validate: boolean;
     procedure ValidateInput(Sender: TObject);
 
+    // Добавление диспетчера в список на форму
     procedure AddDispatcher( dispatcher: TDispatcher );
     procedure ClearDispatchers();
 
+    // Добавление водителя в список на форму
     procedure AddDriver( driver: TDriver );
     procedure ClearDrivers();
 
+    // Добавление машины в список на форму
     procedure AddCar( car: TCar );
     procedure ClearCars();
   end;
@@ -151,7 +171,7 @@ begin
   self.carFinder := TCarFinder.Create(connection);
   self.driverFinder := TDriverFinder.Create(connection);
   self.dispatcherFinder := TDispatcherFinder.Create(connection);
-  
+
   try
     self.mode := InsertMode;
     self.Caption := 'Добавить путевой лист';

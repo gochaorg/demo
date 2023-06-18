@@ -26,6 +26,18 @@ type
       textFile: TextFile;
   end;
 
+  // Перенаправляет лог
+  TDelegateLog = class(TInterfacedObject,ILog)
+    private
+      target:ILog;
+    public
+      constructor Create();
+      destructor Destroy(); override;
+      procedure setTarget( const target:ILog ); virtual;
+      procedure print( const messageText: string ); virtual;
+      procedure println( const messageText: string ); virtual;
+  end;
+
   // Добавление префикса в сообщения лог файла
   TPrefixBuilder = function():string of object;
   TPrefixLog = class(TInterfacedObject,ILog)
@@ -67,11 +79,15 @@ type
 
 var
   log: ILog;
+  dummyLog: TDummyLog;
+  rootLog: TDelegateLog;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+
+  Config;
 
 { TDummyLog }
 
@@ -218,7 +234,62 @@ begin
   result := DateToStr(time) + ' ' + TimeToStr(time);
 end;
 
+{ TDelegateLog }
+
+constructor TDelegateLog.Create;
+begin
+  inherited Create;
+  self.target := TDummyLog.Create;
+end;
+
+destructor TDelegateLog.Destroy;
+begin
+  self.target := nil;
+  inherited Destroy;
+end;
+
+procedure TDelegateLog.print(const messageText: string);
+begin
+  self.target.print(messageText);
+end;
+
+procedure TDelegateLog.println(const messageText: string);
+begin
+  self.target.println(messageText);
+end;
+
+procedure TDelegateLog.setTarget(const target: ILog);
+begin
+  if assigned(target) then
+    self.target := target;
+end;
+
+type
+TInitLog = class
+  public
+    procedure reInit;
+end;
+
+var
+  initLog: TInitLog;
+
+{ TInitLog }
+
+procedure TInitLog.reInit;
+begin
+  if applicationConfigObj.isLogEnabled then begin
+  end else begin
+    rootLog.setTarget(dummyLog);
+  end;
+end;
+
 initialization
+  dummyLog := TDummyLog.Create;
+  rootLog := TDelegateLog.Create;
+  initLog := TInitLog.Create;
+
+  applicationConfigObj.addListener(initLog.reInit);
+
   log := TFileLog.Create(GetCurrentDir()+'\app.log', false);
   log := TPrefixLog.Create(log, TDateTimePrefixLog.Create.getMessage);
   log := TPrefixLog.Create(log, TConstPrefixLog.Create(' >> ').getMessage);

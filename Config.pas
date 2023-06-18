@@ -2,7 +2,7 @@ unit Config;
 
 interface
 
-uses SysUtils;
+uses SysUtils, Classes;
 
 type
   // Конфигурация БД
@@ -42,6 +42,16 @@ type
     function getRefCount: Integer;
   end;
 
+  // Подписчик на изменения настроек
+  TConfigListener = procedure () of object;
+  TConfigListenerHolder = class
+    private
+      listenerValue : TConfigListener;
+    public
+      constructor Create(listenerValue : TConfigListener);
+      property listener:TConfigListener read listenerValue;
+  end;
+
   TConfig = class(TInterfacedObject, IConfig, IConfigSave)
   private
     // Имя пользователя DB
@@ -55,6 +65,9 @@ type
 
     // режим отладки
     debug: boolean;
+
+    // Подписчики
+    listeners: TList;
   public
     // Создание конфига со значениями по умолчанию
     constructor Create();
@@ -105,6 +118,12 @@ type
     function getRefCount(): Integer;
 
     function isDebug(): Boolean;
+
+    function isLogEnabled: Boolean;
+    function getLogFilename: WideString;
+
+    // Добавляет подписчика на изменения
+    procedure addListener( listener: TConfigListener );
   end;
 
   // Ошибка сохранения конфига
@@ -144,35 +163,47 @@ const
 constructor TConfig.Copy(const sample: TConfig);
 begin
   Inherited Create();
-  dbConnectionStringValue := sample.dbConnectionStringValue;
-  dbUserNameValue := sample.dbUserNameValue;
-  dbPasswordValue := sample.dbPasswordValue;
+  self.dbConnectionStringValue := sample.dbConnectionStringValue;
+  self.dbUserNameValue := sample.dbUserNameValue;
+  self.dbPasswordValue := sample.dbPasswordValue;
 
-  debug := sample.debug;
+  self.debug := sample.debug;
+
+  self.listeners := TList.Create;
 end;
 
 constructor TConfig.Create;
 begin
   Inherited Create();
-  dbConnectionStringValue := DEFAULT_DB_CONNECTION_STRING;
-  dbUserNameValue := DEFAULT_DB_USERNAME;
-  dbPasswordValue := DEFAULT_DB_PASSWORD;
+  self.dbConnectionStringValue := DEFAULT_DB_CONNECTION_STRING;
+  self.dbUserNameValue := DEFAULT_DB_USERNAME;
+  self.dbPasswordValue := DEFAULT_DB_PASSWORD;
 
-  debug := true;
+  self.debug := true;
+
+  self.listeners := TList.Create;
 end;
 
 procedure TConfig.Load(const fileName: WideString);
 var
   iniFile: TIniFile;
+  i:Integer;
+  ls: TConfigListenerHolder;
 begin
   try
     try
       iniFile := TIniFile.Create(fileName);
-      dbConnectionStringValue := iniFile.ReadString(DB_SECTION, DB_CONNECTION_STRING_KEY, DEFAULT_DB_CONNECTION_STRING);
-      dbUserNameValue := iniFile.ReadString(DB_SECTION, DB_USERNAME_KEY, DEFAULT_DB_USERNAME);
-      dbPasswordValue := iniFile.ReadString(DB_SECTION, DB_PASSWORD_KEY, DEFAULT_DB_PASSWORD);
+      self.dbConnectionStringValue := iniFile.ReadString(DB_SECTION, DB_CONNECTION_STRING_KEY, DEFAULT_DB_CONNECTION_STRING);
+      self.dbUserNameValue := iniFile.ReadString(DB_SECTION, DB_USERNAME_KEY, DEFAULT_DB_USERNAME);
+      self.dbPasswordValue := iniFile.ReadString(DB_SECTION, DB_PASSWORD_KEY, DEFAULT_DB_PASSWORD);
 
       debug := iniFile.ReadBool('debug', 'default', true);
+
+      ///
+      for i:=0 to self.listeners.Count-1 do begin
+        ls := self.listeners[i];
+        ls.listener();
+      end;
     except
       on e: EIniFileException do raise EConfigLoad.Create(e.Message);
     end;
@@ -255,6 +286,29 @@ end;
 function TConfig.IsDebug: Boolean;
 begin
   result := self.debug;
+end;
+
+procedure TConfig.addListener(listener: TConfigListener);
+begin
+  if assigned(listener) then
+    self.listeners.Add(TConfigListenerHolder.Create(listener));
+end;
+
+function TConfig.getLogFilename: WideString;
+begin
+  result := 'app.log';
+end;
+
+function TConfig.isLogEnabled: Boolean;
+begin
+  result := true;
+end;
+
+{ TConfigListenerHolder }
+
+constructor TConfigListenerHolder.Create(listenerValue: TConfigListener);
+begin
+  self.listenerValue := listenerValue;
 end;
 
 initialization
