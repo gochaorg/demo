@@ -91,7 +91,7 @@ begin
     begin
       for i:=0 to self.errors.Count-1 do begin
         if i>0 then begin
-          result := result + '#13#10';
+          result := result + #13#10;
         end;
         result := result + IntToStr(i+1) + ': ' + self.errors.Strings[i];
       end;

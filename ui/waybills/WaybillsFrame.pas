@@ -26,6 +26,7 @@ type
     procedure newButtonClick(Sender: TObject);
     procedure refreshButtonClick(Sender: TObject);
     procedure editButtonClick(Sender: TObject);
+    procedure deleteButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -115,6 +116,38 @@ begin
     end;
   finally
     FreeAndNil(curRow);
+  end;
+end;
+
+procedure TWaybillsController.deleteButtonClick(Sender: TObject);
+var
+  rows: TDBRows;
+  rowDelete:  TDBRowsSqlExec;
+  query: TADOQuery;
+begin
+  rows := TDBRows.Create;
+
+  query := TADOQuery.Create(nil);
+  query.Connection := waybillsADOQuery.Connection;
+  query.SQL.Text := 'delete from waybills where [id] = :ID';
+
+  rowDelete := TDBRowsSqlExec.Create(query);
+  rowDelete.Map('id', 'id');
+  try
+    extend(waybillsDBGrid).fetchRows(true,false, rows.Add);
+    rows.Each(rowDelete.Execute);
+    if rowDelete.getErrorsCount > 0 then
+      begin
+        ShowMessage('В процессе удаления обнаружены ошибки');
+      end
+    else
+      begin
+        refreshAll;
+      end;
+  finally
+    FreeAndNil(query);
+    FreeAndNil(rows);
+    FreeAndNil(rowDelete);
   end;
 end;
 

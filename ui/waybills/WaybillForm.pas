@@ -156,6 +156,7 @@ begin
     self.mode := InsertMode;
     self.Caption := 'Добавить путевой лист';
     self.okButton.Caption := 'Добавить';
+    Validate;
     ShowModal;
     result := insertSuccessfully;
   finally

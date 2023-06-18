@@ -36,6 +36,7 @@ object waybillsController: TwaybillsController
       Height = 25
       Caption = #1059#1076#1072#1083#1080#1090#1100
       TabOrder = 2
+      OnClick = deleteButtonClick
     end
     object refreshButton: TButton
       Left = 8
@@ -54,6 +55,7 @@ object waybillsController: TwaybillsController
     Height = 224
     Align = alClient
     DataSource = waybillsDataSource
+    Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
