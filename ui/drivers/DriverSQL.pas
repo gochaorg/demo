@@ -5,6 +5,7 @@ interface
 uses
   SysUtils, ADODB,
 
+  Loggers,Logging,
   MyDate,
   Map,
   DMLOperation,
@@ -123,6 +124,9 @@ end;
 
 
 implementation
+
+var
+log: ILog;
 
 { TDriverDataBuilder }
 
@@ -361,5 +365,8 @@ begin
     FreeAndNil(query);
   end;
 end;
+
+initialization
+log := logger('DriverSQL');
 
 end.

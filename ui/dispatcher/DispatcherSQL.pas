@@ -6,6 +6,7 @@ uses
   SysUtils,
   ADODB,
 
+  Loggers,Logging,
   MyDate,
   Map,
   DMLOperation,
@@ -123,6 +124,9 @@ TDispatcherFinder = class (TInterfacedObject,IDispatcherFinder)
 end;
 
 implementation
+
+var
+log: ILog;
 
 constructor TDispatcherDataBuilder.Create;
 begin
@@ -362,5 +366,8 @@ begin
     FreeAndNil(query);
   end;
 end;
+
+initialization
+log := logger('DispatcherSQL');
 
 end.

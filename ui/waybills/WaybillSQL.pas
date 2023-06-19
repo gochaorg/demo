@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, ADODB,
 
-  Logging,
+  Logging, Loggers,
   MyDate,
   Map,
   DMLOperation,
@@ -132,6 +132,9 @@ TWaybillDataBuilder = class(TInterfacedObject, IWaybillDataBuilder)
 end;
 
 implementation
+
+var
+log: ILog;
 
 constructor TWaybillDataBuilder.Create;
 begin
@@ -410,5 +413,8 @@ begin
     self.wearConvError := 'Пробег не является числом';
   end;
 end;
+
+initialization
+log := logger('WaybillSQL');
 
 end.

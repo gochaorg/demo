@@ -9,7 +9,8 @@ uses
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig,
 
-  WaybillForm
+  WaybillForm,
+  Loggers, Logging
   ;
 
 type
@@ -36,6 +37,9 @@ type
   end;
 
 implementation
+
+var
+log : ILog;
 
 {$R *.dfm}
 
@@ -150,5 +154,8 @@ begin
     FreeAndNil(rowDelete);
   end;
 end;
+
+initialization
+log := logger('WaybillsFrame');
 
 end.

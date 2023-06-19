@@ -6,7 +6,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, Grids, DBGrids, StdCtrls, ExtCtrls, DB, ADODB,
 
-  CarModelFrame, Logging, Map, DBRows, DBRowPredicate,
+  CarModelFrame,
+  Logging, Loggers,
+  Map, DBRows, DBRowPredicate,
   DBRowsSqlExec,
   DBViewConfig
   ;
@@ -46,6 +48,9 @@ implementation
 
 uses
   DBView;
+
+var
+  log: ILog;
 
 {$R *.dfm}
 
@@ -163,5 +168,8 @@ begin
     FreeAndNil(rowDelete);
   end;
 end;
+
+initialization
+log := logger('CarsModelsFrame');
 
 end.

@@ -9,7 +9,8 @@ uses
   Dialogs, StdCtrls, ExtCtrls, ADODB, ComObj,
 
   Validation, DMLOperation,
-  WaybillSQL, CarSQL, DispatcherSQL, DriverSQL
+  WaybillSQL, CarSQL, DispatcherSQL, DriverSQL,
+  Loggers, Logging
   ;
 
 type
@@ -154,6 +155,9 @@ var
   WaybillController: TWaybillController;
 
 implementation
+
+var
+log: ILog;
 
 {$R *.dfm}
 
@@ -513,5 +517,8 @@ begin
     self.carsListBox.Items.Delete(i);
   end;
 end;
+
+initialization
+log := logger('WaybillForm');
 
 end.

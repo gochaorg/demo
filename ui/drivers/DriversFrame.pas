@@ -9,7 +9,8 @@ uses
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig,
 
-  DriverForm
+  DriverForm,
+  Loggers, Logging
   ;
 
 type
@@ -36,6 +37,9 @@ type
   end;
 
 implementation
+
+var
+log:ILog;
 
 {$R *.dfm}
 
@@ -141,5 +145,8 @@ procedure TDriversController.refreshButtonClick(Sender: TObject);
 begin
   RefreshAll;
 end;
+
+initialization
+log := logger('DriversFrame');
 
 end.

@@ -4,7 +4,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, DB, ADODB, Config, ComObj;
+  Dialogs, StdCtrls, ExtCtrls, DB, ADODB, Config, ComObj,
+
+  Loggers, Logging;
 
 type
   // Настройка подключения к СУБД
@@ -44,6 +46,9 @@ var
   DbConfController: TDbConfController;
 
 implementation
+
+var
+  log: ILog;
 
 {$R *.dfm}
 
@@ -104,5 +109,8 @@ procedure TDbConfController.closeButtonClick(Sender: TObject);
 begin
   Close();
 end;
+
+initialization
+log := logger('DbConfForm');
 
 end.

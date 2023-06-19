@@ -7,6 +7,7 @@ uses
   SysUtils,
   ADODB,
 
+  Loggers, Logging,
   IntegerList,
   MyDate,
   DMLOperation,
@@ -217,6 +218,9 @@ TCarFinder = class (TInterfacedObject,ICarFinder)
 end;
 
 implementation
+
+var
+  log: ILog;
 
 { TCarDataBuilder }
 
@@ -678,5 +682,8 @@ begin
     FreeAndNil(query);
   end;
 end;
+
+initialization
+log := logger('CarSQL');
 
 end.

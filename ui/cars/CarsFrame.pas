@@ -38,6 +38,9 @@ type
 
 implementation
 
+var
+log: ILog;
+
 {$R *.dfm}
 
 procedure TCarsController.ActivateDataView();
@@ -147,5 +150,8 @@ begin
     FreeAndNil(rowDelete);
   end;
 end;
+
+initialization
+log := logger('CarsFrame');
 
 end.
