@@ -6,14 +6,8 @@ uses
   Config in 'Config.pas',
   Logging in 'log\Logging.pas',
   Loggers in 'log\Loggers.pas',
-  DBView in 'DBView.pas',
   Map in 'Map.pas',
   IntegerList in 'IntegerList.pas',
-  DBRows in 'DBRows.pas',
-  DBRowPredicate in 'DBRowPredicate.pas',
-  DBRowsLogger in 'DBRowsLogger.pas',
-  DBRowsSqlExec in 'DBRowsSqlExec.pas',
-  DBViewConfig in 'DBViewConfig.pas',
   DbConfForm in 'ui\dbConf\DbConfForm.pas' {DbConfController},
   CarsFrame in 'ui\cars\CarsFrame.pas' {CarsController: TFrame},
   CarsModelsFrame in 'ui\carsModel\CarsModelsFrame.pas' {CarsModelsController: TFrame},
@@ -33,7 +27,13 @@ uses
   WaybillSQL in 'ui\waybills\WaybillSQL.pas',
   DMLOperation in 'db\DMLOperation.pas',
   Validation in 'validate\Validation.pas',
-  MyDateTime in 'MyDateTime.pas';
+  MyDateTime in 'MyDateTime.pas',
+  DBRowPredicate in 'db\DBRowPredicate.pas',
+  DBRows in 'db\DBRows.pas',
+  DBRowsLogger in 'db\DBRowsLogger.pas',
+  DBRowsSqlExec in 'db\DBRowsSqlExec.pas',
+  DBView in 'db\DBView.pas',
+  DBViewConfig in 'db\DBViewConfig.pas';
 
 {$R *.res}
 
