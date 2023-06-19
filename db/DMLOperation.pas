@@ -5,7 +5,7 @@ interface
 uses
   DB, ADODB, SysUtils, Variants,
 
-  Logging,
+  Logging, Loggers,
   Map;
 
 type
@@ -58,6 +58,9 @@ TSqlUpdateOperation = class(TInterfacedObject,IDMLOperation)
 end;
 
 implementation
+
+var
+log: ILog;
 
 { TSqlExecOperation }
 
@@ -170,5 +173,8 @@ begin
     FreeAndNil(query);
   end;
 end;
+
+initialization
+log := logger('DMLOperation');
 
 end.

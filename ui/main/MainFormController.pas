@@ -7,7 +7,9 @@ uses
   Dialogs, DB, ADODB, StdCtrls, Menus, ComObj, Grids, DBGrids,
 
   Config, DBConfForm, ComCtrls, ExtCtrls,
-  CarsModelsFrame, Map, CarsFrame, Logging, DispatchersFrame, DriversFrame,
+  CarsModelsFrame, Map, CarsFrame,
+  Logging, Loggers,
+  DispatchersFrame, DriversFrame,
   WaybillsFrame;
 
 type
@@ -40,6 +42,8 @@ var
 
 implementation
 
+var
+  log : ILog;
 
 {$R *.dfm}
 
@@ -58,6 +62,7 @@ end;
 
 procedure TMainForm.connectToDBMenuItemClick(Sender: TObject);
 begin
+  log.println('Connect to db');
   try
     ADOMainConnection.Open(applicationConfigItf.dbUsername, applicationConfigItf.dbPassword);
     carsModelsController.ActivateDataView;
@@ -65,6 +70,7 @@ begin
     dispatchersController.ActivateDataView;
     driversController.ActivateDataView;
     waybillsController.ActivateDataView;
+    log.println('Connected');
   except
     on e: EOleException do begin
       ShowMessage('Ошибка соединения:'+e.Message);
@@ -72,5 +78,7 @@ begin
   end;
 end;
 
+initialization
+log := logger('MainForm');
 
 end.

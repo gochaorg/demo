@@ -9,7 +9,8 @@ uses
 
 
   DriverSQL, DMLOperation,
-  Validation, Logging;
+  Validation,
+  Logging, Loggers;
 
 type
   // Режим InsertMode / UpdateMode
@@ -75,6 +76,9 @@ var
   DriverController: TDriverController;
 
 implementation
+
+var
+log: ILog;
 
 {$R *.dfm}
 
@@ -266,5 +270,8 @@ procedure TDriverController.ValidateInput(Sender: TObject);
 begin
   validate;
 end;
+
+initialization
+log := logger('DriverForm');
 
 end.

@@ -6,6 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, DB, ExtCtrls, Grids, DBGrids, ADODB,
 
+  Logging, Loggers,
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig,
 
@@ -27,6 +28,8 @@ type
     procedure editButtonClick(Sender: TObject);
     procedure deleteButtonClick(Sender: TObject);
   private
+    logInstance: ILog;
+
     procedure RefreshAll();
     procedure RefreshCurrent();
   public

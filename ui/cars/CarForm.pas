@@ -6,7 +6,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
 
-  ADODB, ComObj, DB, Logging, MyDate, CarSql, DMLOperation, Validation;
+  ADODB, ComObj, DB,
+  Logging, Loggers,
+  MyDate, CarSql, DMLOperation, Validation;
 
 type
   TMode = (InsertMode, UpdateMode);
@@ -89,6 +91,9 @@ var
   CarController: TCarController;
 
 implementation
+
+var
+  log: ILog;
 
 type
   TCarModelInfo = class(TObject)
@@ -376,5 +381,8 @@ begin
   birthYearEdit.OnChange := self.validateInput;
   maintainceEdit.OnChange := self.validateInput;
 end;
+
+initialization
+  log := logger('CarForm');
 
 end.

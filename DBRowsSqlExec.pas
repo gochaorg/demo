@@ -4,7 +4,8 @@ interface
 
   uses
     ADODB, ComObj, Variants,
-    Logging, Map;
+
+    Loggers, Logging, Map;
 
   type
 
@@ -24,6 +25,9 @@ interface
   end;
 
 implementation
+
+var
+  log: ILog;
 
 { TDBRowsSqlExec }
 
@@ -79,5 +83,8 @@ function TDBRowsSqlExec.getErrorsCount: Integer;
 begin
   result := self.errorsCount;
 end;
+
+initialization
+log := logger('DBRowsSqlExec');
 
 end.

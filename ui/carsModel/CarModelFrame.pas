@@ -4,7 +4,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, DB, ADODB, ComObj;
+  Dialogs, StdCtrls, ExtCtrls, DB, ADODB, ComObj,
+
+  Loggers, Logging;
 
 type
   TMode = (InsertMode, UpdateMode);
@@ -50,6 +52,9 @@ var
   CarModelController: TCarModelController;
 
 implementation
+
+var
+  log: ILog;
 
 {$R *.dfm}
 
@@ -170,5 +175,8 @@ begin
     self.connection := nil;
   end;
 end;
+
+initialization
+log := logger('CarModelFrame');
 
 end.

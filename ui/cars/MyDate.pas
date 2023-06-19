@@ -4,6 +4,7 @@ interface
   uses
     SysUtils,
 
+    Loggers,
     Logging;
 
   type
@@ -70,6 +71,8 @@ var
   // Вести лог функции parseDate ?
   parseDateDebug : boolean;
 
+  // Логгирование
+  log: ILog;
 
 
 { TDate }
@@ -492,5 +495,6 @@ end;
 
 initialization
   parseDateDebug := false;
+  log := logger('MyDate');
 
 end.

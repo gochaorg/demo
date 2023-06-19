@@ -8,7 +8,8 @@ uses
   ADODB, ComObj, DB,
 
   DispatcherSQL, DMLOperation,
-  Validation, Logging;
+  Validation,
+  Logging, Loggers;
 
 type
   TMode = (InsertMode, UpdateMode);
@@ -73,6 +74,9 @@ var
   DispatcherController: TDispatcherController;
 
 implementation
+
+var
+  log: ILog;
 
 {$R *.dfm}
 
@@ -259,5 +263,8 @@ procedure TDispatcherController.ValidateInput(Sender: TObject);
 begin
   validate;
 end;
+
+initialization
+log := logger('DispatcherForm');
 
 end.

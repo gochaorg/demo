@@ -83,7 +83,7 @@ type
   end;
 
 var
-  log: ILog;
+  unnamedLog: ILog;
   rootLog: TDelegateLog;
   dummyLog: TDummyLog;
 
@@ -304,7 +304,7 @@ end;
 initialization
   // Общий лог - без всяких префиксов логирования
   rootLog := TDelegateLog.Create;
-  log := rootLog;
+  unnamedLog := rootLog;
 
   // Отсуствие логирования
   dummyLog := TDummyLog.Create;
@@ -312,11 +312,5 @@ initialization
   // Инициализация логгирования
   initLog := TInitLog.Create;
   applicationConfigObj.addListener(initLog.reInit);
-
-  //log := TFileLog.Create(GetCurrentDir()+'\app.log', false);
-  //log := TPrefixLog.Create(log, TDateTimePrefixLog.Create.getMessage);
-  //log := TPrefixLog.Create(log, TConstPrefixLog.Create(' >> ').getMessage);
-
-  //log.println('start logging');
 
 end.
