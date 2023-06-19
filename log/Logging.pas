@@ -2,6 +2,9 @@ unit Logging;
 
 interface
 
+uses
+  SysUtils;
+
 type
   // Запись лога
   ILog = interface
@@ -69,8 +72,10 @@ type
   IDateTimePrefixLog = interface
     function getMessage():string;
   end;
+
   TDateTimePrefixLog = class(TInterfacedObject, IDateTimePrefixLog)
     private
+      fmt: TFormatSettings;
     public
       constructor Create();
       destructor Destroy(); override;
@@ -85,8 +90,6 @@ var
 implementation
 
 uses
-  SysUtils,
-
   Config;
 
 { TDummyLog }
@@ -219,6 +222,11 @@ end;
 constructor TDateTimePrefixLog.Create;
 begin
   inherited Create();
+
+  self.fmt.ShortDateFormat :='yyyy-MM-dd';
+  self.fmt.DateSeparator :='-';
+  self.fmt.LongTimeFormat :='HH:nn:ss.zzz';
+  self.fmt.TimeSeparator :=':';
 end;
 
 destructor TDateTimePrefixLog.Destroy;
@@ -231,7 +239,7 @@ var
   time: TDateTime;
 begin
   time := now();
-  result := DateToStr(time) + ' ' + TimeToStr(time);
+  result := DateTimeToStr(time,self.fmt);
 end;
 
 { TDelegateLog }
