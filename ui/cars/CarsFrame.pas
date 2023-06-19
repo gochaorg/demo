@@ -47,6 +47,11 @@ procedure TCarsController.ActivateDataView();
 begin
   carsADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, carsDBGrid);
+
+  refreshButton.Enabled := true;
+  newButton.Enabled := true;
+  editButton.Enabled := true;
+  deleteButton.Enabled := true;
 end;
 
 procedure TCarsController.RefreshCurrent();

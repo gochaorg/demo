@@ -23,19 +23,19 @@ type
   //   - Редактирование модели
   //   - Удаление модели
   TCarsModelsController = class(TFrame)
-    _topPanel: TPanel;
-    _refreshButton: TButton;
-    _newButton: TButton;
-    _editButton: TButton;
-    _deleteButton: TButton;
-    _carModelDBGrid: TDBGrid;
+    topPanel: TPanel;
+    refreshButton: TButton;
+    newButton: TButton;
+    editButton: TButton;
+    deleteButton: TButton;
+    carModelDBGrid: TDBGrid;
     _DataSource: TDataSource;
     ADOQuery1: TADOQuery;
-    procedure _refreshButtonClick(Sender: TObject);
-    procedure _carModelDBGridTitleClick(Column: TColumn);
-    procedure _newButtonClick(Sender: TObject);
-    procedure _editButtonClick(Sender: TObject);
-    procedure _deleteButtonClick(Sender: TObject);
+    procedure refreshButtonClick(Sender: TObject);
+    procedure carModelDBGridTitleClick(Column: TColumn);
+    procedure newButtonClick(Sender: TObject);
+    procedure editButtonClick(Sender: TObject);
+    procedure deleteButtonClick(Sender: TObject);
   private
     procedure RefreshAll();
     procedure RefreshCurrent();
@@ -60,15 +60,20 @@ procedure TCarsModelsController.activateDataView();
 begin
   //_ADOTable.Active := true;
   ADOQuery1.Active := true;
-  dbViewPreparer.prepareGrid(Self.ClassName, _carModelDBGrid);
+  dbViewPreparer.prepareGrid(Self.ClassName, carModelDBGrid);
+
+  refreshButton.Enabled := true;
+  newButton.Enabled := true;
+  editButton.Enabled := true;
+  deleteButton.Enabled := true;
 end;
 
-procedure TCarsModelsController._refreshButtonClick(Sender: TObject);
+procedure TCarsModelsController.refreshButtonClick(Sender: TObject);
 begin
   refreshAll;
 end;
 
-procedure TCarsModelsController._carModelDBGridTitleClick(Column: TColumn);
+procedure TCarsModelsController.carModelDBGridTitleClick(Column: TColumn);
 begin
   ADOQuery1.Active := false;
   ADOQuery1.SQL.Clear();
@@ -85,10 +90,10 @@ procedure TCarsModelsController.refreshAll();
 begin
   ADOQuery1.Active := false;
   ADOQuery1.Active := true;
-  dbViewPreparer.prepareGrid(Self.ClassName, _carModelDBGrid);
+  dbViewPreparer.prepareGrid(Self.ClassName, carModelDBGrid);
 end;
 
-procedure TCarsModelsController._newButtonClick(Sender: TObject);
+procedure TCarsModelsController.newButtonClick(Sender: TObject);
 var
   insertDialog : TCarModelController;
   rows: TDBRows;
@@ -99,11 +104,11 @@ begin
     if insertDialog.insertDialog( ADOQuery1.Connection ) then begin
       refreshAll;
 
-      extend(_carModelDBGrid).SelectAndFocus(
+      extend(carModelDBGrid).SelectAndFocus(
         TDataRowValueEqualsPredicate.Create('id', insertDialog.getInsertedId)
       );
 
-      _carModelDBGrid.SetFocus;
+      carModelDBGrid.SetFocus;
     end;
   finally
     FreeAndNil(insertDialog);
@@ -111,21 +116,21 @@ begin
   end;
 end;
 
-procedure TCarsModelsController._editButtonClick(Sender: TObject);
+procedure TCarsModelsController.editButtonClick(Sender: TObject);
 var
   id : variant;
   id_int : Integer;
   name : variant;
   updateDialog : TCarModelController;
 begin
-  if extend(_carModelDBGrid).getRowsCount > 0 then
+  if extend(carModelDBGrid).getRowsCount > 0 then
   begin
-    id     := _carModelDBGrid.Fields[0].Value;
-    name   := _carModelDBGrid.Fields[1].Value;
+    id     := carModelDBGrid.Fields[0].Value;
+    name   := carModelDBGrid.Fields[1].Value;
     id_int := StrToInt(VarToStr(id));
 
     updateDialog := TCarModelController.Create(self);
-    TDBGridExt.Create(_carModelDBGrid).Ext;
+    TDBGridExt.Create(carModelDBGrid).Ext;
     try
       if updateDialog.updateDialog(
         ADOQuery1.Connection, id_int, varToWideStr(name) ) then begin
@@ -137,7 +142,7 @@ begin
   end;
 end;
 
-procedure TCarsModelsController._deleteButtonClick(Sender: TObject);
+procedure TCarsModelsController.deleteButtonClick(Sender: TObject);
 var
   rows: TDBRows;
   rowDelete:  TDBRowsSqlExec;
@@ -152,7 +157,7 @@ begin
   rowDelete := TDBRowsSqlExec.Create(query);
   rowDelete.Map('id', 'id');
   try
-    extend(_carModelDBGrid).fetchRows(true,false, rows.Add);
+    extend(carModelDBGrid).fetchRows(true,false, rows.Add);
     rows.Each(rowDelete.Execute);
     if rowDelete.getErrorsCount > 0 then
       begin

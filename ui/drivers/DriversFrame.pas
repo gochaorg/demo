@@ -47,6 +47,11 @@ procedure TDriversController.ActivateDataView();
 begin
   driversADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, driversDBGrid);
+
+  refreshButton.Enabled := true;
+  newButton.Enabled := true;
+  editButton.Enabled := true;
+  deleteButton.Enabled := true;
 end;
 
 procedure TDriversController.RefreshCurrent();

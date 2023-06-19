@@ -47,6 +47,11 @@ procedure TWaybillsController.ActivateDataView();
 begin
   waybillsADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, waybillsDBGrid);
+
+  refreshButton.Enabled := true;
+  newButton.Enabled := true;
+  editButton.Enabled := true;
+  deleteButton.Enabled := true;
 end;
 
 procedure TWaybillsController.RefreshCurrent();

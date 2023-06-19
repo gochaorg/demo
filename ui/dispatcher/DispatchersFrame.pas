@@ -47,6 +47,11 @@ procedure TDispatchersController.ActivateDataView();
 begin
   dispatchersADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, dispatchersDBGrid);
+
+  refreshButton.Enabled := true;
+  newButton.Enabled := true;
+  editButton.Enabled := true;
+  deleteButton.Enabled := true;
 end;
 
 procedure TDispatchersController.RefreshCurrent();

@@ -40,7 +40,6 @@ uses
 begin
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
-  Application.CreateForm(TWaybillController, WaybillController);
   try
     applicationConfigObj.Load();
     logger('app').println('started');
