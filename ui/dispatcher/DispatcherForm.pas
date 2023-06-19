@@ -25,12 +25,22 @@ type
   private
     // Режим InsertMode / UpdateMode
     mode: TMode;
+
+    // содинение с СУБД
+    // не владет ссылкой
+    // сылка доступна только на момент пока окно открыто
     connection: TADOConnection;
 
+    // ID добавленной записи в СУБД
     insertedId: Integer;
+
+    // ID обновляемой записи
     updatingId: Integer;
 
+    // добавление успешно выполнено
     insertSuccessfully: Boolean;
+
+    // обновление успешно выполнено
     updateSuccessfully: Boolean;
 
     // Валидация и построение SQL
