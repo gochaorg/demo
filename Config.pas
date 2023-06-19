@@ -119,8 +119,14 @@ type
 
     function isDebug(): Boolean;
 
+    // логгирование разрешено/запрещено
     function isLogEnabled: Boolean;
+
+    // имя лог файла относительно текущего каталога
     function getLogFilename: WideString;
+
+    // добавлять в лог файл записи или переписывать лог файл
+    function isAppendLogFile: Boolean;
 
     // Добавляет подписчика на изменения
     procedure addListener( listener: TConfigListener );
@@ -141,7 +147,7 @@ const
   DEFAULT_DB_PASSWORD = 'password';
   DEFAULT_CONFIG_FILENAME = 'config.init';
 
-// Глобальные объекты  
+// Глобальные объекты
 var
   applicationConfigObj : TConfig;
   applicationConfigItf : IConfig;
@@ -302,6 +308,11 @@ end;
 function TConfig.isLogEnabled: Boolean;
 begin
   result := true;
+end;
+
+function TConfig.isAppendLogFile: Boolean;
+begin
+  result := false;
 end;
 
 { TConfigListenerHolder }

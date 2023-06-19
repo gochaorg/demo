@@ -79,8 +79,8 @@ type
 
 var
   log: ILog;
-  dummyLog: TDummyLog;
   rootLog: TDelegateLog;
+  dummyLog: TDummyLog;
 
 implementation
 
@@ -265,6 +265,8 @@ begin
 end;
 
 type
+
+// Инициализация логгирования
 TInitLog = class
   public
     procedure reInit;
@@ -272,28 +274,41 @@ end;
 
 var
   initLog: TInitLog;
+  fileLog: ILog;
 
 { TInitLog }
 
 procedure TInitLog.reInit;
 begin
   if applicationConfigObj.isLogEnabled then begin
+    if not assigned(fileLog) then begin
+      fileLog := TFileLog.Create(
+        GetCurrentDir()+'\'+applicationConfigObj.getLogFilename,
+        applicationConfigObj.isAppendLogFile
+      );
+    end;
+    rootLog.setTarget(fileLog);
   end else begin
     rootLog.setTarget(dummyLog);
   end;
 end;
 
 initialization
-  dummyLog := TDummyLog.Create;
+  // Общий лог - без всяких префиксов логирования
   rootLog := TDelegateLog.Create;
-  initLog := TInitLog.Create;
+  log := rootLog;
 
+  // Отсуствие логирования
+  dummyLog := TDummyLog.Create;
+
+  // Инициализация логгирования
+  initLog := TInitLog.Create;
   applicationConfigObj.addListener(initLog.reInit);
 
-  log := TFileLog.Create(GetCurrentDir()+'\app.log', false);
-  log := TPrefixLog.Create(log, TDateTimePrefixLog.Create.getMessage);
-  log := TPrefixLog.Create(log, TConstPrefixLog.Create(' >> ').getMessage);
+  //log := TFileLog.Create(GetCurrentDir()+'\app.log', false);
+  //log := TPrefixLog.Create(log, TDateTimePrefixLog.Create.getMessage);
+  //log := TPrefixLog.Create(log, TConstPrefixLog.Create(' >> ').getMessage);
 
-  log.println('start logging');
+  //log.println('start logging');
 
 end.
