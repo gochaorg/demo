@@ -119,10 +119,4 @@ object waybillsController: TwaybillsController
     Left = 192
     Top = 72
   end
-  object switchEnableButtonsTimer: TTimer
-    Interval = 200
-    OnTimer = switchEnableButtonsTimerTimer
-    Left = 264
-    Top = 72
-  end
 end

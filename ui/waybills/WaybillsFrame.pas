@@ -25,7 +25,6 @@ type
     waybillsDataSource: TDataSource;
     waybillsADOQuery: TADOQuery;
     showHistoryCheckBox: TCheckBox;
-    switchEnableButtonsTimer: TTimer;
     procedure newButtonClick(Sender: TObject);
     procedure refreshButtonClick(Sender: TObject);
     procedure editButtonClick(Sender: TObject);
@@ -35,7 +34,6 @@ type
       const Rect: TRect; DataCol: Integer; Column: TColumn;
       State: TGridDrawState);
     procedure waybillsDBGridColEnter(Sender: TObject);
-    procedure switchEnableButtonsTimerTimer(Sender: TObject);
   private
     queryBuilderValue: IWaybillsQueryBuilder;
     function queryBuilder: IWaybillsQueryBuilder;
@@ -273,30 +271,6 @@ procedure TWaybillsController.switchEditDeleteEnable;
 var
   row:TStringMap;
 begin
-  {
-  row := TStringMap.Create;
-  try
-    if self.isActivated
-      and extend(waybillsDBGrid).GetFocusedRow(row)
-    then begin
-      if row.get('state') = 'actual' then begin
-        editButton.Enabled := true;
-        deleteButton.Enabled := true;
-      end else begin
-        editButton.Enabled := false;
-        deleteButton.Enabled := false;
-      end;
-    end;
-  finally
-    FreeAndNil(row);
-  end;
-  }
-end;
-
-procedure TWaybillsController.switchEnableButtonsTimerTimer(
-  Sender: TObject);
-begin
-//  self.switchEditDeleteEnable;
 end;
 
 initialization
