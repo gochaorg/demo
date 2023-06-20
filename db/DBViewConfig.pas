@@ -69,6 +69,7 @@ begin
     hideColumn(grid, 'outcome_date');
     hideColumn(grid, 'income_date');
     hideColumn(grid, 'car_total_wear');
+    hideColumn(grid, 'search_text');
 
     setColumnWidth(grid, 'car_legal_number', 130);
     setColumnTitle(grid, 'car_legal_number', 'Гос номер');

@@ -57,6 +57,7 @@ object waybillsController: TwaybillsController
       Width = 68
       Height = 17
       Caption = #1048#1089#1090#1086#1088#1080#1103
+      Enabled = False
       TabOrder = 4
       OnClick = showHistoryCheckBoxClick
     end
@@ -75,7 +76,6 @@ object waybillsController: TwaybillsController
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
-    OnColEnter = waybillsDBGridColEnter
     OnDrawColumnCell = waybillsDBGridDrawColumnCell
   end
   object waybillsDataSource: TDataSource

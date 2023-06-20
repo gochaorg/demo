@@ -66,8 +66,8 @@ implementation
 
 var
   log:ILog;
-  columns:array[0 .. 16] of TWaybillColumn;
-  histColumns:array[0 .. 16] of TWaybillColumn;
+  columns:array[0 .. 17] of TWaybillColumn;
+  histColumns:array[0 .. 17] of TWaybillColumn;
 
 { TWaybillsQuery }
 
@@ -140,33 +140,39 @@ function TWaybillsQueryBuilder.build: IWaybillsQuery;
   end;
 var
   sql: WideString;
+  params: TStringMap;
 begin
   // отображаемые столбцы
-  sql := 'select ' +
+  sql := 'select * from ( select * from ( select ' +
     columnsExp(columns) +
     ' from '+
     ' waybills w '+
     ' left join drivers dr on (dr.id = w.driver) '+
     ' left join dispatchers ds on (ds.id = w.dispatcher) '+
     ' left join cars c on (c.id = w.car) '+
-    ' left join cars_model cm on (c.model = cm.id) '
+    ' left join cars_model cm on (c.model = cm.id) '+
+    ') a'
     ;
 
-  // исторические данные  
+  // исторические данные
   if self.withHistoryValue then begin
     sql := sql + ' union all ';
-    sql := sql + 'select ' +
+    sql := sql + 'select * from ( select ' +
       columnsExp(histColumns) +
       ' from '+
       ' waybills_hist w '+
       ' left join drivers dr on (dr.id = w.driver) '+
       ' left join dispatchers ds on (ds.id = w.dispatcher) '+
       ' left join cars c on (c.id = w.car) '+
-      ' left join cars_model cm on (c.model = cm.id) '
+      ' left join cars_model cm on (c.model = cm.id) '+
+      ') b'
       ;
   end;
 
-  result := TWaybillsQuery.Create(sql, TStringMap.Create);
+  sql := sql + ') aa';
+
+  params := TStringMap.Create;
+  result := TWaybillsQuery.Create(sql, params);
 end;
 
 
@@ -212,6 +218,15 @@ columns[13] := TWaybillColumn.Create('income_date', 'w.income_date', true);
 columns[14] := TWaybillColumn.Create('income_date_s', 'convert( nvarchar(100), w.income_date, 23 ) + '' '' + convert( nvarchar(50), w.income_date, 108 )', true);
 columns[15] := TWaybillColumn.Create('fuel_cons', 'w.fuel_cons', true);
 columns[16] := TWaybillColumn.Create('wear', 'w.wear', true);
+columns[17] := TWaybillColumn.Create('search_text',
+	'cm.name + c.legal_number + dr.name + ds.name +' +
+	'(convert( nvarchar(100), w.outcome_date, 23 ) + '' '' + convert( nvarchar(50), w.outcome_date, 108 )) +' +
+	'(convert( nvarchar(100), w.income_date, 23 ) + '' '' + convert( nvarchar(50), w.income_date, 108 ))'+
+	'+ cast(isnull((select sum(wear) from waybills where car = w.car), 0) + c.wear as nvarchar(100))'+
+	'+ cast(w.fuel_cons as nvarchar(50))'+
+	'+ cast(w.wear as nvarchar(50))'+
+	'+ cast(w.id as nvarchar(50))'
+  ,false);
 
 // колонки исторических данных
 histColumns[ 0] := columns[0];
@@ -231,5 +246,6 @@ histColumns[13] := columns[13];
 histColumns[14] := columns[14];
 histColumns[15] := columns[15];
 histColumns[16] := columns[16];
+histColumns[17] := columns[17];
 
 end.

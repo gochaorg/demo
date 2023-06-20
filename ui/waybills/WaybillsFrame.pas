@@ -33,14 +33,12 @@ type
     procedure waybillsDBGridDrawColumnCell(Sender: TObject;
       const Rect: TRect; DataCol: Integer; Column: TColumn;
       State: TGridDrawState);
-    procedure waybillsDBGridColEnter(Sender: TObject);
   private
     queryBuilderValue: IWaybillsQueryBuilder;
     function queryBuilder: IWaybillsQueryBuilder;
 
     function isActivated: boolean;
     procedure RebuildQuery();
-    procedure switchEditDeleteEnable();
   public
     procedure ActivateDataView();
     procedure RefreshCurrent();
@@ -63,6 +61,7 @@ begin
   newButton.Enabled := true;
   editButton.Enabled := true;
   deleteButton.Enabled := true;
+  showHistoryCheckBox.Enabled := true;
 end;
 
 procedure TWaybillsController.RefreshCurrent();
@@ -260,17 +259,6 @@ begin
   finally
     FreeAndNil(row);
   end;
-end;
-
-procedure TWaybillsController.waybillsDBGridColEnter(Sender: TObject);
-begin
-  self.switchEditDeleteEnable;
-end;
-
-procedure TWaybillsController.switchEditDeleteEnable;
-var
-  row:TStringMap;
-begin
 end;
 
 initialization
