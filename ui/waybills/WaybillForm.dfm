@@ -1,6 +1,6 @@
 object WaybillController: TWaybillController
-  Left = 636
-  Top = 155
+  Left = 638
+  Top = 159
   Width = 456
   Height = 596
   Caption = 'WaybillController'

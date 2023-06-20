@@ -81,6 +81,9 @@ object waybillsController: TwaybillsController
       #9'w.car as car_id,'
       #9'c.model as car_model_id,'
       #9'cm.name as car_model_name,'
+      
+        #9'(select sum(wear) from waybills where car = w.car) + c.wear as ' +
+        'car_total_wear,'
       #9'c.legal_number as car_legal_number,'
       #9'w.driver as driver_id,'
       #9'dr.name as driver_name,'

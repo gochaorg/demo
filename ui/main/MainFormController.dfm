@@ -1,5 +1,5 @@
 object MainForm: TMainForm
-  Left = 527
+  Left = 530
   Top = 306
   Width = 691
   Height = 480
@@ -122,10 +122,10 @@ object MainForm: TMainForm
         Height = 393
         Align = alClient
         TabOrder = 0
-        inherited _topPanel: TPanel
+        inherited topPanel: TPanel
           Width = 667
         end
-        inherited _carModelDBGrid: TDBGrid
+        inherited carModelDBGrid: TDBGrid
           Width = 667
           Height = 352
         end

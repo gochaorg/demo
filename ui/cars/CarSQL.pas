@@ -165,6 +165,7 @@ TCar = class
     legalNumberValue: WideString;
     modelIdValue: Integer;
     modelNameValue: WideString;
+    totalWearValue: Integer;
   public
     // id запииси
     property carId:Integer read carIdValue;
@@ -178,11 +179,15 @@ TCar = class
     // Модель машины - название
     property modelName:WideString read modelNameValue;
 
+    // Суммарный пробег
+    property totalWear:Integer read totalWearValue;
+
     constructor Create(
       carId: Integer;
       legalNumber: WideString;
       modelId: Integer;
-      modelName: WideString
+      modelName: WideString;
+      totalWear: Integer
     );
 
     constructor Copy( sample: TCar );
@@ -574,19 +579,22 @@ begin
   self.legalNumberValue := sample.legalNumberValue;
   self.modelIdValue     := sample.modelIdValue;
   self.modelNameValue   := sample.modelNameValue;
+  self.totalWearValue   := sample.totalWearValue;
 end;
 
 constructor TCar.Create(
     carId: Integer;
     legalNumber: WideString;
     modelId: Integer;
-    modelName: WideString
+    modelName: WideString;
+    totalWear: Integer
 );
 begin
   self.carIdValue := carId;
   self.legalNumberValue := legalNumber;
   self.modelIdValue := modelId;
   self.modelNameValue := modelName;
+  self.totalWearValue := totalWear;
 end;
 
 { TCarFinder }
@@ -611,6 +619,7 @@ begin
     query.FieldValues['legal_number'],
     query.FieldValues['model_id'],
     query.FieldValues['model_name'],
+    query.FieldValues['total_wear']
   );
 end;
 ////////////
@@ -627,7 +636,8 @@ begin
       '	c.id as car_id,'+
       '	c.legal_number as legal_number,'+
       '	c.model as model_id,'+
-      '	cm.name as model_name '+
+      '	cm.name as model_name, '+
+      ' (c.wear + (select sum(wear) from waybills where car = c.id )) as total_wear'+
       ' from cars c'+
       ' left join cars_model cm on (cm.id = c.model)'+
       ' order by c.legal_number';
@@ -661,6 +671,7 @@ begin
       '	c.legal_number as legal_number,'+
       '	c.model as model_id,'+
       '	cm.name as model_name '+
+      ' (c.wear + (select sum(wear) from waybills where car = c.id )) as total_wear'+
       ' from cars c'+
       ' left join cars_model cm on (cm.id = c.model)'+
       ' where c.legal_number like :what or cm.name like :what'+

@@ -114,6 +114,7 @@ begin
           curRow.get('car_model_id'),
           curRow.get('car_model_name'),
           curRow.get('car_legal_number'),
+          curRow.get('car_total_wear'),
           curRow.get('wear'),
           curRow.get('fuel_cons')
         ) then begin

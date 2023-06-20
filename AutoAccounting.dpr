@@ -33,7 +33,8 @@ uses
   DBRowsLogger in 'db\DBRowsLogger.pas',
   DBRowsSqlExec in 'db\DBRowsSqlExec.pas',
   DBView in 'db\DBView.pas',
-  DBViewConfig in 'db\DBViewConfig.pas';
+  DBViewConfig in 'db\DBViewConfig.pas',
+  WaybillSQLView in 'ui\waybills\WaybillSQLView.pas';
 
 {$R *.res}
 

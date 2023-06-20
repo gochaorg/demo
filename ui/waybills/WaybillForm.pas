@@ -105,6 +105,7 @@ type
     //   carModelId - id модели машины
     //   carModelName - название модели машины
     //   carLegalNumber - гос номер машины
+    //   carTotalWear - суммарный пробег
     //   wear - пробег для текущего путевого листа
     //   fuelCons - кол-во потребленного топлива
     // Возвращает
@@ -123,6 +124,7 @@ type
       carModelId: Integer;
       carModelName: WideString;
       carLegalNumber: WideString;
+      carTotalWear: Integer;
       wear: Integer;
       fuelCons: Integer
     ): Boolean;
@@ -217,6 +219,7 @@ function TWaybillController.UpdateDialog(
   carModelId: Integer;
   carModelName: WideString;
   carLegalNumber: WideString;
+  carTotalWear: Integer;
   wear: Integer;
   fuelCons: Integer
 ): Boolean;
@@ -255,7 +258,14 @@ begin
     self.dispatchersListBox.ItemIndex := 0;
 
     self.ClearCars;
-    self.AddCar(TCar.Create(carId, carLegalNumber, carModelId, carModelName));
+    self.AddCar(
+      TCar.Create(
+        carId,
+        carLegalNumber,
+        carModelId,
+        carModelName,
+        carTotalWear)
+    );
     self.carsListBox.ItemIndex := 0;
 
     self.wearEdit.Text := IntToStr(wear);
@@ -501,7 +511,9 @@ end;
 procedure TWaybillController.AddCar(car: TCar);
 begin
   self.carsListBox.AddItem(
-    car.legalNumber+' '+car.modelName,
+    'гос номер:'+car.legalNumber+
+    ' модель:'+car.modelName+
+    ' пробег:'+IntToStr(car.totalWear),
     TCar.Copy(car)
   );
 end;
