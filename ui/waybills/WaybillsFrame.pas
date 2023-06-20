@@ -7,9 +7,9 @@ uses
   Dialogs, Grids, DBGrids, ExtCtrls, StdCtrls, DB, ADODB,
 
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
-  DBViewConfig,
+  DBViewConfig, 
 
-  WaybillForm,
+  WaybillForm, WaybillSQLView,
   Loggers, Logging
   ;
 
@@ -24,12 +24,25 @@ type
     deleteButton: TButton;
     waybillsDataSource: TDataSource;
     waybillsADOQuery: TADOQuery;
+    showHistoryCheckBox: TCheckBox;
+    switchEnableButtonsTimer: TTimer;
     procedure newButtonClick(Sender: TObject);
     procedure refreshButtonClick(Sender: TObject);
     procedure editButtonClick(Sender: TObject);
     procedure deleteButtonClick(Sender: TObject);
+    procedure showHistoryCheckBoxClick(Sender: TObject);
+    procedure waybillsDBGridDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure waybillsDBGridColEnter(Sender: TObject);
+    procedure switchEnableButtonsTimerTimer(Sender: TObject);
   private
-    { Private declarations }
+    queryBuilderValue: IWaybillsQueryBuilder;
+    function queryBuilder: IWaybillsQueryBuilder;
+
+    function isActivated: boolean;
+    procedure RebuildQuery();
+    procedure switchEditDeleteEnable();
   public
     procedure ActivateDataView();
     procedure RefreshCurrent();
@@ -99,29 +112,31 @@ begin
   curRow := TStringMap.Create;
   try
     if extend(waybillsDBGrid).GetFocusedRow(curRow) then begin
-      updateDialog := TWaybillController.Create(self);
-      try
-        if updateDialog.updateDialog(
-          self.waybillsADOQuery.Connection,
-          curRow.get('id'),
-          curRow.get('income_date_s'),
-          curRow.get('outcome_date_s'),
-          curRow.get('driver_id'),
-          curRow.get('driver_name'),
-          curRow.get('dispatcher_id'),
-          curRow.get('dispatcher_name'),
-          curRow.get('car_id'),
-          curRow.get('car_model_id'),
-          curRow.get('car_model_name'),
-          curRow.get('car_legal_number'),
-          curRow.get('car_total_wear'),
-          curRow.get('wear'),
-          curRow.get('fuel_cons')
-        ) then begin
-          refreshCurrent;
+      if curRow.get('state') = 'actual' then begin
+        updateDialog := TWaybillController.Create(self);
+        try
+          if updateDialog.updateDialog(
+            self.waybillsADOQuery.Connection,
+            curRow.get('id'),
+            curRow.get('income_date_s'),
+            curRow.get('outcome_date_s'),
+            curRow.get('driver_id'),
+            curRow.get('driver_name'),
+            curRow.get('dispatcher_id'),
+            curRow.get('dispatcher_name'),
+            curRow.get('car_id'),
+            curRow.get('car_model_id'),
+            curRow.get('car_model_name'),
+            curRow.get('car_legal_number'),
+            curRow.get('car_total_wear'),
+            curRow.get('wear'),
+            curRow.get('fuel_cons')
+          ) then begin
+            refreshCurrent;
+          end;
+        finally;
+          FreeAndNil(updateDialog);
         end;
-      finally;
-        FreeAndNil(updateDialog);
       end;
     end;
   finally
@@ -145,6 +160,7 @@ begin
   rowDelete.Map('id', 'id');
   try
     extend(waybillsDBGrid).fetchRows(true,false, rows.Add);
+    rows.Retain(TDataRowValueEqualsPredicate.Create('state', 'actual'));
     rows.Each(rowDelete.Execute);
     if rowDelete.getErrorsCount > 0 then
       begin
@@ -159,6 +175,128 @@ begin
     FreeAndNil(rows);
     FreeAndNil(rowDelete);
   end;
+end;
+
+procedure TWaybillsController.showHistoryCheckBoxClick(Sender: TObject);
+begin
+  self.rebuildQuery;
+end;
+
+procedure TWaybillsController.RebuildQuery;
+begin
+  queryBuilder.history := showHistoryCheckBox.Checked;
+  if self.isActivated then begin
+    queryBuilder.build.apply(waybillsADOQuery);
+    dbViewPreparer.prepareGrid(Self.ClassName, waybillsDBGrid);
+  end;
+end;
+
+function TWaybillsController.isActivated: boolean;
+begin
+  result := waybillsADOQuery.Active;
+end;
+
+function TWaybillsController.queryBuilder: IWaybillsQueryBuilder;
+begin
+  if assigned(self.queryBuilderValue) then begin
+    result := self.queryBuilderValue;
+  end else begin
+    self.queryBuilderValue := TWaybillsQueryBuilder.Create;
+    result := self.queryBuilderValue;
+  end;
+end;
+
+procedure TWaybillsController.waybillsDBGridDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+var
+  isActual : boolean;
+  row: TStringMap;
+
+  bgHistColor: TColor;
+  bgHistSelectedColor: TColor;
+  bgHistFocusedColor: TColor;
+
+  fgHistColor: TColor;
+  fgHistSelectedColor: TColor;
+  fgHistFocusedColor: TColor;
+
+  bgColor: TColor;
+  fgColor: TColor;
+begin
+  fgColor := TColor($00000000);
+  bgColor := TColor($00ffFFff);
+
+  bgHistColor := TColor($00bbFFbb);
+  fgHistColor := TColor($00000000);
+
+  bgHistSelectedColor := TColor($0088FF88);
+  fgHistSelectedColor := TColor($00000000);
+
+  bgHistFocusedColor := TColor($0000bb00);
+  fgHistFocusedColor := TColor($00ffFFff);
+
+  row := TStringMap.Create;
+  try
+    if extend(waybillsDBGrid).GetCurrentRow(row) then begin
+      if row.get('state') = 'hist'
+      then begin
+        fgColor := fgHistColor;
+        bgColor := bgHistColor;
+
+        if gdSelected in state then begin
+          bgColor := bgHistSelectedColor;
+          fgColor := fgHistSelectedColor;
+        end;
+
+        if gdFocused in state then begin
+          bgColor := bgHistFocusedColor;
+          fgColor := fgHistFocusedColor;
+        end;
+
+        waybillsDBGrid.Canvas.Brush.Color := bgColor;
+        waybillsDBGrid.Canvas.Font.Color := fgColor;
+        waybillsDBGrid.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+      end;
+    end;
+  finally
+    FreeAndNil(row);
+  end;
+end;
+
+procedure TWaybillsController.waybillsDBGridColEnter(Sender: TObject);
+begin
+  self.switchEditDeleteEnable;
+end;
+
+procedure TWaybillsController.switchEditDeleteEnable;
+var
+  row:TStringMap;
+begin
+  {
+  row := TStringMap.Create;
+  try
+    if self.isActivated
+      and extend(waybillsDBGrid).GetFocusedRow(row)
+    then begin
+      if row.get('state') = 'actual' then begin
+        editButton.Enabled := true;
+        deleteButton.Enabled := true;
+      end else begin
+        editButton.Enabled := false;
+        deleteButton.Enabled := false;
+      end;
+    end;
+  finally
+    FreeAndNil(row);
+  end;
+  }
+end;
+
+procedure TWaybillsController.switchEnableButtonsTimerTimer(
+  Sender: TObject);
+begin
+//  self.switchEditDeleteEnable;
 end;
 
 initialization

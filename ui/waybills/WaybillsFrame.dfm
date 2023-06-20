@@ -1,13 +1,13 @@
 object waybillsController: TwaybillsController
   Left = 0
   Top = 0
-  Width = 467
+  Width = 611
   Height = 265
   TabOrder = 0
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 467
+    Width = 611
     Height = 41
     Align = alTop
     TabOrder = 0
@@ -51,11 +51,20 @@ object waybillsController: TwaybillsController
       TabOrder = 3
       OnClick = refreshButtonClick
     end
+    object showHistoryCheckBox: TCheckBox
+      Left = 352
+      Top = 16
+      Width = 68
+      Height = 17
+      Caption = #1048#1089#1090#1086#1088#1080#1103
+      TabOrder = 4
+      OnClick = showHistoryCheckBoxClick
+    end
   end
   object waybillsDBGrid: TDBGrid
     Left = 0
     Top = 41
-    Width = 467
+    Width = 611
     Height = 224
     Align = alClient
     DataSource = waybillsDataSource
@@ -66,6 +75,8 @@ object waybillsController: TwaybillsController
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
+    OnColEnter = waybillsDBGridColEnter
+    OnDrawColumnCell = waybillsDBGridDrawColumnCell
   end
   object waybillsDataSource: TDataSource
     AutoEdit = False
@@ -106,6 +117,12 @@ object waybillsController: TwaybillsController
       #9'left join cars c on (c.id = w.car)'
       #9'left join cars_model cm on (c.model = cm.id)')
     Left = 192
+    Top = 72
+  end
+  object switchEnableButtonsTimer: TTimer
+    Interval = 200
+    OnTimer = switchEnableButtonsTimerTimer
+    Left = 264
     Top = 72
   end
 end

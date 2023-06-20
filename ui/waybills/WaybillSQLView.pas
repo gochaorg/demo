@@ -6,7 +6,7 @@ unit WaybillSQLView;
 interface
 
 uses
-  SysUtils, ADODB,
+  SysUtils, ADODB, Variants,
 
   Loggers, Logging,
   Map;
@@ -28,6 +28,12 @@ TWaybillsQuery = class(TInterfacedObject, IWaybillsQuery)
 end;
 
 IWaybillsQueryBuilder = interface
+  function build:IWaybillsQuery;
+
+  function getHistory:boolean;
+  procedure setHistory(show:boolean);
+  property history:boolean read getHistory write setHistory;
+
 end;
 
 TWaybillsQueryBuilder = class(TInterfacedObject, IWaybillsQueryBuilder)
@@ -36,7 +42,10 @@ TWaybillsQueryBuilder = class(TInterfacedObject, IWaybillsQueryBuilder)
   public
     constructor Create;
     destructor Destroy; override;
-    property history:boolean read withHistoryValue write withHistoryValue;
+
+    function getHistory:boolean;
+    procedure setHistory(show:boolean);
+    property history:boolean read getHistory write setHistory;
 
     function build:IWaybillsQuery;
 end;
@@ -63,8 +72,30 @@ var
 { TWaybillsQuery }
 
 procedure TWaybillsQuery.apply(query: TADOQuery);
+var
+  i:Integer;
+  name:String;
+  value:variant;
 begin
-  //
+  log.println('query.Active := false');
+  query.Active := false;
+
+  log.println('query.Parameters.Clear');
+  query.Parameters.Clear;
+
+  log.println('query.SQL.Text := '+self.sql);
+  query.SQL.Text := self.sql;
+
+  for i:=0 to (self.params.count-1) do begin
+    name := self.params.key(i);
+    value := self.params.get(name);
+
+    log.println('query param '+name+' = '+VarToStr(value));
+    query.Parameters.ParamByName(name).Value := value;
+  end;
+
+  log.println('query.Active := true');
+  query.Active := true;
 end;
 
 constructor TWaybillsQuery.Create(sql: WideString; params: TStringMap);
@@ -72,10 +103,12 @@ begin
   inherited Create;
   self.sql := sql;
   self.params := params;
+  log.println('TWaybillsQuery.Create');
 end;
 
 destructor TWaybillsQuery.Destroy;
 begin
+  log.println('TWaybillsQuery.Destroy');
   FreeAndNil(self.params);
   inherited Destroy;
 end;
@@ -136,6 +169,17 @@ begin
   result := TWaybillsQuery.Create(sql, TStringMap.Create);
 end;
 
+
+function TWaybillsQueryBuilder.getHistory: boolean;
+begin
+  result := self.withHistoryValue;
+end;
+
+procedure TWaybillsQueryBuilder.setHistory(show: boolean);
+begin
+  self.withHistoryValue := show;
+  log.println('setHistory '+BoolToStr(show));
+end;
 
 { TWaybillColumn }
 
