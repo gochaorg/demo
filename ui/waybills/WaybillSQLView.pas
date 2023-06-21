@@ -13,10 +13,13 @@ uses
 
 type
 
+// √отовый запрос к —”Ѕƒ дл€ выполнени€
 IWaybillsQuery = interface
+  // ѕримен€ет запрос к объекту TADOQuery
   procedure apply( query:TADOQuery );
 end;
 
+// –еализаци€ IWaybillsQuery
 TWaybillsQuery = class(TInterfacedObject, IWaybillsQuery)
   private
     sql: WideString;
@@ -27,18 +30,133 @@ TWaybillsQuery = class(TInterfacedObject, IWaybillsQuery)
     procedure apply( query:TADOQuery );
 end;
 
+//  онтекст дл€ построени€ параметров запроса
+IParamBuildContext = interface
+  // ¬озвращает кол-во параметров
+  function GetParamCount:Integer;
+
+  // ƒобавл€ет параметр
+  //   name - им€ параметра
+  //   value - значение
+  // ¬озвращает
+  //   true - успешно
+  //   fale - не добавлен, тк уже параметр с таким именем уже ранее был добавлен
+  function AddParam( name:string; value:variant ):boolean;
+end;
+
+// –еализаци€ контекста параметров
+TParamBuildContext = class(TInterfacedObject,IParamBuildContext)
+  private
+    params: TStringMap;
+    ownParams: boolean;
+  public
+    constructor Create(params:TStringMap; ownParams:boolean);
+    destructor Destroy; override;
+    function GetParamCount:Integer;
+    function AddParam( name:string; value:variant ):boolean;
+end;
+
+// Ќекое обощеное where выражение
+IWhereExpression = interface
+  ['{E3A98B73-0FD2-49BF-BB50-61A0592C5D71}']
+  function BuildSql( paramContext:IParamBuildContext ):string;
+end;
+
+// операци€ LIKE дл€ отображаемых данных в части WHERE
+TWhereSearchTextLikeExpression = class(TInterfacedObject,IWhereExpression)
+  private
+    what: WideString;
+  public
+    constructor Create( what:WideString );
+    function BuildSql( paramContext:IParamBuildContext ):string;
+end;
+
+// операци€ and дл€ where выражение
+TWhereAndExpression = class(TInterfacedObject,IWhereExpression)
+  private
+    leftExpression : IWhereExpression;
+    rightExpression : IWhereExpression;
+  public
+    //  онструктор
+    //   leftExp  - левый операнд оператора AND
+    //   rightExp - правый операнд оператора AND
+    constructor Create(leftExp: IWhereExpression; rightExp: IWhereExpression);
+    function BuildSql( paramContext:IParamBuildContext ):string;
+end;
+
+// операци€ or дл€ where выражение
+TWhereOrExpression = class(TInterfacedObject,IWhereExpression)
+  private
+    leftExpression : IWhereExpression;
+    rightExpression : IWhereExpression;
+  public
+    //  онструктор
+    //   leftExp  - левый операнд оператора OR
+    //   rightExp - правый операнд оператора OR
+    constructor Create(leftExp: IWhereExpression; rightExp: IWhereExpression);
+    function BuildSql( paramContext:IParamBuildContext ):string;
+end;
+
+// операци€ like дл€ where выражение
+TWhereLikeExpression = class(TInterfacedObject,IWhereExpression)
+  private
+    key:string;
+    value:variant;
+  public
+    //  онструктор
+    //   key - левый операнд оператора LIKE - им€ колонки/выражение
+    //   value - правый операнд оператора LIKE
+    constructor Create(key:string; value:variant);
+    function BuildSql( paramContext:IParamBuildContext ):string;
+end;
+
+// пустое выражение,
+// должно использоватьс€ самосто€тельно бeз других выражений
+IWhereEmptyExpression = interface(IWhereExpression)
+   ['{89CDB6E5-C5E2-45E8-9C25-3F2211FCEFE6}']
+end;
+TWhereEmptyExpression = class(TInterfacedObject,IWhereExpression,IWhereEmptyExpression)
+  public
+    constructor Create();
+    function BuildSql(paramContext:IParamBuildContext ):string;
+end;
+
+// —оздание запроса
 IWaybillsQueryBuilder = interface
   function build:IWaybillsQuery;
 
+  // свойство history - отображать или нет историю
   function getHistory:boolean;
   procedure setHistory(show:boolean);
   property history:boolean read getHistory write setHistory;
 
+  // —войство where
+  function getWhereExpression: IWhereExpression;
+  procedure setWhereExpression( expression:IWhereExpression );
+
+  property whereExpresion:IWhereExpression
+    read getWhereExpression
+    write setWhereExpression;
+
+  // ¬озвращает
+  //   true - свойство whereExpresion установленно
+  //   false - свойство whereExpresion не установленно, не содержит значени€
+  function hasWhereExpression: boolean;
+
+  // очищает свойство whereExpresion
+  procedure resetWhereExpression;
 end;
 
+//  онстркуктор запроса
 TWaybillsQueryBuilder = class(TInterfacedObject, IWaybillsQueryBuilder)
   private
     withHistoryValue: boolean;
+    searchIsSet: boolean;
+
+    // может быть nil
+    whereExpressionValue: IWhereExpression;
+
+    
   public
     constructor Create;
     destructor Destroy; override;
@@ -47,19 +165,58 @@ TWaybillsQueryBuilder = class(TInterfacedObject, IWaybillsQueryBuilder)
     procedure setHistory(show:boolean);
     property history:boolean read getHistory write setHistory;
 
+    function getWhereExpression: IWhereExpression;
+    procedure setWhereExpression( expression:IWhereExpression );
+    property whereExpresion:IWhereExpression
+      read getWhereExpression
+      write setWhereExpression;
+
+    function hasWhereExpression: boolean;
+    procedure resetWhereExpression;
+
     function build:IWaybillsQuery;
 end;
 
+// ¬ыбираема€ колонка
 TWaybillColumn = class
   private
+    // синоним после ключевого слова AS
     aliasValue: WideString;
+
+    // выражение
     expressionValue: WideString;
+
+    // колонка видима€
     visibleValue: boolean;
+
+    // ключ (колонка) дл€ сортировки
+    orderKeyValue: WideString;
+
+    // ключ дл€ сортирвки задан
+    orderKeyExistsValue: boolean;
   public
-    constructor Create(alias:WideString; expr:WideString; visible:boolean);
+    constructor Create(
+      alias:WideString;
+      expr:WideString;
+      visible:boolean;
+      orderKey: WideString;
+      orderKeyExists: boolean
+    );
+
+    // синоним после ключевого слова AS
     property alias:WideString read aliasValue;
+
+    // выражение
     property expression:WideString read expressionValue;
+
+    // колонка видима€
     property visible:boolean read visibleValue;
+
+    // ключ (колонка) дл€ сортировки
+    property orderKey: WideString read orderKeyValue;
+    
+    // ключ дл€ сортирвки задан
+    property orderKeyExists: boolean read orderKeyExistsValue;
 end;
 
 implementation
@@ -68,6 +225,7 @@ var
   log:ILog;
   columns:array[0 .. 17] of TWaybillColumn;
   histColumns:array[0 .. 17] of TWaybillColumn;
+  emptyWhere: IWhereEmptyExpression;
 
 { TWaybillsQuery }
 
@@ -122,10 +280,11 @@ end;
 
 destructor TWaybillsQueryBuilder.Destroy;
 begin
-  inherited;
+  inherited Destroy;
 end;
 
 function TWaybillsQueryBuilder.build: IWaybillsQuery;
+  // ѕостроение sql - перечн€ выбираемых колонок: select _это_
   function columnsExp( cols: array of TWaybillColumn ):WideString;
     var
       exp:WideString;
@@ -168,10 +327,16 @@ begin
       ') b'
       ;
   end;
-
   sql := sql + ') aa';
 
   params := TStringMap.Create;
+
+  if self.hasWhereExpression then begin
+    sql := sql + ' where ' +
+      self.whereExpresion.BuildSql(
+        TParamBuildContext.Create(params,false));
+  end;
+
   result := TWaybillsQuery.Create(sql, params);
 end;
 
@@ -187,38 +352,300 @@ begin
   log.println('setHistory '+BoolToStr(show));
 end;
 
+function TWaybillsQueryBuilder.hasWhereExpression: boolean;
+begin
+  result := true;
+  if not assigned(self.whereExpressionValue)
+  then result := false
+  else if Supports(self.whereExpressionValue,IWhereEmptyExpression)
+  then result := false;
+end;
+
+function TWaybillsQueryBuilder.getWhereExpression: IWhereExpression;
+begin
+  if assigned(self.whereExpressionValue)
+  then result := self.whereExpressionValue
+  else result := emptyWhere;
+end;
+
+procedure TWaybillsQueryBuilder.resetWhereExpression;
+begin
+  self.whereExpressionValue := nil;
+end;
+
+procedure TWaybillsQueryBuilder.setWhereExpression(
+  expression: IWhereExpression);
+begin
+  self.whereExpressionValue := expression;
+end;
+
 { TWaybillColumn }
 
-constructor TWaybillColumn.Create(alias, expr: WideString;
-  visible: boolean);
+constructor TWaybillColumn.Create(
+  alias, expr: WideString;
+  visible: boolean;
+  orderKey: WideString;
+  orderKeyExists: boolean
+);
 begin
   self.aliasValue := alias;
   self.expressionValue := expr;
   self.visibleValue := visible;
+  self.orderKeyValue := orderKey;
+  self.orderKeyExistsValue := orderKeyExists;
+end;
+
+{ TWhereAndExpression }
+
+constructor TWhereAndExpression.Create(leftExp,
+  rightExp: IWhereExpression);
+begin
+  self.leftExpression := leftExp;
+  self.rightExpression := rightExp;
+end;
+
+function TWhereAndExpression.BuildSql(
+  paramContext: IParamBuildContext): string;
+begin
+  Result := ' ( ' +
+    self.leftExpression.BuildSql(paramContext) + ' and ' +
+    self.rightExpression.BuildSql(paramContext) + ' ) ';
+end;
+
+
+{ TWhereOrExpression }
+
+constructor TWhereOrExpression.Create(leftExp, rightExp: IWhereExpression);
+begin
+  self.leftExpression := leftExp;
+  self.rightExpression := rightExp;
+end;
+
+function TWhereOrExpression.BuildSql(
+  paramContext: IParamBuildContext): string;
+begin
+  result :=
+    ' ( ' +
+    leftExpression.BuildSql(paramContext) + ' or ' +
+    rightExpression.BuildSql(paramContext) + ' ) ';
+end;
+
+{ TWhereLikeExpression }
+
+constructor TWhereLikeExpression.Create(key: string; value: variant);
+begin
+  self.key := key;
+  self.value := value;
+end;
+
+function TWhereLikeExpression.BuildSql(
+  paramContext: IParamBuildContext): string;
+var
+  name : string;
+begin
+  name := 'p_' + self.key + IntToStr(paramContext.GetParamCount);
+  if not paramContext.AddParam(name, self.value) then begin
+    log.println('! param '+name+' not added into context');
+  end;
+  Result := self.key + ' like :'+name;
+end;
+
+{ TParamBuildContext }
+
+constructor TParamBuildContext.Create(params: TStringMap;
+  ownParams: boolean);
+begin
+  inherited Create;
+  self.params := params;
+  self.ownParams := ownParams;
+end;
+
+destructor TParamBuildContext.Destroy;
+begin
+  if self.ownParams
+  then FreeAndNil(self.params)
+  else self.params := nil;
+
+  inherited Destroy;
+end;
+
+function TParamBuildContext.AddParam(
+  name: string;
+  value: variant): boolean;
+begin
+  if self.params.exists(name) then begin
+    log.println('parameter '+name+' already added');
+    result := false;
+  end else begin
+    self.params.put(name, value);
+    result := true;
+  end;
+end;
+
+function TParamBuildContext.GetParamCount: Integer;
+begin
+  result := self.params.count;
+end;
+
+{ TWhereEmptyExpression }
+
+constructor TWhereEmptyExpression.Create;
+begin
+  inherited Create;
+end;
+
+function TWhereEmptyExpression.BuildSql(
+  paramContext: IParamBuildContext): string;
+begin
+  result := '';
+end;
+
+{ TWhereSearchTextLikeExpression }
+
+constructor TWhereSearchTextLikeExpression.Create(what: WideString);
+begin
+  self.what := what;
+end;
+
+function TWhereSearchTextLikeExpression.BuildSql(
+  paramContext: IParamBuildContext): string;
+var
+  name : string;
+begin
+  name := 'p_search_'+IntToStr(paramContext.GetParamCount);
+  if not paramContext.AddParam(name, what) then begin
+    log.println('! can''t add parameter '+name);
+  end;
+  result := ' search_text like :'+name+' ';
+end;
+
+type
+IWaybillColumnBuilder = interface
+  function Build:TWaybillColumn;
+  function Visible:IWaybillColumnBuilder;
+  function OrderBy(key:WideString):IWaybillColumnBuilder;
+end;
+
+// Ўаблон Builder дл€ TWaybillColumn
+TWaybillColumnBuilder = class(TInterfacedObject,IWaybillColumnBuilder)
+  private
+    aliasValue: WideString;
+    exprValue: WideString;
+    visibleValue: boolean;
+    orderKeyValue: WideString;
+    orderKeyExistsValue: boolean;
+  public
+    constructor Create(alias:WideString; expr:WideString);
+    destructor Destroy; override;
+
+    function Build:TWaybillColumn;
+
+    function Visible:IWaybillColumnBuilder;
+    function OrderBy(key:WideString):IWaybillColumnBuilder;
+end;
+
+{ TWaybillColumnBuilder }
+
+function column(alias:WideString; expr:WideString):IWaybillColumnBuilder;
+begin
+  result := TWaybillColumnBuilder.Create(alias, expr);
+end;
+
+constructor TWaybillColumnBuilder.Create(alias:WideString; expr:WideString);
+begin
+  inherited Create;
+  self.aliasValue := alias;
+  self.exprValue := expr;
+  self.visibleValue := false;
+  self.orderKeyValue := '';
+  self.orderKeyExistsValue := false;
+end;
+
+destructor TWaybillColumnBuilder.Destroy;
+begin
+  inherited Destroy;
+end;
+
+function TWaybillColumnBuilder.Build: TWaybillColumn;
+begin
+  result := TWaybillColumn.Create(
+    self.aliasValue,
+    self.exprValue,
+    self.visibleValue,
+    self.orderKeyValue,
+    self.orderKeyExistsValue
+  );
+end;
+
+function TWaybillColumnBuilder.Visible: IWaybillColumnBuilder;
+begin
+  self.visibleValue := true;
+  result := self;
+end;
+
+function TWaybillColumnBuilder.OrderBy(
+  key: WideString): IWaybillColumnBuilder;
+begin
+  self.orderKeyValue := key;
+  self.orderKeyExistsValue := true;
+  result := self;
 end;
 
 initialization
 log := logger('WaybillSQLView');
 
+emptyWhere := TWhereEmptyExpression.Create;
+
 // колонки актуальных данных
-columns[ 0] := TWaybillColumn.Create('id', 'w.id', true);
-columns[ 1] := TWaybillColumn.Create('state', '''actual''', true);
-columns[ 2] := TWaybillColumn.Create('car_id', 'w.car', true);
-columns[ 3] := TWaybillColumn.Create('car_model_id', 'c.model', true);
-columns[ 4] := TWaybillColumn.Create('car_model_name', 'cm.name', true);
-columns[ 5] := TWaybillColumn.Create('car_total_wear', 'isnull((select sum(wear) from waybills where car = w.car), 0) + c.wear', true);
-columns[ 6] := TWaybillColumn.Create('car_legal_number', 'c.legal_number', true);
-columns[ 7] := TWaybillColumn.Create('driver_id', 'w.driver', true);
-columns[ 8] := TWaybillColumn.Create('driver_name', 'dr.name', true);
-columns[ 9] := TWaybillColumn.Create('dispatcher_id', 'w.dispatcher', true);
-columns[10] := TWaybillColumn.Create('dispatcher_name', 'ds.name', true);
-columns[11] := TWaybillColumn.Create('outcome_date', 'w.outcome_date', true);
-columns[12] := TWaybillColumn.Create('outcome_date_s', 'convert( nvarchar(100), w.outcome_date, 23 ) + '' '' + convert( nvarchar(50), w.outcome_date, 108 )', true);
-columns[13] := TWaybillColumn.Create('income_date', 'w.income_date', true);
-columns[14] := TWaybillColumn.Create('income_date_s', 'convert( nvarchar(100), w.income_date, 23 ) + '' '' + convert( nvarchar(50), w.income_date, 108 )', true);
-columns[15] := TWaybillColumn.Create('fuel_cons', 'w.fuel_cons', true);
-columns[16] := TWaybillColumn.Create('wear', 'w.wear', true);
-columns[17] := TWaybillColumn.Create('search_text',
+columns[ 0] := column('id', 'w.id').Visible.OrderBy('id').Build;
+
+columns[ 1] := column('state', '''actual''').Build;
+
+columns[ 2] := column('car_id', 'w.car').Build;
+
+columns[ 3] := column('car_model_id', 'c.model').Build;
+
+columns[ 4] := column('car_model_name', 'cm.name')
+  .Visible.OrderBy('car_model_name').Build;
+
+columns[ 5] := column('car_total_wear',
+  'isnull((select sum(wear) from waybills where car = w.car), 0) + c.wear'
+  ).Visible.OrderBy('car_total_wear').Build;
+
+columns[ 6] := column('car_legal_number', 'c.legal_number')
+  .Visible.OrderBy('car_legal_number').Build;
+
+columns[ 7] := column('driver_id', 'w.driver').Build;
+
+columns[ 8] := column('driver_name', 'dr.name')
+  .Visible.OrderBy('driver_name').Build;
+
+columns[ 9] := column('dispatcher_id', 'w.dispatcher').Build;
+
+columns[10] := column('dispatcher_name', 'ds.name')
+  .Visible.OrderBy('dispatcher_name').Build;
+
+columns[11] := column('outcome_date', 'w.outcome_date').Build;
+
+columns[12] := column(
+  'outcome_date_s', 'convert( nvarchar(100), w.outcome_date, 23 ) '+
+  ' + '' '' + convert( nvarchar(50), w.outcome_date, 108 )')
+  .Visible.OrderBy('outcome_date').Build;
+
+columns[13] := column('income_date', 'w.income_date').Build;
+
+columns[14] := column('income_date_s',
+  'convert( nvarchar(100), w.income_date, 23 ) '+
+  '+ '' '' + convert( nvarchar(50), w.income_date, 108 )')
+  .Visible.OrderBy('income_date').Build;
+
+columns[15] := column('fuel_cons', 'w.fuel_cons')
+  .Visible.OrderBy('fuel_cons').Build;
+
+columns[16] := column('wear', 'w.wear')
+  .Visible.OrderBy('wear').Build;
+
+columns[17] := column('search_text',
 	'cm.name + c.legal_number + dr.name + ds.name +' +
 	'(convert( nvarchar(100), w.outcome_date, 23 ) + '' '' + convert( nvarchar(50), w.outcome_date, 108 )) +' +
 	'(convert( nvarchar(100), w.income_date, 23 ) + '' '' + convert( nvarchar(50), w.income_date, 108 ))'+
@@ -226,11 +653,11 @@ columns[17] := TWaybillColumn.Create('search_text',
 	'+ cast(w.fuel_cons as nvarchar(50))'+
 	'+ cast(w.wear as nvarchar(50))'+
 	'+ cast(w.id as nvarchar(50))'
-  ,false);
+  ).Build;
 
 // колонки исторических данных
 histColumns[ 0] := columns[0];
-histColumns[ 1] := TWaybillColumn.Create('state', '''hist''', true);
+histColumns[ 1] := column('state', '''hist''').Build;
 histColumns[ 2] := columns[2];
 histColumns[ 3] := columns[3];
 histColumns[ 4] := columns[4];

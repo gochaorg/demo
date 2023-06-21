@@ -1,71 +1,112 @@
 object waybillsController: TwaybillsController
   Left = 0
   Top = 0
-  Width = 611
+  Width = 677
   Height = 265
   TabOrder = 0
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 611
+    Width = 677
     Height = 41
     Align = alTop
+    BevelOuter = bvNone
     TabOrder = 0
-    object newButton: TButton
-      Left = 88
-      Top = 8
-      Width = 75
-      Height = 25
-      Caption = #1053#1086#1074#1099#1081
-      Enabled = False
+    object findPanel: TPanel
+      Left = 353
+      Top = 0
+      Width = 324
+      Height = 41
+      Align = alClient
+      Caption = 'findPanel'
       TabOrder = 0
-      OnClick = newButtonClick
+      DesignSize = (
+        324
+        41)
+      object findEdit: TEdit
+        Left = 73
+        Top = 14
+        Width = 189
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        Enabled = False
+        TabOrder = 0
+      end
+      object findButton: TButton
+        Left = 265
+        Top = 9
+        Width = 44
+        Height = 25
+        Anchors = [akTop, akRight]
+        Caption = #1053#1072#1081#1090#1080
+        Enabled = False
+        TabOrder = 1
+        OnClick = findButtonClick
+      end
+      object showHistoryCheckBox: TCheckBox
+        Left = 5
+        Top = 16
+        Width = 68
+        Height = 17
+        Caption = #1048#1089#1090#1086#1088#1080#1103
+        Enabled = False
+        TabOrder = 2
+        OnClick = showHistoryCheckBoxClick
+      end
     end
-    object editButton: TButton
-      Left = 168
-      Top = 8
-      Width = 97
-      Height = 25
-      Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
-      Enabled = False
+    object crudPanel: TPanel
+      Left = 0
+      Top = 0
+      Width = 353
+      Height = 41
+      Align = alLeft
       TabOrder = 1
-      OnClick = editButtonClick
-    end
-    object deleteButton: TButton
-      Left = 272
-      Top = 8
-      Width = 75
-      Height = 25
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      Enabled = False
-      TabOrder = 2
-      OnClick = deleteButtonClick
-    end
-    object refreshButton: TButton
-      Left = 8
-      Top = 8
-      Width = 75
-      Height = 25
-      Caption = #1054#1073#1085#1086#1074#1080#1090#1100
-      Enabled = False
-      TabOrder = 3
-      OnClick = refreshButtonClick
-    end
-    object showHistoryCheckBox: TCheckBox
-      Left = 352
-      Top = 16
-      Width = 68
-      Height = 17
-      Caption = #1048#1089#1090#1086#1088#1080#1103
-      Enabled = False
-      TabOrder = 4
-      OnClick = showHistoryCheckBoxClick
+      object newButton: TButton
+        Left = 88
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = #1053#1086#1074#1099#1081
+        Enabled = False
+        TabOrder = 0
+        OnClick = newButtonClick
+      end
+      object refreshButton: TButton
+        Left = 8
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = #1054#1073#1085#1086#1074#1080#1090#1100
+        Enabled = False
+        TabOrder = 1
+        OnClick = refreshButtonClick
+      end
+      object editButton: TButton
+        Left = 168
+        Top = 8
+        Width = 97
+        Height = 25
+        Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
+        Enabled = False
+        TabOrder = 2
+        OnClick = editButtonClick
+      end
+      object deleteButton: TButton
+        Left = 270
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = #1059#1076#1072#1083#1080#1090#1100
+        Enabled = False
+        TabOrder = 3
+        OnClick = deleteButtonClick
+      end
     end
   end
   object waybillsDBGrid: TDBGrid
     Left = 0
     Top = 41
-    Width = 611
+    Width = 677
     Height = 224
     Align = alClient
     DataSource = waybillsDataSource

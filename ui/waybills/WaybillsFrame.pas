@@ -25,23 +25,48 @@ type
     waybillsDataSource: TDataSource;
     waybillsADOQuery: TADOQuery;
     showHistoryCheckBox: TCheckBox;
+    findEdit: TEdit;
+    findButton: TButton;
+    findPanel: TPanel;
+    crudPanel: TPanel;
+
+    // Добавление новой записи
     procedure newButtonClick(Sender: TObject);
+
+    // Обновление списка отобрадаемых записей
     procedure refreshButtonClick(Sender: TObject);
+
+    // Редактирование выбранной записи
     procedure editButtonClick(Sender: TObject);
+
+    // Удаление выбранных записей
     procedure deleteButtonClick(Sender: TObject);
+
+    // Вкл/Выкл отображение истории
     procedure showHistoryCheckBoxClick(Sender: TObject);
+
+    // Отрисовка фона ячейки
     procedure waybillsDBGridDrawColumnCell(Sender: TObject;
       const Rect: TRect; DataCol: Integer; Column: TColumn;
       State: TGridDrawState);
+
+    // Указание фильтра искомых данных
+    procedure findButtonClick(Sender: TObject);
   private
     queryBuilderValue: IWaybillsQueryBuilder;
     function queryBuilder: IWaybillsQueryBuilder;
 
     function isActivated: boolean;
+
+    // Пересоздание и выполнение запроса SELECT
     procedure RebuildQuery();
   public
     procedure ActivateDataView();
+
+    // Обновление текущей строки
     procedure RefreshCurrent();
+
+    // Обновление всех записей
     procedure RefreshAll();
   end;
 
@@ -62,6 +87,8 @@ begin
   editButton.Enabled := true;
   deleteButton.Enabled := true;
   showHistoryCheckBox.Enabled := true;
+  findEdit.Enabled := true;
+  findButton.Enabled := true;
 end;
 
 procedure TWaybillsController.RefreshCurrent();
@@ -181,7 +208,15 @@ end;
 
 procedure TWaybillsController.RebuildQuery;
 begin
-  queryBuilder.history := showHistoryCheckBox.Checked;
+  self.queryBuilder.history := showHistoryCheckBox.Checked;
+
+  if length(trim(findEdit.Text))>0 then begin
+    self.queryBuilder.whereExpresion :=
+      TWhereSearchTextLikeExpression.Create('%'+findEdit.Text+'%');
+  end else begin
+    self.queryBuilder.resetWhereExpression;
+  end;
+  
   if self.isActivated then begin
     queryBuilder.build.apply(waybillsADOQuery);
     dbViewPreparer.prepareGrid(Self.ClassName, waybillsDBGrid);
@@ -259,6 +294,11 @@ begin
   finally
     FreeAndNil(row);
   end;
+end;
+
+procedure TWaybillsController.findButtonClick(Sender: TObject);
+begin
+  self.RebuildQuery;
 end;
 
 initialization
