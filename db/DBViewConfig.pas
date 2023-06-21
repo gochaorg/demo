@@ -70,6 +70,7 @@ begin
     hideColumn(grid, 'income_date');
     hideColumn(grid, 'car_total_wear');
     hideColumn(grid, 'search_text');
+    hideColumn(grid, 'state');
 
     setColumnWidth(grid, 'car_legal_number', 130);
     setColumnTitle(grid, 'car_legal_number', 'Гос номер');
@@ -88,6 +89,10 @@ begin
 
     setColumnWidth(grid, 'car_model_name', 130);
     setColumnTitle(grid, 'car_model_name', 'Диспетчер');
+
+    setColumnTitle(grid, 'fuel_cons', 'Расход топлива');
+    setColumnTitle(grid, 'wear', 'Растрояние');
+
   end;
 end;
 

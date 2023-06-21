@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids, DBGrids, ExtCtrls, StdCtrls, DB, ADODB,
+  Dialogs, Grids, DBGrids, ExtCtrls, StdCtrls, DB, ADODB, ComObj,
 
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig, 
@@ -52,6 +52,7 @@ type
 
     // Указание фильтра искомых данных
     procedure findButtonClick(Sender: TObject);
+    procedure waybillsDBGridTitleClick(Column: TColumn);
   private
     queryBuilderValue: IWaybillsQueryBuilder;
     function queryBuilder: IWaybillsQueryBuilder;
@@ -93,13 +94,27 @@ end;
 
 procedure TWaybillsController.RefreshCurrent();
 begin
-  waybillsADOQuery.Refresh;
+  try
+    waybillsADOQuery.Refresh;
+  except
+    on e:EOleException do begin
+      log.println('! RefreshCurrent error: '+e.Message);
+      ShowMessage('Ошибка чтения данных: '+e.Message);
+    end;
+  end;
 end;
 
 procedure TWaybillsController.RefreshAll();
 begin
   waybillsADOQuery.Active := false;
-  waybillsADOQuery.Active := true;
+  try
+    waybillsADOQuery.Active := true;
+  except
+    on e:EOleException do begin
+      log.println('! RefreshAll error: '+e.Message);
+      ShowMessage('Ошибка чтения данных: '+e.Message);
+    end;
+  end;
   dbViewPreparer.prepareGrid(Self.ClassName, waybillsDBGrid);
 end;
 
@@ -203,6 +218,10 @@ end;
 
 procedure TWaybillsController.showHistoryCheckBoxClick(Sender: TObject);
 begin
+  self.newButton.Enabled := not self.showHistoryCheckBox.Checked;
+  self.editButton.Enabled := not self.showHistoryCheckBox.Checked;
+  self.deleteButton.Enabled := not self.showHistoryCheckBox.Checked;
+
   self.rebuildQuery;
 end;
 
@@ -298,6 +317,12 @@ end;
 
 procedure TWaybillsController.findButtonClick(Sender: TObject);
 begin
+  self.RebuildQuery;
+end;
+
+procedure TWaybillsController.waybillsDBGridTitleClick(Column: TColumn);
+begin
+  self.queryBuilder.toggleOrder(Column.FieldName);
   self.RebuildQuery;
 end;
 

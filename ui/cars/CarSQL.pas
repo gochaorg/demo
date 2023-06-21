@@ -614,6 +614,7 @@ end;
 ////////////
 function readRow(query:TADOQuery):TCar;
 begin
+  log.println('read row');
   result := TCar.Create(
     query.FieldValues['car_id'],
     query.FieldValues['legal_number'],
@@ -629,6 +630,8 @@ var
   query:TADOQuery;
   car: TCar;
 begin
+  log.println('findAll');
+
   query := TADOQuery.Create(nil);
   try
     query.SQL.Text :=
@@ -637,7 +640,7 @@ begin
       '	c.legal_number as legal_number,'+
       '	c.model as model_id,'+
       '	cm.name as model_name, '+
-      ' (c.wear + (select sum(wear) from waybills where car = c.id )) as total_wear'+
+      ' (c.wear + isnull((select sum(wear) from waybills where car = c.id ),0)) as total_wear'+
       ' from cars c'+
       ' left join cars_model cm on (cm.id = c.model)'+
       ' order by c.legal_number';
@@ -663,6 +666,8 @@ var
   query:TADOQuery;
   car: TCar;
 begin
+  log.println('findLike');
+
   query := TADOQuery.Create(nil);
   try
     query.SQL.Text :=
@@ -671,7 +676,7 @@ begin
       '	c.legal_number as legal_number,'+
       '	c.model as model_id,'+
       '	cm.name as model_name '+
-      ' (c.wear + (select sum(wear) from waybills where car = c.id )) as total_wear'+
+      ' (c.wear + isnull((select sum(wear) from waybills where car = c.id ),0)) as total_wear'+
       ' from cars c'+
       ' left join cars_model cm on (cm.id = c.model)'+
       ' where c.legal_number like :what or cm.name like :what'+

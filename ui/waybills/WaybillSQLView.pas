@@ -145,6 +145,20 @@ IWaybillsQueryBuilder = interface
 
   // очищает свойство whereExpresion
   procedure resetWhereExpression;
+
+  // Сброс параметров сортировки
+  procedure resetOrder;
+
+  // Указание сортировки
+  //   orderKey - имя колонки по которой происходит файтическая сортировка
+  //   reverse - обратная (true) или прямая сортировка
+  procedure setOrder( orderKey:WideString; reverse:boolean );
+
+  // Устанавливает сортировку или переключает направление
+  // С учетом отображаемых синонимичных колонок
+  //   columnAlias - имя колонки в выборке 
+  procedure toggleOrder( columnAlias:WideString );
+
 end;
 
 // Констркуктор запроса
@@ -156,15 +170,19 @@ TWaybillsQueryBuilder = class(TInterfacedObject, IWaybillsQueryBuilder)
     // может быть nil
     whereExpressionValue: IWhereExpression;
 
-    
+    orderIsSet: boolean;
+    orderKey: WideString;
+    orderReverse: boolean;
   public
     constructor Create;
     destructor Destroy; override;
 
+    // history
     function getHistory:boolean;
     procedure setHistory(show:boolean);
     property history:boolean read getHistory write setHistory;
 
+    // whereExpresion
     function getWhereExpression: IWhereExpression;
     procedure setWhereExpression( expression:IWhereExpression );
     property whereExpresion:IWhereExpression
@@ -173,6 +191,11 @@ TWaybillsQueryBuilder = class(TInterfacedObject, IWaybillsQueryBuilder)
 
     function hasWhereExpression: boolean;
     procedure resetWhereExpression;
+
+    // order
+    procedure resetOrder;
+    procedure setOrder( orderKey:WideString; reverse:boolean );
+    procedure toggleOrder( columnAlias:WideString );
 
     function build:IWaybillsQuery;
 end;
@@ -337,6 +360,12 @@ begin
         TParamBuildContext.Create(params,false));
   end;
 
+  if self.orderIsSet then begin
+    if self.orderReverse
+    then sql := sql + ' order by '+self.orderKey
+    else sql := sql + ' order by '+self.orderKey+' desc';
+  end;
+
   result := TWaybillsQuery.Create(sql, params);
 end;
 
@@ -377,6 +406,39 @@ procedure TWaybillsQueryBuilder.setWhereExpression(
   expression: IWhereExpression);
 begin
   self.whereExpressionValue := expression;
+end;
+
+procedure TWaybillsQueryBuilder.resetOrder;
+begin
+  self.orderIsSet := false;
+end;
+
+procedure TWaybillsQueryBuilder.setOrder(orderKey: WideString;
+  reverse: boolean);
+begin
+  self.orderIsSet := true;
+  self.orderKey := orderKey;
+  self.orderReverse := reverse;
+end;
+
+procedure TWaybillsQueryBuilder.toggleOrder(columnAlias: WideString);
+var
+  i:Integer;
+begin
+  for i:=low(columns) to high(columns) do begin
+    if (columns[i].alias = columnAlias) and (columns[i].orderKeyExists)
+    then begin
+      if self.orderKey = columns[i].orderKey
+      then self.orderReverse := not self.orderReverse
+      else begin
+        self.orderIsSet := true;
+        self.orderReverse := false;
+        self.orderKey := columns[i].orderKey;
+      end;
+
+      break;
+    end;
+  end;
 end;
 
 { TWaybillColumn }

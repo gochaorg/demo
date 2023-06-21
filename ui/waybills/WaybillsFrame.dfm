@@ -118,6 +118,7 @@ object waybillsController: TwaybillsController
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
     OnDrawColumnCell = waybillsDBGridDrawColumnCell
+    OnTitleClick = waybillsDBGridTitleClick
   end
   object waybillsDataSource: TDataSource
     AutoEdit = False
