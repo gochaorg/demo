@@ -1,8 +1,8 @@
 object MainForm: TMainForm
-  Left = 994
-  Top = 190
-  Width = 693
-  Height = 480
+  Left = 11
+  Top = 10
+  Width = 682
+  Height = 363
   Caption = 'MainForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,8 +17,8 @@ object MainForm: TMainForm
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 677
-    Height = 421
+    Width = 666
+    Height = 304
     ActivePage = waybillsTabSheet
     Align = alClient
     TabOrder = 0
@@ -27,22 +27,28 @@ object MainForm: TMainForm
       inline waybillsController: TwaybillsController
         Left = 0
         Top = 0
-        Width = 669
-        Height = 393
+        Width = 658
+        Height = 276
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
-          Width = 669
+          Width = 658
           inherited findPanel: TPanel
-            Width = 316
+            Width = 305
             DesignSize = (
-              316
+              305
               41)
+            inherited findEdit: TEdit
+              Width = 178
+            end
+            inherited findButton: TButton
+              Left = 254
+            end
           end
         end
         inherited waybillsDBGrid: TDBGrid
-          Width = 669
-          Height = 352
+          Width = 658
+          Height = 235
         end
         inherited waybillsADOQuery: TADOQuery
           Connection = ADOMainConnection
@@ -55,16 +61,16 @@ object MainForm: TMainForm
       inline driversController: TDriversController
         Left = 0
         Top = 0
-        Width = 669
-        Height = 393
+        Width = 658
+        Height = 276
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
-          Width = 669
+          Width = 658
         end
         inherited driversDBGrid: TDBGrid
-          Width = 669
-          Height = 352
+          Width = 658
+          Height = 235
         end
         inherited driversADOQuery: TADOQuery
           Connection = ADOMainConnection
@@ -77,16 +83,16 @@ object MainForm: TMainForm
       inline dispatchersController: TDispatchersController
         Left = 0
         Top = 0
-        Width = 669
-        Height = 393
+        Width = 658
+        Height = 276
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
-          Width = 669
+          Width = 658
         end
         inherited dispatchersDBGrid: TDBGrid
-          Width = 669
-          Height = 352
+          Width = 658
+          Height = 235
         end
         inherited dispatchersADOQuery: TADOQuery
           Connection = ADOMainConnection
@@ -99,16 +105,16 @@ object MainForm: TMainForm
       inline carsController: TCarsController
         Left = 0
         Top = 0
-        Width = 669
-        Height = 393
+        Width = 658
+        Height = 276
         Align = alClient
         TabOrder = 0
         inherited topPanel: TPanel
-          Width = 669
+          Width = 658
         end
         inherited carsDBGrid: TDBGrid
-          Width = 669
-          Height = 352
+          Width = 658
+          Height = 235
         end
         inherited carsDataSource: TDataSource
           Left = 200
@@ -124,16 +130,16 @@ object MainForm: TMainForm
       inline carsModelsController: TCarsModelsController
         Left = 0
         Top = 0
-        Width = 669
-        Height = 393
+        Width = 658
+        Height = 276
         Align = alClient
         TabOrder = 0
         inherited topPanel: TPanel
-          Width = 669
+          Width = 658
         end
         inherited carModelDBGrid: TDBGrid
-          Width = 669
-          Height = 352
+          Width = 658
+          Height = 235
         end
         inherited ADOQuery1: TADOQuery
           Connection = ADOMainConnection

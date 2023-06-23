@@ -1,13 +1,13 @@
 object waybillsController: TwaybillsController
   Left = 0
   Top = 0
-  Width = 677
+  Width = 667
   Height = 265
   TabOrder = 0
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 677
+    Width = 667
     Height = 41
     Align = alTop
     BevelOuter = bvNone
@@ -15,25 +15,25 @@ object waybillsController: TwaybillsController
     object findPanel: TPanel
       Left = 353
       Top = 0
-      Width = 324
+      Width = 314
       Height = 41
       Align = alClient
       Caption = 'findPanel'
       TabOrder = 0
       DesignSize = (
-        324
+        314
         41)
       object findEdit: TEdit
         Left = 73
         Top = 14
-        Width = 189
+        Width = 179
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         Enabled = False
         TabOrder = 0
       end
       object findButton: TButton
-        Left = 265
+        Left = 255
         Top = 9
         Width = 44
         Height = 25
@@ -106,7 +106,7 @@ object waybillsController: TwaybillsController
   object waybillsDBGrid: TDBGrid
     Left = 0
     Top = 41
-    Width = 677
+    Width = 667
     Height = 224
     Align = alClient
     DataSource = waybillsDataSource

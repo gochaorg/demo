@@ -2,7 +2,7 @@ object CarsModelsController: TCarsModelsController
   Left = 0
   Top = 0
   Width = 548
-  Height = 328
+  Height = 325
   TabOrder = 0
   object topPanel: TPanel
     Left = 0
@@ -56,7 +56,7 @@ object CarsModelsController: TCarsModelsController
     Left = 0
     Top = 41
     Width = 548
-    Height = 287
+    Height = 284
     Align = alClient
     DataSource = _DataSource
     Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
