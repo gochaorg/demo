@@ -118,14 +118,15 @@ begin
     doc := wordApp.Documents.Add();
   end;
 
+  log.println('range := doc.Range(0,0)');
+  range := doc.Range(0,0);
+
   log.println('doc.Documents.Add.Tables.Add( range, '+
     IntToStr(dbRows.GetCount)+
     ', '+
     IntToStr(dbRows.GetColumnsCount + 1)+
     ' )'
   );
-
-  range := doc.Range(0,0);
 
   table := doc.Tables.Add( range,
     dbRows.GetCount,
