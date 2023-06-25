@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 25
-  Top = 18
+  Left = 28
+  Top = 24
   Width = 682
   Height = 363
   Caption = 'MainForm'
@@ -155,6 +155,10 @@ object MainForm: TMainForm
       object waybillsExcelExport: TMenuItem
         Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074' Excel'
         OnClick = waybillsExcelExportClick
+      end
+      object waybillsWordExport: TMenuItem
+        Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074' Word'
+        OnClick = waybillsWordExportClick
       end
     end
     object dbConnectMenu: TMenuItem

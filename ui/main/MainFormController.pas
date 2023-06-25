@@ -5,15 +5,15 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, ADODB, StdCtrls, Menus, ComObj, Grids, DBGrids,
-  ComCtrls,
+  ComCtrls, ExtCtrls,
 
-  DBView, DBRows,
   CarsModelsFrame, CarsFrame, DispatchersFrame, DriversFrame,
   WaybillsFrame,
 
-  Config, DBConfForm, ExtCtrls,
-  Map,
-  Logging, Loggers;
+  OfficeExport,
+  DBView, DBRows,
+  Config, DBConfForm,
+  Map, Logging, Loggers;
 
 type
   // Главное окно программы
@@ -36,9 +36,11 @@ type
     waybillsMenu: TMenuItem;
     dbConnectConfig: TMenuItem;
     waybillsExcelExport: TMenuItem;
+    waybillsWordExport: TMenuItem;
     procedure connectToDBMenuItemClick(Sender: TObject);
     procedure dbConnectConfigClick(Sender: TObject);
     procedure waybillsExcelExportClick(Sender: TObject);
+    procedure waybillsWordExportClick(Sender: TObject);
   public
   end;
 
@@ -84,28 +86,17 @@ begin
 end;
 
 procedure TMainForm.waybillsExcelExportClick(Sender: TObject);
-var
-  rows: IDBRows;
-  col: TDBRowColumn;
-  row: TStringMap;
-  i: Integer;
 begin
-  log.println('waybillsExcelExportClick');
-  rows := extend(waybillsController.waybillsDBGrid).GetDBRows;
+  excelExporter.doExport(
+    extend(waybillsController.waybillsDBGrid).GetDBRows
+  );
+end;
 
-  log.println('columns count='+IntToStr(rows.GetColumnsCount));
-  for i:=0 to rows.GetColumnsCount-1 do begin
-    if rows.GetColumn(i,col) then begin
-      log.println('col#'+IntToStr(i)+' name='+col.Name+' title='+col.Title);
-    end;
-  end;
-
-  log.println('rows count='+IntToStr(rows.GetCount));
-  for i:=0 to rows.GetCount-1 do begin
-    if rows.GetItem(i,row) then begin
-      log.println( 'row#'+IntToStr(i)+' '+row.toString );
-    end;
-  end;
+procedure TMainForm.waybillsWordExportClick(Sender: TObject);
+begin
+  wordExporter.doExport(
+    extend(waybillsController.waybillsDBGrid).GetDBRows
+  );
 end;
 
 initialization

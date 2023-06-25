@@ -237,6 +237,7 @@ begin
 
   if not found then begin
     hdr := TDBRowColumn.Create;
+    hdr.Name := name;
     self.header.Add(hdr);
     result := hdr;
   end;

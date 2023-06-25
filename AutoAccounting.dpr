@@ -34,7 +34,10 @@ uses
   DBRowsSqlExec in 'db\DBRowsSqlExec.pas',
   DBView in 'db\DBView.pas',
   DBViewConfig in 'db\DBViewConfig.pas',
-  WaybillSQLView in 'ui\waybills\WaybillSQLView.pas';
+  WaybillSQLView in 'ui\waybills\WaybillSQLView.pas',
+  OfficeExport in 'export\OfficeExport.pas',
+  ExcelExport in 'export\ExcelExport.pas',
+  WordExport in 'export\WordExport.pas';
 
 {$R *.res}
 
