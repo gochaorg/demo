@@ -6,7 +6,7 @@ uses
   DBGrids, DB,
   Classes, SysUtils,
 
-  DBRowPredicate,
+  DBRowPredicate, DBRows,
   Logging, Map;
 
 type
@@ -64,6 +64,10 @@ type
   // Функция обновляющая выделение строки
   TDataRowSelectUpdater = procedure (row:TDataRowSelectionUpdate) of object;
 
+  // Функция принимающая информацию о колонке
+  // Колонка не передается во владение
+  TDataColumnConsumer = procedure (column:TDBRowColumn) of object;
+
   /////////////////////////////////////////////////////////////
   // Расширение функций по работе с grid
   IDBGridExtension = interface
@@ -108,6 +112,9 @@ type
       visibleColumn: boolean;
       inVisibleColumn: boolean
     ):IDBGridExtension;
+
+    // Выборка строк
+    function GetDBRows:IDBRows;
   end;
 
   /////////////////////////////////////////////////////////////
@@ -133,11 +140,16 @@ type
         selected: Boolean;
         unselected:Boolean;
         consumer:TDataRowConsumer
-      ); virtual;
+      );
 
-      procedure UpdateSelection( updater: TDataRowSelectUpdater ); virtual;
+      procedure UpdateSelection(
+        updater: TDataRowSelectUpdater;
+        columnConsumer: TDataColumnConsumer = nil
+      );
 
-      procedure SelectAndFocus( predicate: IDataRowPredicate ); virtual;
+      function GetDBRows:IDBRows; 
+
+      procedure SelectAndFocus( predicate: IDataRowPredicate );
 
       function GetFocusedRow( var row:TStringMap ): boolean;
 
@@ -154,14 +166,14 @@ uses
   Dialogs, Variants;
 
 type
-  TSetSelectAndFocusUpdater = class
+  TSetSelectAndFocusUpdater = class(TObject)
     private
       predicate: IDataRowPredicate;
       setFocus: boolean;
       setSelect: boolean;
     public
       constructor Create( setFocus:boolean; setSelect:boolean; predicate:IDataRowPredicate );
-      destructor Destroy;
+      destructor Destroy; override;
       procedure Update(row:TDataRowSelectionUpdate);
   end;
 
@@ -176,8 +188,18 @@ type
         unSelected:boolean;
         target : TDataRowConsumer
       );
-      destructor Destroy;
+      destructor Destroy; override;
       procedure Consume( row: TDataRowSelectionUpdate );
+  end;
+
+  TDBRowsBuilder = class(TObject)
+    private
+      dbRows : TDBRows;
+    public
+      constructor Create( dbRows:TDBRows );
+      destructor Destroy; override;
+      procedure RowConsume( row: TDataRowSelectionUpdate );
+      procedure ColumnConsume( column:TDBRowColumn );
   end;
 
 { TDBGridExt }
@@ -247,6 +269,20 @@ begin
   end;
 end;
 
+function TDBGridExt.GetDBRows: IDBRows;
+var
+  dbRows : TDBRows;
+  dbRowsBuilder : TDBRowsBuilder;
+begin
+  dbRows := TDBRows.Create;
+  dbRowsBuilder := TDBRowsBuilder.Create(dbRows);
+  self.UpdateSelection(
+    dbRowsBuilder.RowConsume,
+    dbRowsBuilder.ColumnConsume
+  );
+  result := dbRows;
+end;
+
 function TDBGridExt.GetFocusedRow(var row: TStringMap): boolean;
 var
   c : Integer;
@@ -298,7 +334,10 @@ begin
   end;
 end;
 
-procedure TDBGridExt.UpdateSelection(updater: TDataRowSelectUpdater);
+procedure TDBGridExt.UpdateSelection(
+  updater: TDataRowSelectUpdater;
+  columnConsumer: TDataColumnConsumer = nil
+);
 var
   bm: TBookmark;
   i,c: Integer;
@@ -306,6 +345,7 @@ var
   rowUpdate: TDataRowSelectionUpdate;
   savedActiveRecNo: Integer;
   restoreActiveRecNo: Integer;
+  column: TDBRowColumn;
 begin
   if assigned(self.grid) then begin
     if assigned(self.grid.DataSource) then begin
@@ -315,6 +355,22 @@ begin
         bm := self.grid.DataSource.DataSet.GetBookmark;
         self.grid.DataSource.DataSet.DisableControls;
         self.grid.DataSource.DataSet.First;
+
+        if assigned(columnConsumer) then begin
+          for c:=0 to self.grid.DataSource.DataSet.Fields.Count-1 do begin
+            column := TDBRowColumn.Create;
+            try
+              column.Name  := self.grid.Columns.Items[c].FieldName;
+              column.Title := self.grid.Columns.Items[c].Title.Caption;
+              column.Visible := self.grid.Columns.Items[c].Visible;
+              column.Width := self.grid.Columns.Items[c].Width;
+              columnConsumer(column);
+            finally
+              FreeAndNil(column);
+            end;
+          end;
+        end;
+
         try
           for i:=0 to self.grid.DataSource.DataSet.RecordCount-1 do begin
             row := TStringMap.Create;
@@ -325,6 +381,7 @@ begin
               savedActiveRecNo = (i+1)
             );
             try
+
               // build data
               for c:=0 to self.grid.DataSource.DataSet.Fields.Count-1 do begin
                 if  (   self.visibleColumnsFetch
@@ -483,6 +540,39 @@ begin
 
     if not row.isSelected and self.unSelected
     then self.target(row.getRow);
+  end;
+end;
+
+{ TDBRowsBuilder }
+
+constructor TDBRowsBuilder.Create( dbRows:TDBRows );
+begin
+  self.dbRows := dbRows;
+  inherited Create;
+end;
+
+destructor TDBRowsBuilder.Destroy;
+begin
+  self.dbRows := nil;
+  inherited Destroy;
+end;
+
+procedure TDBRowsBuilder.ColumnConsume(column: TDBRowColumn);
+var
+  columnInstance: TDBRowColumn;
+begin
+  if assigned(column) and assigned(self.dbRows) then begin
+    columnInstance := dbRows.AddOrGetColumn(column.Name);
+    columnInstance.Title   := column.Title;
+    columnInstance.Visible := column.Visible;
+    columnInstance.Width   := column.Width;
+  end;
+end;
+
+procedure TDBRowsBuilder.RowConsume(row: TDataRowSelectionUpdate);
+begin
+  if assigned(self.dbRows) then begin
+    self.dbRows.Add(row.getRow);
   end;
 end;
 

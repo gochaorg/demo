@@ -128,7 +128,7 @@ begin
   inherited Create();
   list := TList.Create();
 
-  for i:=0 to sample.count-1 do begin
+  for i:=0 to (sample.count-1) do begin
     name := sample.key(i);
     put( name, sample.get(name) );
   end;
@@ -142,7 +142,7 @@ begin
   inherited Create();
   list := TList.Create();
 
-  for i:=0 to sample.count-1 do begin
+  for i:=0 to (sample.count-1) do begin
     name := sample.key(i);
     put( name, sample.get(name) );
   end;
@@ -175,7 +175,7 @@ var
   pair: TStringPair;
 begin
   result := false;
-  for i:=0 to list.Count-1 do begin
+  for i:=0 to (list.Count-1) do begin
     pair := list.Items[i];
     if pair.name = name then begin
       result := true;
@@ -190,7 +190,7 @@ var
   pair: TStringPair;
 begin
   result := Unassigned();
-  for i:=0 to list.Count-1 do begin
+  for i:=0 to (list.Count-1) do begin
     pair := list.Items[i];
     if pair.name = name then begin
       result := pair.value;
@@ -228,7 +228,7 @@ var
   pair: TStringPair;
 begin
   result := Unassigned();
-  for i:=0 to list.Count-1 do begin
+  for i:=0 to (list.Count-1) do begin
     pair := list.Items[i];
     if pair.name = name then begin
       result := pair.value;
@@ -246,7 +246,7 @@ var
 begin
   result := Unassigned();
   found := false;
-  for i:=0 to list.Count-1 do begin
+  for i:=0 to (list.Count-1) do begin
     pair := list.Items[i];
     if pair.name = name then begin
       pair.value := value;
@@ -269,7 +269,7 @@ var
   value: string;
 begin
   str := '{';
-  for i:=0 to list.Count-1 do begin
+  for i:=0 to (list.Count-1) do begin
     pair := list.Items[i];
 
     if i>0 then begin

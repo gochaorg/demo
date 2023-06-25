@@ -5,19 +5,20 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, ADODB, StdCtrls, Menus, ComObj, Grids, DBGrids,
+  ComCtrls,
 
-  Config, DBConfForm, ComCtrls, ExtCtrls,
-  CarsModelsFrame, Map, CarsFrame,
-  Logging, Loggers,
-  DispatchersFrame, DriversFrame,
-  WaybillsFrame;
+  DBView, DBRows,
+  CarsModelsFrame, CarsFrame, DispatchersFrame, DriversFrame,
+  WaybillsFrame,
+
+  Config, DBConfForm, ExtCtrls,
+  Map,
+  Logging, Loggers;
 
 type
   // Главное окно программы
   TMainForm = class(TForm)
     MainMenu1: TMainMenu;
-    configMenu: TMenuItem;
-    configDBMenuItem: TMenuItem;
     dbConnectMenu: TMenuItem;
     connectToDBMenuItem: TMenuItem;
     PageControl1: TPageControl;
@@ -32,8 +33,12 @@ type
     dispatchersController: TDispatchersController;
     driversController: TDriversController;
     waybillsController: TwaybillsController;
-    procedure configDBMenuItemClick(Sender: TObject);
+    waybillsMenu: TMenuItem;
+    dbConnectConfig: TMenuItem;
+    waybillsExcelExport: TMenuItem;
     procedure connectToDBMenuItemClick(Sender: TObject);
+    procedure dbConnectConfigClick(Sender: TObject);
+    procedure waybillsExcelExportClick(Sender: TObject);
   public
   end;
 
@@ -47,18 +52,6 @@ var
 
 {$R *.dfm}
 
-
-procedure TMainForm.configDBMenuItemClick(Sender: TObject);
-var
-  conf: TDBConfController;
-begin
-  conf := TDBConfController.Create(self);
-  try
-    conf.edit(applicationConfigItf, applicationConfigSaveItf);
-  finally
-    FreeAndNil(conf);
-  end;
-end;
 
 procedure TMainForm.connectToDBMenuItemClick(Sender: TObject);
 begin
@@ -74,6 +67,43 @@ begin
   except
     on e: EOleException do begin
       ShowMessage('Ошибка соединения:'+e.Message);
+    end;
+  end;
+end;
+
+procedure TMainForm.dbConnectConfigClick(Sender: TObject);
+var
+  conf: TDBConfController;
+begin
+  conf := TDBConfController.Create(self);
+  try
+    conf.edit(applicationConfigItf, applicationConfigSaveItf);
+  finally
+    FreeAndNil(conf);
+  end;
+end;
+
+procedure TMainForm.waybillsExcelExportClick(Sender: TObject);
+var
+  rows: IDBRows;
+  col: TDBRowColumn;
+  row: TStringMap;
+  i: Integer;
+begin
+  log.println('waybillsExcelExportClick');
+  rows := extend(waybillsController.waybillsDBGrid).GetDBRows;
+
+  log.println('columns count='+IntToStr(rows.GetColumnsCount));
+  for i:=0 to rows.GetColumnsCount-1 do begin
+    if rows.GetColumn(i,col) then begin
+      log.println('col#'+IntToStr(i)+' name='+col.Name+' title='+col.Title);
+    end;
+  end;
+
+  log.println('rows count='+IntToStr(rows.GetCount));
+  for i:=0 to rows.GetCount-1 do begin
+    if rows.GetItem(i,row) then begin
+      log.println( 'row#'+IntToStr(i)+' '+row.toString );
     end;
   end;
 end;

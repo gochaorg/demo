@@ -5,7 +5,8 @@ interface
 uses
   Classes, SysUtils,
 
-  Map, Logging, DBRowPredicate;
+  Map, Loggers, Logging,
+  DBRowPredicate;
 
 type
 
@@ -18,18 +19,43 @@ type
     procedure SetName( str:WideString );
     function  GetName: WideString;
     property Name: WideString read GetName write SetName;
+
+    procedure SetTitle( str:WideString );
+    function  GetTitle: WideString;
+    property  Title:WideString read GetTitle write SetTitle;
+
+    procedure SetVisible( visible:boolean );
+    function  GetVisible:boolean;
+    property  Visible:boolean read GetVisible write SetVisible;
+
+    procedure SetWidth( width:Integer );
+    function  GetWidth: Integer;
+    property  Width:Integer read GetWidth write SetWidth;
   end;
 
-  TDBRowColumn = class(TStringMap)
+  TDBRowColumn = class(TStringMap,IDBRowColumn,IStringMap)
   published
     constructor Create;
+    constructor Copy( sample:TStringMap );
     destructor Destroy; override;
 
     procedure SetName( str:WideString );
     function GetName: WideString;
     property Name: WideString read GetName write SetName;
-  private
-    FName: WideString;
+
+    procedure SetTitle( str:WideString );
+    function  GetTitle: WideString;
+    property  Title:WideString read GetTitle write SetTitle;
+
+    procedure SetVisible( visible:boolean );
+    function  GetVisible:boolean;
+    property  Visible:boolean read GetVisible write SetVisible;
+
+    procedure SetWidth( width:Integer );
+    function  GetWidth: Integer;
+    property  Width:Integer read GetWidth write SetWidth;
+
+    procedure CopyFrom( sample:TStringMap );
   end;
 
   /////////////////////////////////////////////////////////////
@@ -38,11 +64,7 @@ type
     // Получение колонки (или создание) по имени
     // Аргументы
     //   name - имя колонки
-    //   ссылка на колонку
-    // Результат
-    //   true - ссылка на колонку содержит актуальное значение
-    //   false - колонка не создана, ссылка на колонку не актуальна
-    function AddOrGetColumn( name:WideString; var column:IDBRowColumn ):boolean;
+    function AddOrGetColumn( name:WideString ):TDBRowColumn;
 
     // Получение колонки по имени
     // Аргументы
@@ -51,7 +73,7 @@ type
     // Результат
     //   true - ссылка на колонку содержит актуальное значение
     //   false - колонка не создана, ссылка на колонку не актуальна
-    function GetColumn( name:WideString; var column:IDBRowColumn ):boolean; overload;
+    function GetColumn( name:WideString; out column:TDBRowColumn ):boolean; overload;
 
     // Получение колонки по индексу
     // Аргументы
@@ -60,7 +82,7 @@ type
     // Результат
     //   true - ссылка на колонку содержит актуальное значение
     //   false - колонка не создана, ссылка на колонку не актуальна
-    function GetColumn( index:Integer; var column:IDBRowColumn ):boolean; overload;
+    function GetColumn( index:Integer; out column:TDBRowColumn ):boolean; overload;
 
     // Возвращает кол-во колонок
     function GetColumnsCount: Integer;
@@ -69,7 +91,7 @@ type
     function GetCount: Integer;
 
     // Возвращает строку по индексу
-    function GetItem(index:Integer): IStringMap;
+    function GetItem(index:Integer; out item:TStringMap): boolean;
 
     // Обход всех строк в выборке и передача каждой в приемник
     // Аргументы
@@ -93,22 +115,25 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    function AddOrGetColumn( name:WideString; var column:IDBRowColumn ):boolean;
-    function GetColumn( name:WideString; var column:IDBRowColumn ):boolean; overload;
-    function GetColumn( index:Integer; var column:IDBRowColumn ):boolean; overload;
+    function AddOrGetColumn(name: WideString): TDBRowColumn;
+    function GetColumn( name:WideString; out column:TDBRowColumn ):boolean; overload;
+    function GetColumn( index:Integer; out column:TDBRowColumn ):boolean; overload;
     function GetColumnsCount: Integer;
 
-    procedure Each( consumer:TDataRowConsumer ); virtual;
-    function GetCount: Integer; virtual;
-    function GetItem(index:Integer): IStringMap; virtual;
-    procedure Add(row:TStringMap); virtual;
-    procedure Retain( predicate: IDataRowPredicate ); virtual;
+    procedure Each( consumer:TDataRowConsumer );
+    function GetCount: Integer;
+    function GetItem(index:Integer; out item:TStringMap): boolean;
+    procedure Add(row:TStringMap);
+    procedure Retain( predicate: IDataRowPredicate );
   end;
 
   EIndexOutOfBound = class(Exception);
 
 
 implementation
+
+var
+log : ILog;
 
 { TDBRows }
 
@@ -155,20 +180,18 @@ begin
   result := list.Count;
 end;
 
-function TDBRows.GetItem(index: Integer): IStringMap;
-var
-  row : TStringMap;
+function TDBRows.GetItem(index: Integer; out item:TStringMap ): boolean;
 begin
-  if index<0 then
-    raise EIndexOutOfBound.Create('index (='+IntToStr(index)+') param < 0');
-
-  if index>=list.Count then
-    raise EIndexOutOfBound.Create(
-      'index (='+IntToStr(index)+
-      ') param > list.count(='+IntToStr(list.Count)+')');
-
-  row := list[index];
-  result := row;
+  if (index>=0) and (index<list.Count) then begin
+    item := list[index];
+    result := true;
+  end else begin
+    result := false;
+    log.println(
+      '! TDBRows.GetItem( '+IntToStr(index)+' )'+
+      ' index out of range'
+    );
+  end;
 end;
 
 procedure TDBRows.Each(consumer: TDataRowConsumer);
@@ -176,7 +199,7 @@ var
   i:Integer;
   row: TStringMap;
 begin
-  for i:=0 to list.Count-1 do begin
+  for i:=0 to (list.Count-1) do begin
     row := list[i];
     consumer(row);
   end;
@@ -187,7 +210,7 @@ var
   i:Integer;
   row: TStringMap;
 begin
-  for i:=list.Count-1 downto 0 do begin
+  for i:=(list.Count-1) downto 0 do begin
     row := list[i];
     if not predicate.test(row) then begin
       list.Delete(i);
@@ -197,21 +220,17 @@ begin
 end;
 
 
-function TDBRows.AddOrGetColumn(
-  name: WideString;
-  var column: IDBRowColumn
-  ): boolean;
+function TDBRows.AddOrGetColumn(name: WideString): TDBRowColumn;
 var
   i: Integer;
   hdr: TDBRowColumn;
   found: boolean;
 begin
   found := false;
-  for i:=0 to self.header.Count-1 do begin
-    hdr := self.header[i];
-    if assigned(hdr) and hdr.Name = name then begin
-      result := true;
-      column := hdr;
+  for i:=0 to (self.header.Count-1) do begin
+    hdr := self.header.items[i];
+    if assigned(hdr) and (hdr.GetName = name) then begin
+      result := hdr;
       found := true;
     end;
   end;
@@ -219,32 +238,34 @@ begin
   if not found then begin
     hdr := TDBRowColumn.Create;
     self.header.Add(hdr);
-    column := hdr;
-    result := true;
+    result := hdr;
   end;
 end;
 
 function TDBRows.GetColumn(
   name: WideString;
-  var column: IDBRowColumn): boolean;
+  out column: TDBRowColumn): boolean;
 var
   i: Integer;
   hdr: TDBRowColumn;
 begin
-  for i:=0 to self.header.Count-1 do begin
+  result := false;
+  for i:=0 to (self.header.Count-1) do begin
     hdr := self.header[i];
-    if assigned(hdr) and hdr.Name = name then begin
+    if assigned(hdr) and (hdr.GetName = name) then begin
       result := true;
       column := hdr;
     end;
   end;
 end;
 
-function TDBRows.GetColumn(index: Integer;
-  var column: IDBRowColumn): boolean;
+function TDBRows.GetColumn(
+  index: Integer;
+  out column: TDBRowColumn): boolean;
 var
   hdr: TDBRowColumn;
 begin
+  result := false;
   if (index>=0) and (index<self.header.Count) then begin
     hdr := self.header[index];
     column := hdr;
@@ -262,11 +283,27 @@ end;
 constructor TDBRowColumn.Create;
 begin
   inherited Create;
+  self.SetName('');
 end;
 
 destructor TDBRowColumn.Destroy;
 begin
   inherited Destroy;
+end;
+
+constructor TDBRowColumn.Copy(sample: TStringMap);
+begin
+  self.CopyFrom(sample);
+end;
+
+procedure TDBRowColumn.CopyFrom(sample: TStringMap);
+begin
+  if assigned(sample) then begin
+    if sample.exists('name') then self.SetName(sample.get('name'));
+    if sample.exists('title') then self.SetTitle(sample.get('title'));
+    if sample.exists('visible') then self.SetVisible(sample.get('visible'));
+    if sample.exists('width') then self.SetVisible(sample.get('width'));
+  end;
 end;
 
 function TDBRowColumn.getName: WideString;
@@ -280,5 +317,44 @@ procedure TDBRowColumn.setName(str: WideString);
 begin
   self.put('name', str);
 end;
+
+function TDBRowColumn.GetTitle: WideString;
+begin
+  if self.exists('title')
+  then result := self.get('title')
+  else result := '';
+end;
+
+procedure TDBRowColumn.SetTitle(str: WideString);
+begin
+  self.put('title',str);
+end;
+
+function TDBRowColumn.GetVisible: boolean;
+begin
+  if self.exists('visible')
+  then result := self.get('visible')
+  else result := false;
+end;
+
+procedure TDBRowColumn.SetVisible(visible: boolean);
+begin
+  self.put('visible',visible);
+end;
+
+function TDBRowColumn.GetWidth: Integer;
+begin
+  if self.exists('width')
+  then result := self.get('width')
+  else result := 0;
+end;
+
+procedure TDBRowColumn.SetWidth(width: Integer);
+begin
+  self.put('width',width);
+end;
+
+initialization
+log := logger('DBRows');
 
 end.

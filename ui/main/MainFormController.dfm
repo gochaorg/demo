@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 11
-  Top = 10
+  Left = 25
+  Top = 18
   Width = 682
   Height = 363
   Caption = 'MainForm'
@@ -150,11 +150,11 @@ object MainForm: TMainForm
   object MainMenu1: TMainMenu
     Left = 288
     Top = 224
-    object configMenu: TMenuItem
-      Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
-      object configDBMenuItem: TMenuItem
-        Caption = #1057#1086#1077#1076#1080#1085#1077#1085#1080#1077' '#1089' '#1057#1059#1041#1044
-        OnClick = configDBMenuItemClick
+    object waybillsMenu: TMenuItem
+      Caption = #1055#1091#1090#1077#1074#1099#1077' '#1083#1080#1089#1090#1099
+      object waybillsExcelExport: TMenuItem
+        Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074' Excel'
+        OnClick = waybillsExcelExportClick
       end
     end
     object dbConnectMenu: TMenuItem
@@ -162,6 +162,10 @@ object MainForm: TMainForm
       object connectToDBMenuItem: TMenuItem
         Caption = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1077' '#1089' '#1041#1044
         OnClick = connectToDBMenuItemClick
+      end
+      object dbConnectConfig: TMenuItem
+        Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
+        OnClick = dbConnectConfigClick
       end
     end
   end
