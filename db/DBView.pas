@@ -54,7 +54,11 @@ type
   end;
 
   // Функция прнимающая строку
+  // Строка не передается во владение
   TDataRowConsumer  = procedure (row:TStringMap) of object;
+
+  // Функция прнимающая строку
+  // Строка не передается во владение
   TDataRowConsumerI = procedure (row:IStringMap) of object;
 
   // Функция обновляющая выделение строки
@@ -95,6 +99,15 @@ type
     //   true - данные успещно получены
     //   false - текущая строка не выбрана
     function GetCurrentRow( var row:TStringMap ): boolean;
+
+    // Указывает какие данные выбирать (FetchRow)
+    // Аргументы
+    //   visibleColumn - Видимые колонки
+    //   inVisibleColumn - НеВидимые колонки
+    function FetchVisible(
+      visibleColumn: boolean;
+      inVisibleColumn: boolean
+    ):IDBGridExtension;
   end;
 
   /////////////////////////////////////////////////////////////
@@ -102,12 +115,19 @@ type
   TDBGridExt = class(TInterfacedObject, IDBGridExtension)
     private
       grid: TDBGrid;
+      visibleColumnsFetch: boolean;
+      inVisibleColumnsFetch: boolean;
     public
       constructor Create( const grid:TDBGrid );
       function Ext(): IDBGridExtension;
       destructor Destroy; override;
 
       function GetRowsCount(): Integer; virtual;
+
+      function FetchVisible(
+        visibleColumn: boolean;
+        inVisibleColumn: boolean
+      ):IDBGridExtension;
 
       procedure FetchRows(
         selected: Boolean;
@@ -145,12 +165,29 @@ type
       procedure Update(row:TDataRowSelectionUpdate);
   end;
 
+  TFetchRowDelegate = class(TObject)
+    private
+      selected: boolean;
+      unSelected: boolean;
+      target : TDataRowConsumer;
+    public
+      constructor Create(
+        selected:boolean;
+        unSelected:boolean;
+        target : TDataRowConsumer
+      );
+      destructor Destroy;
+      procedure Consume( row: TDataRowSelectionUpdate );
+  end;
+
 { TDBGridExt }
 
 constructor TDBGridExt.Create(const grid: TDBGrid);
 begin
   inherited Create();
   self.grid := grid;
+  self.visibleColumnsFetch := true;
+  self.inVisibleColumnsFetch := true;
 end;
 
 
@@ -165,59 +202,29 @@ begin
   result := self;
 end;
 
-// todo Этот код можно уменьшить в пользу UpdateSelection
 procedure TDBGridExt.FetchRows(
   selected, unselected: Boolean;
   consumer: TDataRowConsumer
 );
 var
-  bm: TBookmark;
-  i,c: Integer;
-  row: TStringMap;
+  delegate : TFetchRowDelegate;
 begin
-  if assigned(self.grid) then begin
-    if assigned(self.grid.DataSource) then begin
-      if assigned(self.grid.DataSource.DataSet) then begin
-        bm := self.grid.DataSource.DataSet.GetBookmark;
-        self.grid.DataSource.DataSet.DisableControls;
-        self.grid.DataSource.DataSet.First;
-        try
-          for i:=0 to self.grid.DataSource.DataSet.RecordCount-1 do begin
-            row := TStringMap.Create;
-            try
-              for c:=0 to self.grid.DataSource.DataSet.Fields.Count-1 do begin
-                row.put(
-                  self.grid.Columns.Items[c].FieldName,
-                  self.grid.Fields[c].Value
-                );
-              end;
-              if self.grid.SelectedRows.CurrentRowSelected then
-                begin
-                  if selected then begin
-                    consumer(row);
-                  end;
-                end
-              else
-                begin
-                  if unselected then begin
-                    consumer(row);
-                  end;
-                end;
-            finally
-              //FreeAndNil(row);
-              row.Destroy;
-              row := nil;
-              self.grid.DataSource.DataSet.Next;
-            end;
-          end;
-        finally
-          self.grid.DataSource.DataSet.EnableControls;
-          self.grid.DataSource.DataSet.GotoBookmark(bm);
-          self.grid.DataSource.DataSet.FreeBookmark(bm);
-        end;
-      end;
-    end;
+  delegate := TFetchRowDelegate.Create(selected, unselected, consumer);
+  try
+    self.UpdateSelection(delegate.Consume);
+  finally
+    FreeAndNil(delegate);
   end;
+end;
+
+function TDBGridExt.FetchVisible(
+  visibleColumn,
+  inVisibleColumn: boolean
+): IDBGridExtension;
+begin
+  self.visibleColumnsFetch := visibleColumn;
+  self.inVisibleColumnsFetch := inVisibleColumn;
+  result := self;
 end;
 
 function TDBGridExt.GetCurrentRow(var row: TStringMap): boolean;
@@ -320,10 +327,17 @@ begin
             try
               // build data
               for c:=0 to self.grid.DataSource.DataSet.Fields.Count-1 do begin
-                row.put(
-                  self.grid.Columns.Items[c].FieldName,
-                  self.grid.Fields[c].Value
-                );
+                if  (   self.visibleColumnsFetch
+                    and self.grid.Columns.Items[c].Visible
+                    ) or
+                    (   self.inVisibleColumnsFetch
+                    and not self.grid.Columns.Items[c].Visible
+                    )
+                then
+                  row.put(
+                    self.grid.Columns.Items[c].FieldName,
+                    self.grid.Fields[c].Value
+                  );
               end;
               updater( rowUpdate );
               if rowUpdate.isFocusChanged then begin
@@ -439,6 +453,37 @@ begin
   matched := self.predicate.test(row.getRow);
   row.setFocus(matched);
   row.setSelect(matched);
+end;
+
+{ TFetchRowDelegate }
+
+constructor TFetchRowDelegate.Create(
+  selected:boolean;
+  unSelected:boolean;
+  target: TDataRowConsumer
+);
+begin
+  inherited Create;
+  self.target := target;
+  self.selected := selected;
+  self.unSelected := unSelected;
+end;
+
+destructor TFetchRowDelegate.Destroy;
+begin
+  self.target := nil;
+  inherited Destroy;
+end;
+
+procedure TFetchRowDelegate.Consume(row: TDataRowSelectionUpdate);
+begin
+  if assigned(self.target) then begin
+    if row.isSelected and self.selected
+    then self.target(row.getRow);
+
+    if not row.isSelected and self.unSelected
+    then self.target(row.getRow);
+  end;
 end;
 
 end.
