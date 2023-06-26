@@ -19,7 +19,7 @@ var
 implementation
 
 uses
-  ExcelExport, WordExport, IniFiles;
+  ExcelExport, WordExport, IniFiles, SysUtils;
 
 type
 TOfficeConfig = class(TConfigReader)
@@ -28,6 +28,25 @@ end;
 
 { TOfficeConfig }
 
+function isAbsolutePath( path:string ):boolean;
+begin
+  result := false;
+  if length(path)>1 then begin
+    if path[2] = ':' then begin
+      result := true;
+    end;
+  end;
+end;
+
+function toAbsolutePath( path:string ):string;
+begin
+  if isAbsolutePath(path) then begin
+    result := path;
+  end else begin
+    result := GetCurrentDir + '\' + path;
+  end;
+end;
+
 procedure TOfficeConfig.read(ini: TIniFile);
 var
   template: string;
@@ -35,15 +54,16 @@ var
 begin
   template := ini.ReadString('excel', 'template', '-');
   if not (template = '-') then begin
-    excelExporter := TExcelExport.Create.withTemplate(template);
+    excelExporter := TExcelExport.Create
+      .withTemplate(toAbsolutePath(template));
   end;
 
   template := ini.ReadString('word', 'template', '-');
   if not (template = '-') then begin
     bookmark := ini.ReadString('word', 'insertInto', '');
-    
+
     wordExporter := TWordExport.Create
-      .withTemplate(template)
+      .withTemplate(toAbsolutePath(template))
       .withInsertIntoBookmark(bookmark);
   end;
 end;
