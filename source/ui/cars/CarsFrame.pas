@@ -14,6 +14,12 @@ uses
   ;
 
 type
+  // Визуальныей элемент - список/таблица автомобилей
+  // Задачи
+  //   - Просмотр
+  //   - Добавление автомобилей
+  //   - Редактирование автомобилей
+  //   - Удаление автомобилей
   TCarsController = class(TFrame)
     topPanel: TPanel;
     refreshButton: TButton;
@@ -23,16 +29,28 @@ type
     carsDataSource: TDataSource;
     carsDBGrid: TDBGrid;
     carsADOQuery: TADOQuery;
+
+    // Обновление списка отобрадаемых записей
     procedure refreshButtonClick(Sender: TObject);
+
+    // Добавление новой записи
     procedure newButtonClick(Sender: TObject);
+
+    // Редактирование выбранной записи
     procedure editButtonClick(Sender: TObject);
+
+    // Удаление выбранных записей
     procedure deleteButtonClick(Sender: TObject);
   private
     logInstance: ILog;
 
+    // Обновление всех записей
     procedure RefreshAll();
+
+    // Обновление текущей строки
     procedure RefreshCurrent();
   public
+    // Подключение СУБД, активизация кнопок и прочего для управления
     procedure ActivateDataView();
   end;
 

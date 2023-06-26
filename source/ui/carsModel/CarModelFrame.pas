@@ -9,6 +9,7 @@ uses
   Loggers, Logging;
 
 type
+  // Режим InsertMode / UpdateMode
   TMode = (InsertMode, UpdateMode);
 
   // Диалог добавления/обновления модели
@@ -17,17 +18,34 @@ type
     doButton: TButton;
     ADOQueryInsert: TADOQuery;
     ADOQueryUpdate: TADOQuery;
+
+    // Завершение редактирования
     procedure doButtonClick(Sender: TObject);
   private
+    // Режим InsertMode / UpdateMode
     mode: TMode;
 
+    // содинение с СУБД
+    // не владет ссылкой
+    // сылка доступна только на момент пока окно открыто
     connection: TADOConnection;
+
+    // ID добавленной записи в СУБД
     insertedId: Integer;
+
+    // ID обновляемой записи
     updatingId: Integer;
+
+    // добавление успешно выполнено
     insertSuccessfully: Boolean;
+
+    // обновление успешно выполнено
     updateSuccessfully: Boolean;
 
+    // Добавлене записи
     procedure insertData();
+    
+    // Редактирование записи
     procedure updateData();
   public
     // Открыть диалог для добавления

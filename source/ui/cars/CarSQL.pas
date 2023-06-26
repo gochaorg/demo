@@ -43,10 +43,18 @@ ICarDataBuilder = interface
 
   // Указывает год выпуска
   procedure SetBirthYear( year:Integer ); overload;
+
+  // Указывает год выпуска
+  // Аргумент
+  //   year - число
   procedure SetBirthYear( year:WideString ); overload;
 
   // Указывает дату прохождения ТО
   procedure SetMaintainceDate( date:TMyDate; own:boolean ); overload;
+
+  // Указывает дату прохождения ТО
+  // Аргумент
+  //   date - дата в формате yyyy-MM-dd
   procedure SetMaintainceDate( date:WideString ); overload;
 
   // Проверка данных перед INSERT

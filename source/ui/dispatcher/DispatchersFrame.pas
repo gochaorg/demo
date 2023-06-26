@@ -14,6 +14,12 @@ uses
   ;
 
 type
+  // Контроллер/фрейм списка диспетчере
+  // Основные функции
+  //   Отображение списка диспетчеров
+  //   Добавление информации о диспетчере
+  //   Редактирование информации о диспетчере
+  //   Удаление информации о диспетчерах
   TDispatchersController = class(TFrame)
     Panel1: TPanel;
     dispatchersDBGrid: TDBGrid;
@@ -23,16 +29,28 @@ type
     deleteButton: TButton;
     dispatchersDataSource: TDataSource;
     dispatchersADOQuery: TADOQuery;
+
+    // Обновление списка отобрадаемых записей
     procedure refreshButtonClick(Sender: TObject);
+
+    // Добавление новой записи
     procedure newButtonClick(Sender: TObject);
+
+    // Редактирование выбранной записи
     procedure editButtonClick(Sender: TObject);
+    
+    // Удаление выбранных записей
     procedure deleteButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
-    { Public declarations }
+    // Подключение СУБД, активизация кнопок и прочего для управления
     procedure ActivateDataView();
+
+    // Обновление текущей строки
     procedure RefreshCurrent();
+
+    // Обновление всех записей
     procedure RefreshAll();
   end;
 

@@ -26,8 +26,15 @@ IDispatcherDataBuilder = interface
   // Указывает обновляемую запись
   procedure setDriverId(id:Integer);
 
+  // Указывает имя диспетчера
   procedure setName(name:WideString);
+
+  // Указывает день рождения
   procedure setBirthDay(date:WideString); overload;
+
+  // Указывает день рождения
+  // Аргументы
+  //   date - строка содрежащаяя дату в формате yyyy-MM-dd
   procedure setBirthDay(date:TDateTime); overload;
 
   // Проверка данных перед INSERT
@@ -47,6 +54,7 @@ IDispatcherDataBuilder = interface
   function BuildUpdate: IDMLOperation;
 end;
 
+// Реализация IDispatcherDataBuilder
 TDispatcherDataBuilder = class(TInterfacedObject, IDispatcherDataBuilder)
   private
     driverId: Integer;
@@ -85,7 +93,15 @@ TDispatcher = class
     idValue: Integer;
     nameValue: WideString;
   public
+    // Конструктор
+    // Аргументы
+    //   id - ид записи
+    //   name - имя диспетчера
     constructor Create( id:Integer; name:WideString );
+
+    // Конструктор копирования
+    // Аргументы
+    //   sample - пример для копирования
     constructor Copy( sample: TDispatcher );
 
     // id записи
@@ -112,6 +128,7 @@ IDispatcherFinder = interface
   procedure findLike( what:WideString; consumer:TDispatcherConsumer );
 end;
 
+// Реализация IDispatcherFinder
 TDispatcherFinder = class (TInterfacedObject,IDispatcherFinder)
   private
     connection: TADOConnection;

@@ -11,6 +11,7 @@ uses
   MyDate, CarSql, DMLOperation, Validation;
 
 type
+  // Режим InsertMode / UpdateMode
   TMode = (InsertMode, UpdateMode);
 
   // Диалог добавления/обновления машины
@@ -26,8 +27,14 @@ type
     updateADOQuery: TADOQuery;
     carsModelADOQuery: TADOQuery;
     errLabel: TLabel;
+
+    // Завершение редактирования
     procedure okButtonClick(Sender: TObject);
+
+    // Деконструкция переменных
     procedure FormDestroy(Sender: TObject);
+
+    // Инициализация переменных
     procedure FormShow(Sender: TObject);
   private
     // Режим InsertMode / UpdateMode
@@ -55,12 +62,27 @@ type
     // Валидация и построение SQL
     carDataBuilder: TCarDataBuilder;
   private
+    // Удаление списка моделей
     procedure ClearCarsModelListbox();
+
+    // Добавлене записи
     procedure InsertData();
+
+    // Редактирование записи
     procedure UpdateData();
+
     procedure SetConnection( connection: TADOConnection );
+
+    // Обновление списка модлей
     procedure RefreshModelList();
+
+    // Валидация данных
     procedure ValidateInput(Sender: TObject);
+
+    // Валидация данных
+    // Результат
+    //   true - успешно
+    //   false - есть ошибки входных данных
     function Validate():boolean;
   public
     // Открыть диалог для добавления

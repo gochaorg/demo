@@ -17,8 +17,6 @@ type
   // Визуальныей элемент - список/таблица моделей авто
   // Задачи
   //   - Просмотр
-  //     - Сортировка по полям
-  //     - Фильтрация по полям
   //   - Добавление модели
   //   - Редактирование модели
   //   - Удаление модели
@@ -31,17 +29,28 @@ type
     carModelDBGrid: TDBGrid;
     _DataSource: TDataSource;
     ADOQuery1: TADOQuery;
+
+    // Обновление списка отобрадаемых записей
     procedure refreshButtonClick(Sender: TObject);
     procedure carModelDBGridTitleClick(Column: TColumn);
+
+    // Добавление новой записи
     procedure newButtonClick(Sender: TObject);
+
+    // Редактирование выбранной записи
     procedure editButtonClick(Sender: TObject);
+
+    // Удаление выбранных записей
     procedure deleteButtonClick(Sender: TObject);
   private
+    // Обновление всех записей
     procedure RefreshAll();
+
+    // Обновление текущей строки
     procedure RefreshCurrent();
   public
-    { Public declarations }
-    procedure activateDataView();
+    // Подключение СУБД, активизация кнопок и прочего для управления
+    procedure ActivateDataView();
   end;
 
 implementation
@@ -56,9 +65,8 @@ var
 
 { TCarsModelsController }
 
-procedure TCarsModelsController.activateDataView();
+procedure TCarsModelsController.ActivateDataView();
 begin
-  //_ADOTable.Active := true;
   ADOQuery1.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, carModelDBGrid);
 

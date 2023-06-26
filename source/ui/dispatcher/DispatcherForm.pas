@@ -12,6 +12,7 @@ uses
   Logging, Loggers;
 
 type
+  // Режим InsertMode / UpdateMode
   TMode = (InsertMode, UpdateMode);
 
   TDispatcherController = class(TForm)
@@ -19,8 +20,14 @@ type
     birthDayEdit: TLabeledEdit;
     okButton: TButton;
     errLabel: TLabel;
+
+    // Инициализация переменных
     procedure FormShow(Sender: TObject);
+
+    // Деконструкция переменных
     procedure FormHide(Sender: TObject);
+
+    // Завершение редактирования
     procedure okButtonClick(Sender: TObject);
   private
     // Режим InsertMode / UpdateMode
@@ -74,9 +81,19 @@ type
     ): Boolean;
 
   private
+    // Добавлене записи
     procedure InsertData;
+
+    // Редактирование записи
     procedure UpdateData;
+
+    // Валидация данных
+    // Результат
+    //   true - успешно
+    //   false - есть ошибки входных данных
     function Validate: boolean;
+
+    // Валидация данных
     procedure ValidateInput(Sender: TObject);
   end;
 
