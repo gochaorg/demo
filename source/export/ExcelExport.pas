@@ -20,6 +20,10 @@ TExcelExport = class(TInterfacedObject,IOfficeExport,IExcelExport)
   public
     constructor Create;
     destructor Destroy; override;
+
+    // ”казывает файл шаблона Excel
+    // јргументы
+    //   fileName - им€ файла шаблона, или пуста€ строка - что бы не использовать шаблон
     function withTemplate( fileName:WideString ):TExcelExport;
     procedure doExport( dbRows:IDBRows );
 end;

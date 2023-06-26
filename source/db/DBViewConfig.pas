@@ -13,18 +13,32 @@ type
     // Подгатовка таблицы TDBGrid в зависимости от того где она используется
     // Аргументы
     //   className - имя класса контроллера
-    //   grid - сетка
+    //   grid - сетка данных
     procedure prepareGrid( const className:string; const grid:TDBGrid );
   private
     // Скрыть конкретные колонки
+    // Аргументы
+    //   grid - сетка данных
+    //   name - имя колонки
     procedure hideColumn( const grid:TDBGrid; const name:string );
 
     // Скрывает колонки которые относятся в версии данных
+    // Аргументы
+    //   grid - сетка данных
     procedure hideVersionColumns( const grid:TDBGrid );
 
     // Устанавливает ширину колонки
+    // Аргументы
+    //   grid - сетка данных
+    //   name - имя колонки
+    //   width - ширина колонки
     procedure setColumnWidth( const grid:TDBGrid; const name:string; const width:Integer );
 
+    // Устанавливает заголовок колонки
+    // Аргументы
+    //   grid - сетка данных
+    //   name - имя колонки
+    //   displayName - отображаемый текст колонки
     procedure setColumnTitle(
       const grid:TDBGrid;
       const name:string;

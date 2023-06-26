@@ -6,9 +6,16 @@ uses
   SysUtils;
 
 type
-  // Запись лога
+  // Запись в лог сообщения
   ILog = interface
+    // добавления в лог сообщения
+    // Аргументы
+    //   messageText - текст
     procedure print( const messageText: string );
+
+    // добавления в лог сообщения с переходом на новую строку (CRLF)
+    // Аргументы
+    //   messageText - текст
     procedure println( const messageText: string );
   end;
 
@@ -21,6 +28,12 @@ type
   // Запись в лог файл
   TFileLog = class(TInterfacedObject,ILog)
     public
+      // Конструктор
+      // Аргументы
+      //   fileName - имя лог файла 
+      //   appendFile 
+      //     true - добавляет записи в конец, если файл существует
+      //     false - переписывает файл, если файл существует
       constructor Create( fileName: WideString; appendFile:Boolean );
       destructor Close(); virtual;
       procedure print( const messageText: string ); virtual;
@@ -36,6 +49,9 @@ type
     public
       constructor Create();
       destructor Destroy(); override;
+
+      // Указывает новое целевое назначение
+      // куда записывать сообщения (делегировать вызовы)
       procedure setTarget( const target:ILog ); virtual;
       procedure print( const messageText: string ); virtual;
       procedure println( const messageText: string ); virtual;
@@ -43,12 +59,18 @@ type
 
   // Добавление префикса в сообщения лог файла
   TPrefixBuilder = function():string of object;
+
+  // Добавляет перед сообщением лога текст
   TPrefixLog = class(TInterfacedObject,ILog)
     private
       needPrefix: boolean;
       prefixBuilder: TPrefixBuilder;
       targetLog: ILog;
     public
+      // Конструктор
+      // Аргументы
+      //   logTo - логгер приемник
+      //   prefix - функция возвращающая префикс текстового сообщения
       constructor Create( logTo:ILog; prefix:TPrefixBuilder );
       destructor Destroy(); override;
       procedure print( const messageText: string ); virtual;
@@ -63,6 +85,8 @@ type
     private
       prefix: string;
     public
+      // Конструктор
+      //   text - префикс текстового сообщения
       constructor Create(text:string);
       destructor Destroy(); override;
       function getMessage():string;

@@ -13,7 +13,10 @@ type
   end;
 
 var
+  // Экспорт таблицы в MS Excel
   excelExporter : IOfficeExport;
+
+  // Экспорт таблицы в MS Word
   wordExporter : IOfficeExport;
 
 implementation
@@ -28,6 +31,9 @@ end;
 
 { TOfficeConfig }
 
+// Возвразает
+//   true - если указанный путь является абсолютным
+//   fale - в остальных случаях (относительный)
 function isAbsolutePath( path:string ):boolean;
 begin
   result := false;
@@ -38,6 +44,10 @@ begin
   end;
 end;
 
+// Конвертация пути в абсолютный
+// Аргументы
+//   path - путь к файлу, абсолютный или относительный
+// Возвращает абсолютный путь
 function toAbsolutePath( path:string ):string;
 begin
   if isAbsolutePath(path) then begin
@@ -47,6 +57,14 @@ begin
   end;
 end;
 
+// Инициализация конфигурации
+//
+// секция [excel]
+// значение template - путь шаблону, значение '-' (тире без ковычек) - указывает, что шаблон отсуствует
+//
+// секция [word]
+// значение template - путь шаблону, значение '-' (тире без ковычек) - указывает, что шаблон отсуствует
+// значение insertInto - указывает имя закладки в шаблоне, куда будет добавлена таблица
 procedure TOfficeConfig.read(ini: TIniFile);
 var
   template: string;

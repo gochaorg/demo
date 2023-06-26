@@ -17,10 +17,24 @@ interface
     mapParams: TStringMap;
     errorsCount: Integer;
   public
+    // Конструктор
+    // Аргументы
+    //   query - запрос коорый будет выполнен
     constructor Create( query:TADOQuery );
     destructor Destroy; override;
+
+    // Указывает какие колонки передавать как параметры
+    // Аргументы
+    //   columnName - данные в строке, имя колонки
+    //   paramName - имя параметра SQL
     procedure Map( columnName:string; paramName:string );  virtual;
+
+    // Выполнение запроса
+    // Аргументы
+    //   row - строка данных
     procedure Execute(row:TStringMap); virtual;
+
+    // Возвращает кол-во ошибок при выполнении запроса
     function getErrorsCount: Integer; virtual;
   end;
 

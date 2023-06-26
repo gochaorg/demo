@@ -166,23 +166,35 @@ uses
   Dialogs, Variants;
 
 type
+  // Обновление выделенных строк и строки содержащей фокус
   TSetSelectAndFocusUpdater = class(TObject)
     private
       predicate: IDataRowPredicate;
       setFocus: boolean;
       setSelect: boolean;
     public
+      // Конструктор
+      // Аргументы
+      //   setFocus - установить фокус соответствующие условию
+      //   setSelect - устновить выделение соответствующие условию
+      //   predicate - условие по которому выбирается строка
       constructor Create( setFocus:boolean; setSelect:boolean; predicate:IDataRowPredicate );
       destructor Destroy; override;
       procedure Update(row:TDataRowSelectionUpdate);
   end;
 
+  // Делегирует вызов от TDataRowSelectUpdater к TDataRowConsumer
   TFetchRowDelegate = class(TObject)
     private
       selected: boolean;
       unSelected: boolean;
       target : TDataRowConsumer;
     public
+      // Конструктор
+      // Аргументы
+      //   selected - делегировать выбранные строки
+      //   unSelected - делегировать не выбранные строки
+      //   target - куда делегировать вызов
       constructor Create(
         selected:boolean;
         unSelected:boolean;
@@ -192,13 +204,18 @@ type
       procedure Consume( row: TDataRowSelectionUpdate );
   end;
 
+  // Строит коллекцию строк (таблицу)
   TDBRowsBuilder = class(TObject)
     private
       dbRows : TDBRows;
     public
       constructor Create( dbRows:TDBRows );
       destructor Destroy; override;
+
+      // Принимает строку данных
       procedure RowConsume( row: TDataRowSelectionUpdate );
+
+      // Принимает колонку данных
       procedure ColumnConsume( column:TDBRowColumn );
   end;
 

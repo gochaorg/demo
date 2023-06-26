@@ -1,6 +1,8 @@
 unit Loggers;
 
 // Коллекция именнованных логгеров
+// Логгер - это объект который пищет в лог сообщения 
+// и дополнительную информацию (например дату записи)
 
 interface
 
@@ -24,9 +26,14 @@ ILoggers = interface
   function GetLogger(name:WideString): ILog;
 end;
 
+// Реализация ILoggers
+// Логгеры не удаляются, а существуют на протяжении всего времени
 TLoggers = class(TInterfacedObject, ILoggers)
   private
+    // Коллекция именоманных логгеров
     loggers: TStringMap;
+
+    // Блокировка для атомарного создания логгера
     lock: TCriticalSection;
   public
     constructor Create();
@@ -34,12 +41,15 @@ TLoggers = class(TInterfacedObject, ILoggers)
     function GetLogger(name:WideString): ILog;
 end;
 
+// Содержит ссылку на логгер
 TLogHolder = class
   private
     logValue: ILog;
   public
     constructor Create( log:ILog );
     destructor Destroy();
+
+    // Возвращает ссылку на логгер
     property log:ILog read logValue;
 end;
 

@@ -49,6 +49,10 @@ TSqlUpdateOperation = class(TInterfacedObject,IDMLOperation)
     sql: WideString;
     params: TStringMap;
   public
+    // Конструктор
+    // Аргументы
+    //   sql - Запрос
+    //   params - Параметры
     constructor Create(
       sql:WideString;
       params:TStringMap

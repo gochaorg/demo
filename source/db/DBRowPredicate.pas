@@ -16,6 +16,10 @@ interface
         key:string;
         expectedValue:variant;
       public
+        // Конструктор
+        // Аргумент
+        //   key - имя колонки
+        //   value - значение
         constructor Create(key:string; value:variant);
         destructor Destroy(); override;
         function test( row: TStringMap ):boolean;

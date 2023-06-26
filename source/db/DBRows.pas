@@ -16,23 +16,28 @@ type
 
   // Опиcание колонки
   IDBRowColumn = interface
+    // Свойство Name - имя колонки
     procedure SetName( str:WideString );
     function  GetName: WideString;
     property Name: WideString read GetName write SetName;
 
+    // Свойство Title - заголовок колонки, отображаемый текст
     procedure SetTitle( str:WideString );
     function  GetTitle: WideString;
     property  Title:WideString read GetTitle write SetTitle;
 
+    // Свойство Visible - видима колонка или нет
     procedure SetVisible( visible:boolean );
     function  GetVisible:boolean;
     property  Visible:boolean read GetVisible write SetVisible;
 
+    // Свойство Width - ширина колонки
     procedure SetWidth( width:Integer );
     function  GetWidth: Integer;
     property  Width:Integer read GetWidth write SetWidth;
   end;
 
+  // Реализация IDBRowColumn
   TDBRowColumn = class(TStringMap,IDBRowColumn,IStringMap)
   published
     constructor Create;
@@ -107,6 +112,7 @@ type
     procedure Retain( predicate: IDataRowPredicate );
   end;
 
+  // Реализация IDBRows
   TDBRows = class(TInterfacedObject,IDBRows)
   private
     list: TList; // коллекция строк TStringMap

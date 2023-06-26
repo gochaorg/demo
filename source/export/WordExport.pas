@@ -12,7 +12,7 @@ type
 IWordExport = interface
 end;
 
-// Ёкспорт в excel
+// Ёкспорт в Word
 TWordExport = class(TInterfacedObject,IOfficeExport,IWordExport)
   private
     templateFile: WideString;
@@ -20,7 +20,16 @@ TWordExport = class(TInterfacedObject,IOfficeExport,IWordExport)
   public
     constructor Create;
     destructor Destroy; override;
+
+    // ”казывает файл шаблона Word
+    // јргументы
+    //   fileName - им€ файла шаблона, или пуста€ строка - что бы не использовать шаблон
     function withTemplate( fileName:WideString ):TWordExport;
+
+    // ”казывает им€ закладки 
+    // јргументы
+    //   bookmarkName - им€ закладки в шаблоне, куда будет добавлена таблица
+    //                  или пуста€ строка, что бы не использовать закладку
     function withInsertIntoBookmark( bookmarkName:WideString ):TWordExport;
     procedure doExport( dbRows:IDBRows );
 end;
