@@ -1,3 +1,5 @@
 *.exe
 config.ini
+*.logdist
 *.log
+dist/
