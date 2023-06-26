@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 28
-  Top = 24
+  Left = 31
+  Top = 23
   Width = 682
   Height = 363
   Caption = 'MainForm'
@@ -152,6 +152,7 @@ object MainForm: TMainForm
     Top = 224
     object waybillsMenu: TMenuItem
       Caption = #1055#1091#1090#1077#1074#1099#1077' '#1083#1080#1089#1090#1099
+      Enabled = False
       object waybillsExcelExport: TMenuItem
         Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074' Excel'
         OnClick = waybillsExcelExportClick

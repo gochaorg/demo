@@ -65,6 +65,9 @@ begin
     dispatchersController.ActivateDataView;
     driversController.ActivateDataView;
     waybillsController.ActivateDataView;
+
+    waybillsMenu.Enabled := true;
+
     log.println('Connected');
   except
     on e: EOleException do begin
@@ -87,16 +90,28 @@ end;
 
 procedure TMainForm.waybillsExcelExportClick(Sender: TObject);
 begin
-  excelExporter.doExport(
-    extend(waybillsController.waybillsDBGrid).GetDBRows
-  );
+  try
+    excelExporter.doExport(
+      extend(waybillsController.waybillsDBGrid).GetDBRows
+    );
+  except
+    on e:EOleException do begin
+      log.println('! Ощибка экспорта Excel: '+e.Message);
+    end;
+  end;
 end;
 
 procedure TMainForm.waybillsWordExportClick(Sender: TObject);
 begin
-  wordExporter.doExport(
-    extend(waybillsController.waybillsDBGrid).GetDBRows
-  );
+  try
+    wordExporter.doExport(
+      extend(waybillsController.waybillsDBGrid).GetDBRows
+    );
+  except
+    on e:EOleException do begin
+      log.println('! Ощибка экспорта Word: '+e.Message);
+    end;
+  end;
 end;
 
 initialization

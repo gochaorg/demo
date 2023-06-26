@@ -51,7 +51,6 @@ var
   table : OleVariant;
   range: OleVariant;
   x,y,j : Integer;
-  _start,_end: variant;
 ///////////////////////////////////////////////////////////
   procedure headerExport();
   var
