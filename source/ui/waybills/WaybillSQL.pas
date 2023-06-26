@@ -43,10 +43,16 @@ IWaybillDataBuilder = interface
 
   // ”казывает дата/врем€ выезда
   procedure setOutcomeDate( date:TDateTime ); overload;
+  // ”казывает дата/врем€ выезда
+  // јргументы
+  //   str - строка в формате yyyy-MM-dd hh:mm:ss
   procedure setOutcomeDate( str:WideString ); overload;
 
   // ”казывает дата/врем€ возвата
   procedure setIncomeDate( date:TDateTime ); overload;
+  // ”казывает дата/врем€ возвата
+  // јргументы
+  //   str - строка в формате yyyy-MM-dd hh:mm:ss
   procedure setIncomeDate( str:WideString ); overload;
 
   // ”казывает id водител€
@@ -60,10 +66,17 @@ IWaybillDataBuilder = interface
 
   // ”казывает пробег
   procedure setWear( wear:Integer ); overload;
+
+  // ”казывает пробег
+  // јргументы
+  //   wear - строка содержаща€ число
   procedure setWear( wear:WideString ); overload;
 
   // ”казывает расход топлива
   procedure setFuelConsumption( liters:Integer ); overload;
+  // ”казывает расход топлива
+  // јргументы
+  //   liters - строка содержаща€ число
   procedure setFuelConsumption( liters:WideString ); overload;
 end;
 

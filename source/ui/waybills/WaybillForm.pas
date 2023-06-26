@@ -41,11 +41,23 @@ type
     driverFindButton: TButton;
     driverEdit: TEdit;
     errLabel: TLabel;
+
+    // Завершение редактирования/добавления
     procedure okButtonClick(Sender: TObject);
+
+    // Настройка/инициализация внутренних данных
     procedure FormShow(Sender: TObject);
+
+    // Деконструкция внутренних данных
     procedure FormHide(Sender: TObject);
+
+    // Поиск лиспетчера
     procedure dispatcherFindButtonClick(Sender: TObject);
+
+    // Поиск водителя
     procedure driverFindButtonClick(Sender: TObject);
+
+    // Поиск машины
     procedure carFindButtonClick(Sender: TObject);
   private
     // Режим InsertMode / UpdateMode

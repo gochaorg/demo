@@ -17,6 +17,12 @@ uses
 
 type
   // Главное окно программы
+  // Содержит 5 вложенных фреймов
+  //   Путевые листы
+  //   Водители
+  //   Диспетчеры
+  //   Машины
+  //   Модели машин
   TMainForm = class(TForm)
     MainMenu1: TMainMenu;
     dbConnectMenu: TMenuItem;
@@ -37,9 +43,17 @@ type
     dbConnectConfig: TMenuItem;
     waybillsExcelExport: TMenuItem;
     waybillsWordExport: TMenuItem;
+
+    // Устрановка соединения с СУБД
     procedure connectToDBMenuItemClick(Sender: TObject);
+
+    // Настройка подключения
     procedure dbConnectConfigClick(Sender: TObject);
+
+    // Экспорт путевыз листов в Excel
     procedure waybillsExcelExportClick(Sender: TObject);
+
+    // Экспорт путевыз листов в Word
     procedure waybillsWordExportClick(Sender: TObject);
   public
   end;

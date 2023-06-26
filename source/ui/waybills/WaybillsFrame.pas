@@ -15,6 +15,11 @@ uses
 
 type
   // Контроллер управления путевыми листами
+  // Основнфе функции
+  //   Просмотр
+  //   Добавление
+  //   Редактирование
+  //   Удаление
   TWaybillsController = class(TFrame)
     Panel1: TPanel;
     waybillsDBGrid: TDBGrid;
@@ -52,16 +57,21 @@ type
 
     // Указание фильтра искомых данных
     procedure findButtonClick(Sender: TObject);
+
+    // Сортировка по указанной колнке
     procedure waybillsDBGridTitleClick(Column: TColumn);
   private
     queryBuilderValue: IWaybillsQueryBuilder;
     function queryBuilder: IWaybillsQueryBuilder;
 
+    // Активно или нет
+    // т.е. есть подключение к СУБД
     function isActivated: boolean;
 
     // Пересоздание и выполнение запроса SELECT
     procedure RebuildQuery();
   public
+    // Подключение СУБД, активизация кнопок и прочего для управления
     procedure ActivateDataView();
 
     // Обновление текущей строки
@@ -74,6 +84,7 @@ type
 implementation
 
 var
+// логи
 log : ILog;
 
 {$R *.dfm}

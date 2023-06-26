@@ -25,8 +25,15 @@ IDriverDataBuilder = interface
   // Указывает обновляемую запись
   procedure setDriverId(id:Integer);
 
+  // Указывает имя водителя
   procedure setName(name:WideString);
+
+  // Указывает день рождения
   procedure setBirthDay(date:WideString); overload;
+
+  // Указывает день рождения
+  // Аргументы
+  //   date - строка содрежащаяя дату в формате yyyy-MM-dd
   procedure setBirthDay(date:TDateTime); overload;
 
   // Проверка данных перед INSERT
@@ -46,6 +53,7 @@ IDriverDataBuilder = interface
   function BuildUpdate: IDMLOperation;
 end;
 
+// Реализация IDriverDataBuilder
 TDriverDataBuilder = class(TInterfacedObject, IDriverDataBuilder)
   private
     driverId: Integer;
@@ -84,6 +92,10 @@ TDriver = class
     idValue: Integer;
     nameValue: WideString;
   public
+    // Конструктор
+    // Аргументы
+    //   id - ид записи
+    //   name - имя водителя
     constructor Create( id:Integer; name:WideString );
     constructor Copy( sample: TDriver );
 
@@ -111,6 +123,7 @@ IDriverFinder = interface
   procedure findLike( what:WideString; consumer:TDriverConsumer );
 end;
 
+// Реализация IDriverFinder
 TDriverFinder = class (TInterfacedObject,IDriverFinder)
   private
     connection: TADOConnection;
@@ -126,6 +139,8 @@ end;
 implementation
 
 var
+
+// Логирование
 log: ILog;
 
 { TDriverDataBuilder }

@@ -14,6 +14,12 @@ uses
   ;
 
 type
+  // Контроллер/фрейм списка водителей
+  // Основные функции
+  //   Отображение списка водителей
+  //   Добавление информации о водителе
+  //   Редактирование информации о водителе
+  //   Удаление информации о водителях
   TDriversController = class(TFrame)
     Panel1: TPanel;
     driversDBGrid: TDBGrid;
@@ -23,16 +29,28 @@ type
     deleteButton: TButton;
     driversDataSource: TDataSource;
     driversADOQuery: TADOQuery;
+
+    // Добавление новой записи
     procedure newButtonClick(Sender: TObject);
+
+    // Редактирование выбранной записи
     procedure editButtonClick(Sender: TObject);
+    
+    // Удаление выбранных записей
     procedure deleteButtonClick(Sender: TObject);
+
+    // Обновление списка отобрадаемых записей
     procedure refreshButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
-    { Public declarations }
+    // Подключение СУБД, активизация кнопок и прочего для управления
     procedure ActivateDataView();
+
+    // Обновление текущей строки
     procedure RefreshCurrent();
+
+    // Обновление всех записей
     procedure RefreshAll();
   end;
 

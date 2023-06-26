@@ -37,6 +37,8 @@ interface
       //   предыдущее значение
       function delete( name:string ):variant;
 
+      // Создает текстовое представление
+      // { ключ=значение, ключ=значение, ... }
       function toString(): string;
     end;
     TStringMap = class(TInterfacedObject, IStringMap)

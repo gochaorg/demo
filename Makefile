@@ -28,3 +28,11 @@ $(DIST_DIR)\config.ini: dist_dir
 office_template: dist_dir
      mkdir $(DIST_DIR)\sample
      copy /y sample\* $(DIST_DIR)\sample
+
+clean:
+     DEL /F /Q /S $(DIST_DIR)\sample\*
+     DEL /F /Q /S $(DIST_DIR)\*
+     rmdir $(DIST_DIR)\sample
+     rmdir $(DIST_DIR)
+
+     

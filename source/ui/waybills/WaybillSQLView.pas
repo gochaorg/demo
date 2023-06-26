@@ -14,6 +14,7 @@ uses
 type
 
 // Готовый запрос к СУБД для выполнения
+// Имеется ввиду SELECT
 IWaybillsQuery = interface
   // Применяет запрос к объекту TADOQuery
   procedure apply( query:TADOQuery );
@@ -56,17 +57,26 @@ TParamBuildContext = class(TInterfacedObject,IParamBuildContext)
     function AddParam( name:string; value:variant ):boolean;
 end;
 
-// Некое обощеное where выражение
+// Некое обощеное where выражение в SQL/SELECT запросе
 IWhereExpression = interface
+  // Генерирует часть SQL запроса
+  // Аргументы
+  //   paramContext - параметры запроса
+  // Результат
+  //   Часть SQL запроса
   ['{E3A98B73-0FD2-49BF-BB50-61A0592C5D71}']
   function BuildSql( paramContext:IParamBuildContext ):string;
 end;
 
 // операция LIKE для отображаемых данных в части WHERE
+// Применяется для запроса содержащего колонку search_text типа char/varchar/...
 TWhereSearchTextLikeExpression = class(TInterfacedObject,IWhereExpression)
   private
     what: WideString;
   public
+    // Конструктор
+    // Аргументы
+    //   what - искомая часть
     constructor Create( what:WideString );
     function BuildSql( paramContext:IParamBuildContext ):string;
 end;
@@ -123,6 +133,7 @@ end;
 
 // Создание запроса
 IWaybillsQueryBuilder = interface
+  // Создает запрос
   function build:IWaybillsQuery;
 
   // свойство history - отображать или нет историю
@@ -133,7 +144,6 @@ IWaybillsQueryBuilder = interface
   // Свойство where
   function getWhereExpression: IWhereExpression;
   procedure setWhereExpression( expression:IWhereExpression );
-
   property whereExpresion:IWhereExpression
     read getWhereExpression
     write setWhereExpression;
@@ -170,19 +180,25 @@ TWaybillsQueryBuilder = class(TInterfacedObject, IWaybillsQueryBuilder)
     // может быть nil
     whereExpressionValue: IWhereExpression;
 
+    // задан или нет параметр сортировки    
     orderIsSet: boolean;
+
+    // сортировка по какому полю
     orderKey: WideString;
+
+    // true - обратная сортировка
+    // false - прямая сортировка
     orderReverse: boolean;
   public
     constructor Create;
     destructor Destroy; override;
 
-    // history
+    // свойство history
     function getHistory:boolean;
     procedure setHistory(show:boolean);
     property history:boolean read getHistory write setHistory;
 
-    // whereExpresion
+    // свойство whereExpresion
     function getWhereExpression: IWhereExpression;
     procedure setWhereExpression( expression:IWhereExpression );
     property whereExpresion:IWhereExpression
@@ -192,7 +208,7 @@ TWaybillsQueryBuilder = class(TInterfacedObject, IWaybillsQueryBuilder)
     function hasWhereExpression: boolean;
     procedure resetWhereExpression;
 
-    // order
+    // свойство  order
     procedure resetOrder;
     procedure setOrder( orderKey:WideString; reverse:boolean );
     procedure toggleOrder( columnAlias:WideString );
@@ -245,9 +261,15 @@ end;
 implementation
 
 var
+  // логи
   log:ILog;
+
+  // акутальные колонки в SELECT
   columns:array[0 .. 17] of TWaybillColumn;
+
+  // исторические колонки в SELECT
   histColumns:array[0 .. 17] of TWaybillColumn;
+  
   emptyWhere: IWhereEmptyExpression;
 
 { TWaybillsQuery }
