@@ -2,9 +2,14 @@ unit Config;
 
 interface
 
-uses SysUtils, Classes;
+uses SysUtils, Classes, IniFiles;
 
 type
+  // функция чтения настроек
+  TConfigReader = class
+    procedure read( ini: TIniFile ); virtual;
+  end;
+
   // Конфигурация БД
   IDbConfig = interface
     // Имя пользователя DB
@@ -68,6 +73,9 @@ type
 
     // Подписчики
     listeners: TList;
+
+    // Экземпляры
+    readers: TList;
   public
     // Создание конфига со значениями по умолчанию
     constructor Create();
@@ -130,6 +138,9 @@ type
 
     // Добавляет подписчика на изменения
     procedure addListener( listener: TConfigListener );
+
+    // Добавляет подписчика на чтение ini файла
+    procedure addReader( listener: TConfigReader );
   end;
 
   // Ошибка сохранения конфига
@@ -156,7 +167,7 @@ var
 implementation
 
 uses
-   IniFiles, Dialogs;
+   Dialogs;
 
 const
   DB_SECTION = 'db';
@@ -188,6 +199,7 @@ begin
   self.debug := true;
 
   self.listeners := TList.Create;
+  self.readers := TList.Create;
 end;
 
 procedure TConfig.Load(const fileName: WideString);
@@ -195,6 +207,7 @@ var
   iniFile: TIniFile;
   i:Integer;
   ls: TConfigListenerHolder;
+  reader: TConfigReader;
 begin
   try
     try
@@ -206,10 +219,19 @@ begin
       debug := iniFile.ReadBool('debug', 'default', true);
 
       ///
-      for i:=0 to self.listeners.Count-1 do begin
+      for i:=0 to (self.readers.Count-1) do begin
+        reader := self.readers[i];
+        if assigned(reader) then begin
+          reader.read(iniFile);
+        end;
+      end;
+
+      ///
+      for i:=0 to (self.listeners.Count-1) do begin
         ls := self.listeners[i];
         ls.listener();
       end;
+
     except
       on e: EIniFileException do raise EConfigLoad.Create(e.Message);
     end;
@@ -315,11 +337,23 @@ begin
   result := false;
 end;
 
+procedure TConfig.addReader(listener: TConfigReader);
+begin
+  self.readers.Add(listener);
+end;
+
 { TConfigListenerHolder }
 
 constructor TConfigListenerHolder.Create(listenerValue: TConfigListener);
 begin
   self.listenerValue := listenerValue;
+end;
+
+{ TConfigReader }
+
+procedure TConfigReader.read(ini: TIniFile);
+begin
+ //
 end;
 
 initialization

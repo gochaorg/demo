@@ -16,10 +16,12 @@ end;
 TWordExport = class(TInterfacedObject,IOfficeExport,IWordExport)
   private
     templateFile: WideString;
+    insertAtBookmark: WideString;
   public
     constructor Create;
     destructor Destroy; override;
     function withTemplate( fileName:WideString ):TWordExport;
+    function withInsertIntoBookmark( bookmarkName:WideString ):TWordExport;
     procedure doExport( dbRows:IDBRows );
 end;
 
@@ -41,6 +43,13 @@ end;
 function TWordExport.withTemplate(fileName: WideString): TWordExport;
 begin
   self.templateFile := fileName;
+  result := self;
+end;
+
+function TWordExport.withInsertIntoBookmark(
+  bookmarkName: WideString): TWordExport;
+begin
+  self.insertAtBookmark := bookmarkName;
   result := self;
 end;
 
@@ -117,8 +126,24 @@ begin
     doc := wordApp.Documents.Add();
   end;
 
-  log.println('range := doc.Range(0,0)');
-  range := doc.Range(0,0);
+  if length(self.insertAtBookmark)>0 then begin
+    log.println('range := doc.Bookmarks.Item('+self.insertAtBookmark+').Range');
+    try
+      range := doc.Bookmarks.Item(self.insertAtBookmark).Range;
+    except
+      on e:EOleException do begin
+        log.println('! bookmark '+self.insertAtBookmark+
+          ' возможно указан не правильно: '+e.Message,
+        );
+
+        log.println('range := doc.Range(0,0)');
+        range := doc.Range(0,0);
+      end;
+    end;
+  end else begin
+    log.println('range := doc.Range(0,0)');
+    range := doc.Range(0,0);
+  end;
 
   log.println('doc.Documents.Add.Tables.Add( range, '+
     IntToStr(dbRows.GetCount)+
