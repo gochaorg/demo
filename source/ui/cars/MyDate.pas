@@ -331,7 +331,7 @@ begin
   end;
 
   if from > length(str) then begin
-    error := 'from out side of string';
+    error := 'ѕуста€ строка или нет входных данных';
     result := false;
   end else begin
     p := from;
@@ -359,7 +359,7 @@ begin
       if state = 0 then begin
         y0 := getDigit;
         if y0 < 0 then begin
-          error := 'expect digit, but found '+str[p];
+          error := 'ќжидаетс€ цифра, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 1;
@@ -368,7 +368,7 @@ begin
       if state = 1 then begin
         y1 := getDigit;
         if y1 < 0 then begin
-          error := 'expect digit, but found '+str[p];
+          error := 'ќжидаетс€ цифра, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 2;
@@ -377,7 +377,7 @@ begin
       if state = 2 then begin
         y2 := getDigit;
         if y2 < 0 then begin
-          error := 'expect digit, but found '+str[p];
+          error := 'ќжидаетс€ цифра, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 3;
@@ -386,7 +386,7 @@ begin
       if state = 3 then begin
         y3 := getDigit;
         if y3 < 0 then begin
-          error := 'expect digit, but found '+str[p];
+          error := 'ќжидаетс€ цифра, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 4;
@@ -394,7 +394,7 @@ begin
       end else
       if state = 4 then begin
         if not (str[p] = WideChar('-')) then begin
-          error :=  'expect -, but found '+str[p];
+          error :=  'ќжидаетс€ тире, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 5;
@@ -403,7 +403,7 @@ begin
       if state = 5 then begin
         m0 := getDigit;
         if m0 < 0 then begin
-          error := 'expect digit, but found '+str[p];
+          error := 'ќжидаетс€ цифра, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 6;
@@ -412,7 +412,7 @@ begin
       if state = 6 then begin
         m1 := getDigit;
         if m1 < 0 then begin
-          error := 'expect digit, but found '+str[p];
+          error := 'ќжидаетс€ цифра, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 7;
@@ -420,7 +420,7 @@ begin
       end else
       if state = 7 then begin
         if not (str[p] = WideChar('-')) then begin
-          error := 'expect -, but found '+str[p];
+          error := 'ќжидаетс€ тире, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 8;
@@ -429,7 +429,7 @@ begin
       if state = 8 then begin
         d0 := getDigit;
         if d0 < 0 then begin
-          error := 'expect digit, but found '+str[p];
+          error := 'ќжидаетс€ цифра, встретилось это: '+str[p];
           state := -1;
         end else begin
           state := 9;
@@ -438,7 +438,7 @@ begin
       if state = 9 then begin
         d1 := getDigit;
         if d1 < 0 then begin
-          error := 'expect digit, but found '+str[p];
+          error := 'ќжидаетс€ цифра, встретилось это: '+str[p];
           state := -1;
         end else begin
           p := p + 1;
@@ -452,48 +452,50 @@ begin
       ////
       p := p + 1;
     end;
-  end;
 
-  if state = -1 then begin
     result := false;
-  end else
-  if not state = 9 then begin
-    error := 'not fully parsed';
-    result := false;
-  end else begin
-    nextFrom := p;
 
-    log.println('state='+IntToStr(state));
-    log.println('y0='+IntToStr(y0));
-    log.println('y1='+IntToStr(y1));
-    log.println('y2='+IntToStr(y2));
-    log.println('y3='+IntToStr(y3));
-
-    date.year := (y0 * 1000) + (y1 * 100) + (y2 * 10) + y3;
-    date.month := m0 * 10 + m1;
-    date.date := d0 * 10 + d1;
-
-    if date.date < 1 then begin
+    if state = -1 then begin
       result := false;
-      error := 'ƒата меньше 1';
     end else
-    if date.date > 31 then begin
+    if not (state = 9) then begin
+      error := '¬ведена не вс€ дата';
       result := false;
-      error := 'ƒата больше 31';
-    end else
-    if date.month < 1 then begin
-      result := false;
-      error := 'ћес€ц меньше 1';
-    end else
-    if date.month > 12 then begin
-      result := false;
-      error := 'ћес€ц больше 12';
     end else begin
-      if date.date > getMonthLen(date.year,date.month) then begin
+      nextFrom := p;
+
+      log.println('state='+IntToStr(state));
+      log.println('y0='+IntToStr(y0));
+      log.println('y1='+IntToStr(y1));
+      log.println('y2='+IntToStr(y2));
+      log.println('y3='+IntToStr(y3));
+
+      date.year := (y0 * 1000) + (y1 * 100) + (y2 * 10) + y3;
+      date.month := m0 * 10 + m1;
+      date.date := d0 * 10 + d1;
+
+      if date.date < 1 then begin
         result := false;
-        error := '”казано больще кол-во дней чем есть в мес€це';
+        error := 'ƒата (день) меньше 1';
+      end else
+      if date.date > 31 then begin
+        result := false;
+        error := 'ƒата больше 31';
+      end else
+      if date.month < 1 then begin
+        result := false;
+        error := 'ћес€ц меньше 1';
+      end else
+      if date.month > 12 then begin
+        result := false;
+        error := 'ћес€ц больше 12';
       end else begin
-        result := true;
+        if date.date > getMonthLen(date.year,date.month) then begin
+          result := false;
+          error := '”казано больще кол-во дней чем есть в мес€це';
+        end else begin
+          result := true;
+        end;
       end;
     end;
   end;
