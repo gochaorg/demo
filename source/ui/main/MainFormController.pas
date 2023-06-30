@@ -73,7 +73,16 @@ procedure TMainForm.connectToDBMenuItemClick(Sender: TObject);
 begin
   log.println('Connect to db');
   try
-    ADOMainConnection.Open(applicationConfigItf.dbUsername, applicationConfigItf.dbPassword);
+    ADOMainConnection.ConnectionString := applicationConfigItf.dbConnectionString;
+    log.println('Use connection string: '+ADOMainConnection.ConnectionString);
+
+    log.println('ADOMainConnection.Open'+
+      ' user='+applicationConfigItf.dbUsername+
+      ' password=****');
+    ADOMainConnection.Open(
+      applicationConfigItf.dbUsername,
+      applicationConfigItf.dbPassword);
+
     carsModelsController.ActivateDataView;
     carsController.ActivateDataView;
     dispatchersController.ActivateDataView;

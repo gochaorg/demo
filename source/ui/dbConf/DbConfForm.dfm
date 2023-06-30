@@ -1,10 +1,12 @@
 object DbConfController: TDbConfController
   Left = 896
   Top = 183
-  Width = 413
-  Height = 329
+  Width = 400
+  Height = 320
   Caption = 'DbConfController'
   Color = clBtnFace
+  Constraints.MinHeight = 320
+  Constraints.MinWidth = 400
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -12,8 +14,8 @@ object DbConfController: TDbConfController
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    397
-    290)
+    384
+    281)
   PixelsPerInch = 96
   TextHeight = 13
   object passwordLabel: TLabel
@@ -26,7 +28,7 @@ object DbConfController: TDbConfController
   object passwordEdit: TEdit
     Left = 8
     Top = 137
-    Width = 376
+    Width = 363
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     PasswordChar = '*'
@@ -36,7 +38,7 @@ object DbConfController: TDbConfController
   object userNameEdit: TLabeledEdit
     Left = 8
     Top = 81
-    Width = 376
+    Width = 363
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     EditLabel.Width = 72
@@ -47,7 +49,7 @@ object DbConfController: TDbConfController
   object connectionStringEdit: TLabeledEdit
     Left = 8
     Top = 25
-    Width = 376
+    Width = 363
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     EditLabel.Width = 194
@@ -65,7 +67,7 @@ object DbConfController: TDbConfController
     OnClick = testConnectionButtonClick
   end
   object applyButton: TButton
-    Left = 246
+    Left = 233
     Top = 176
     Width = 137
     Height = 25
@@ -75,7 +77,7 @@ object DbConfController: TDbConfController
     OnClick = applyButtonClick
   end
   object closeButton: TButton
-    Left = 246
+    Left = 233
     Top = 240
     Width = 137
     Height = 25
@@ -85,10 +87,11 @@ object DbConfController: TDbConfController
     OnClick = closeButtonClick
   end
   object saveButton: TButton
-    Left = 248
+    Left = 232
     Top = 208
     Width = 137
     Height = 25
+    Anchors = [akTop, akRight]
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
     TabOrder = 6
     OnClick = saveButtonClick
