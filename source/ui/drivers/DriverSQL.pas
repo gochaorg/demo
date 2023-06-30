@@ -166,22 +166,22 @@ end;
 
 procedure TDriverDataBuilder.setBirthDay(date: WideString);
 var
-  parserDate : TMyDateParsed;
+  myDate: TMyDate;
+  next: Integer;
+  err: WideString;
 begin
+  myDate := TMyDate.Create(0,0,0);
   try
-    parserDate := ParseDate(date, 1);
-    try
-      self.birthDay := parserDate.date.ToDateTime;
+    if TryParseDate(date,1,myDate,next,err) then begin
+      self.birthDay := myDate.ToDateTime;
       self.birthDayExists := true;
       self.birthDayConvError := '';
-    finally
-      FreeAndNil(parserDate);
-    end;
-  except
-    on e:EParseException do begin
-      self.birthDayConvError := e.Message;
+    end else begin
+      self.birthDayConvError := err;
       self.birthDayExists := false;
     end;
+  finally
+    myDate.Destroy;
   end;
 end;
 

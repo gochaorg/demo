@@ -326,7 +326,7 @@ var
 begin
   if parseDateDebug then begin
     log.println('TryParseDate');
-    log.println('  str='+str);
+    log.println('  str="'+str+'"');
     log.println('  from='+IntToStr(from));
   end;
 
@@ -460,41 +460,47 @@ begin
   if not state = 9 then begin
     error := 'not fully parsed';
     result := false;
-  end;
-
-  nextFrom := p;
-
-  date.year := (y0 * 1000) + (y1 * 100) + (y2 * 10) + y3;
-  date.month := m0 * 10 + m1;
-  date.date := d0 * 10 + d1;
-
-  if date.date < 1 then begin
-    result := false;
-    error := 'ƒата меньше 1';
-  end else
-  if date.date > 31 then begin
-    result := false;
-    error := 'ƒата больше 31';
-  end else
-  if date.month < 1 then begin
-    result := false;
-    error := 'ћес€ц меньше 1';
-  end else
-  if date.month > 12 then begin
-    result := false;
-    error := 'ћес€ц больше 12';
   end else begin
-    if date.date > getMonthLen(date.year,date.month) then begin
+    nextFrom := p;
+
+    log.println('state='+IntToStr(state));
+    log.println('y0='+IntToStr(y0));
+    log.println('y1='+IntToStr(y1));
+    log.println('y2='+IntToStr(y2));
+    log.println('y3='+IntToStr(y3));
+
+    date.year := (y0 * 1000) + (y1 * 100) + (y2 * 10) + y3;
+    date.month := m0 * 10 + m1;
+    date.date := d0 * 10 + d1;
+
+    if date.date < 1 then begin
       result := false;
-      error := '”казано больще кол-во дней чем есть в мес€це';
+      error := 'ƒата меньше 1';
+    end else
+    if date.date > 31 then begin
+      result := false;
+      error := 'ƒата больше 31';
+    end else
+    if date.month < 1 then begin
+      result := false;
+      error := 'ћес€ц меньше 1';
+    end else
+    if date.month > 12 then begin
+      result := false;
+      error := 'ћес€ц больше 12';
     end else begin
-      result := true;
+      if date.date > getMonthLen(date.year,date.month) then begin
+        result := false;
+        error := '”казано больще кол-во дней чем есть в мес€це';
+      end else begin
+        result := true;
+      end;
     end;
   end;
 end;
 
 initialization
-  parseDateDebug := false;
+  parseDateDebug := true;
   log := logger('MyDate');
 
 end.

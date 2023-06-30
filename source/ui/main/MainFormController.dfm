@@ -20,7 +20,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 0
     Width = 666
-    Height = 304
+    Height = 305
     ActivePage = waybillsTabSheet
     Align = alClient
     TabOrder = 0
@@ -30,7 +30,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 658
-        Height = 276
+        Height = 277
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
@@ -50,7 +50,8 @@ object MainForm: TMainForm
         end
         inherited waybillsDBGrid: TDBGrid
           Width = 658
-          Height = 235
+          Height = 236
+          TitleFont.Name = 'Tahoma'
         end
         inherited waybillsADOQuery: TADOQuery
           Connection = ADOMainConnection
@@ -64,7 +65,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 658
-        Height = 276
+        Height = 277
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
@@ -72,7 +73,8 @@ object MainForm: TMainForm
         end
         inherited driversDBGrid: TDBGrid
           Width = 658
-          Height = 235
+          Height = 236
+          TitleFont.Name = 'Tahoma'
         end
         inherited driversADOQuery: TADOQuery
           Connection = ADOMainConnection
@@ -86,7 +88,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 658
-        Height = 276
+        Height = 277
         Align = alClient
         TabOrder = 0
         inherited Panel1: TPanel
@@ -94,7 +96,8 @@ object MainForm: TMainForm
         end
         inherited dispatchersDBGrid: TDBGrid
           Width = 658
-          Height = 235
+          Height = 236
+          TitleFont.Name = 'Tahoma'
         end
         inherited dispatchersADOQuery: TADOQuery
           Connection = ADOMainConnection
@@ -108,7 +111,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 658
-        Height = 276
+        Height = 277
         Align = alClient
         TabOrder = 0
         inherited topPanel: TPanel
@@ -116,7 +119,8 @@ object MainForm: TMainForm
         end
         inherited carsDBGrid: TDBGrid
           Width = 658
-          Height = 235
+          Height = 236
+          TitleFont.Name = 'Tahoma'
         end
         inherited carsDataSource: TDataSource
           Left = 200
@@ -133,7 +137,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 658
-        Height = 276
+        Height = 277
         Align = alClient
         TabOrder = 0
         inherited topPanel: TPanel
@@ -141,7 +145,8 @@ object MainForm: TMainForm
         end
         inherited carModelDBGrid: TDBGrid
           Width = 658
-          Height = 235
+          Height = 236
+          TitleFont.Name = 'Tahoma'
         end
         inherited ADOQuery1: TADOQuery
           Connection = ADOMainConnection
@@ -179,7 +184,7 @@ object MainForm: TMainForm
   object ADOMainConnection: TADOConnection
     ConnectionString = 
       'Provider=SQLOLEDB.1;Persist Security Info=False;User ID=test;Ini' +
-      'tial Catalog=test1;Data Source=localhost;'
+      'tial Catalog=test1;Data Source=172.28.73.176'
     LoginPrompt = False
     Provider = 'SQLOLEDB.1'
     Left = 364
