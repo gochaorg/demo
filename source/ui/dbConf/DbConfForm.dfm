@@ -55,6 +55,7 @@ object DbConfController: TDbConfController
     EditLabel.Width = 194
     EditLabel.Height = 13
     EditLabel.Caption = #1057#1090#1088#1086#1082#1072' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1103' / Connection string'
+    PopupMenu = connectionStringPopupMenu
     TabOrder = 2
   end
   object testConnectionButton: TButton
@@ -99,5 +100,13 @@ object DbConfController: TDbConfController
   object ADOConnectionTest: TADOConnection
     Left = 16
     Top = 224
+  end
+  object connectionStringPopupMenu: TPopupMenu
+    Left = 120
+    Top = 224
+    object setDefaultString: TMenuItem
+      Caption = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1079#1085#1072#1095#1077#1085#1080#1077' '#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+      OnClick = setDefaultStringClick
+    end
   end
 end

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, DB, ADODB, Config, ComObj,
 
-  Loggers, Logging;
+  Loggers, Logging, Menus;
 
 type
   // Настройка подключения к СУБД
@@ -20,6 +20,8 @@ type
     closeButton: TButton;
     ADOConnectionTest: TADOConnection;
     saveButton: TButton;
+    connectionStringPopupMenu: TPopupMenu;
+    setDefaultString: TMenuItem;
 
     // Тестирование подключения
     procedure testConnectionButtonClick(Sender: TObject);
@@ -32,6 +34,7 @@ type
 
     // Закрытие окна
     procedure closeButtonClick(Sender: TObject);
+    procedure setDefaultStringClick(Sender: TObject);
   private
      conf: IConfig;
      confSave: IConfigSave;
@@ -108,6 +111,15 @@ end;
 procedure TDbConfController.closeButtonClick(Sender: TObject);
 begin
   Close();
+end;
+
+procedure TDbConfController.setDefaultStringClick(Sender: TObject);
+begin
+  self.connectionStringEdit.Text :=
+    'SQLOLEDB.1;'+
+    'Persist Security Info=False;'+
+    'Initial Catalog=db_name;'+
+    'Data Source=localhost';
 end;
 
 initialization
