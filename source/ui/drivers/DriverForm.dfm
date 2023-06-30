@@ -5,6 +5,8 @@ object DriverController: TDriverController
   Height = 193
   Caption = 'DriverController'
   Color = clBtnFace
+  Constraints.MinHeight = 193
+  Constraints.MinWidth = 383
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -23,7 +25,6 @@ object DriverController: TDriverController
     Top = 104
     Width = 39
     Height = 13
-    Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'errLabel'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clMaroon

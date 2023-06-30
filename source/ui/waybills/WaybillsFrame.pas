@@ -91,6 +91,7 @@ log : ILog;
 
 procedure TWaybillsController.ActivateDataView();
 begin
+  log.println('ActivateDataView');
   waybillsADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, waybillsDBGrid);
 
@@ -106,6 +107,7 @@ end;
 procedure TWaybillsController.RefreshCurrent();
 begin
   try
+    log.println('RefreshCurrent');
     waybillsADOQuery.Refresh;
   except
     on e:EOleException do begin
@@ -117,6 +119,7 @@ end;
 
 procedure TWaybillsController.RefreshAll();
 begin
+  log.println('RefreshAll');
   waybillsADOQuery.Active := false;
   try
     waybillsADOQuery.Active := true;
@@ -133,6 +136,7 @@ procedure TWaybillsController.newButtonClick(Sender: TObject);
 var
   insertDialog : TWaybillController;
 begin
+  log.println('newButtonClick');
   insertDialog := TWaybillController.Create(self);
   try
     if insertDialog.InsertDialog(waybillsADOQuery.Connection) then begin
@@ -151,6 +155,7 @@ end;
 
 procedure TWaybillsController.refreshButtonClick(Sender: TObject);
 begin
+  log.println('refreshButtonClick');
   RefreshAll;
 end;
 
@@ -159,6 +164,7 @@ var
   updateDialog : TWaybillController;
   curRow: TStringMap;
 begin
+  log.println('editButtonClick');
   curRow := TStringMap.Create;
   try
     if extend(waybillsDBGrid).GetFocusedRow(curRow) then begin
@@ -200,6 +206,7 @@ var
   rowDelete:  TDBRowsSqlExec;
   query: TADOQuery;
 begin
+  log.println('deleteButtonClick');
   rows := TDBRows.Create;
 
   query := TADOQuery.Create(nil);
@@ -229,6 +236,7 @@ end;
 
 procedure TWaybillsController.showHistoryCheckBoxClick(Sender: TObject);
 begin
+  log.println('showHistoryCheckBoxClick');
   self.newButton.Enabled := not self.showHistoryCheckBox.Checked;
   self.editButton.Enabled := not self.showHistoryCheckBox.Checked;
   self.deleteButton.Enabled := not self.showHistoryCheckBox.Checked;
@@ -238,6 +246,7 @@ end;
 
 procedure TWaybillsController.RebuildQuery;
 begin
+  log.println('RebuildQuery');
   self.queryBuilder.history := showHistoryCheckBox.Checked;
 
   if length(trim(findEdit.Text))>0 then begin
@@ -261,8 +270,10 @@ end;
 function TWaybillsController.queryBuilder: IWaybillsQueryBuilder;
 begin
   if assigned(self.queryBuilderValue) then begin
+    log.println('queryBuilder get cahced');
     result := self.queryBuilderValue;
   end else begin
+    log.println('queryBuilder create');
     self.queryBuilderValue := TWaybillsQueryBuilder.Create;
     result := self.queryBuilderValue;
   end;
@@ -328,11 +339,13 @@ end;
 
 procedure TWaybillsController.findButtonClick(Sender: TObject);
 begin
+  log.println('findButtonClick');
   self.RebuildQuery;
 end;
 
 procedure TWaybillsController.waybillsDBGridTitleClick(Column: TColumn);
 begin
+  log.println('waybillsDBGridTitleClick');
   self.queryBuilder.toggleOrder(Column.FieldName);
   self.RebuildQuery;
 end;

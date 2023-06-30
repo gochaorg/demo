@@ -1,10 +1,12 @@
 object MainForm: TMainForm
-  Left = 33
-  Top = 25
+  Left = 492
+  Top = 71
   Width = 682
   Height = 363
   Caption = 'MainForm'
   Color = clBtnFace
+  Constraints.MinHeight = 363
+  Constraints.MinWidth = 682
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

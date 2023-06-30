@@ -5,6 +5,8 @@ object CarController: TCarController
   Height = 443
   Caption = 'CarController'
   Color = clBtnFace
+  Constraints.MinHeight = 443
+  Constraints.MinWidth = 341
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -30,7 +32,7 @@ object CarController: TCarController
     Top = 376
     Width = 39
     Height = 13
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akBottom]
     Caption = 'errLabel'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clMaroon

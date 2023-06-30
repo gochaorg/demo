@@ -5,6 +5,8 @@ object WaybillController: TWaybillController
   Height = 596
   Caption = 'WaybillController'
   Color = clBtnFace
+  Constraints.MinHeight = 596
+  Constraints.MinWidth = 456
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

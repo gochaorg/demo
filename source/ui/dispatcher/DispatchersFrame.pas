@@ -63,6 +63,7 @@ log: ILog;
 
 procedure TDispatchersController.ActivateDataView();
 begin
+  log.println('ActivateDataView');
   dispatchersADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, dispatchersDBGrid);
 
@@ -74,11 +75,13 @@ end;
 
 procedure TDispatchersController.RefreshCurrent();
 begin
+  log.println('RefreshCurrent');
   dispatchersDBGrid.Refresh;
 end;
 
 procedure TDispatchersController.RefreshAll();
 begin
+  log.println('RefreshAll');
   dispatchersADOQuery.Active := false;
   dispatchersADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, dispatchersDBGrid);
@@ -87,6 +90,7 @@ end;
 
 procedure TDispatchersController.refreshButtonClick(Sender: TObject);
 begin
+  log.println('refreshButtonClick');
   RefreshAll;
 end;
 
@@ -94,6 +98,7 @@ procedure TDispatchersController.newButtonClick(Sender: TObject);
 var
   insertDialog : TDispatcherController;
 begin
+  log.println('newButtonClick');
   insertDialog := TDispatcherController.Create(self);
   try
     if insertDialog.InsertDialog(dispatchersADOQuery.Connection) then begin
@@ -115,6 +120,7 @@ var
   curRow: TStringMap;
   updateDialog : TDispatcherController;
 begin
+  log.println('editButtonClick');
   curRow := TStringMap.Create;
   try
     if extend(dispatchersDBGrid).GetFocusedRow(curRow) then begin
@@ -143,6 +149,7 @@ var
   rowDelete:  TDBRowsSqlExec;
   query: TADOQuery;
 begin
+  log.println('deleteButtonClick');
   rows := TDBRows.Create;
 
   query := TADOQuery.Create(nil);

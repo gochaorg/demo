@@ -63,6 +63,7 @@ log:ILog;
 
 procedure TDriversController.ActivateDataView();
 begin
+  log.println('ActivateDataView');
   driversADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, driversDBGrid);
 
@@ -74,11 +75,13 @@ end;
 
 procedure TDriversController.RefreshCurrent();
 begin
+  log.println('RefreshCurrent');
   driversADOQuery.Refresh;
 end;
 
 procedure TDriversController.RefreshAll();
 begin
+  log.println('RefreshAll');
   driversADOQuery.Active := false;
   driversADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, driversDBGrid);
@@ -89,6 +92,7 @@ procedure TDriversController.newButtonClick(Sender: TObject);
 var
   insertDialog : TDriverController;
 begin
+  log.println('newButtonClick');
   insertDialog := TDriverController.Create(self);
   try
     if insertDialog.InsertDialog(driversADOQuery.Connection) then begin
@@ -110,6 +114,7 @@ var
   curRow: TStringMap;
   updateDialog : TDriverController;
 begin
+  log.println('editButtonClick');
   curRow := TStringMap.Create;
   try
     if extend(driversDBGrid).GetFocusedRow(curRow) then begin
@@ -138,6 +143,7 @@ var
   rowDelete:  TDBRowsSqlExec;
   query: TADOQuery;
 begin
+  log.println('deleteButtonClick');
   rows := TDBRows.Create;
 
   query := TADOQuery.Create(nil);
@@ -166,6 +172,7 @@ end;
 
 procedure TDriversController.refreshButtonClick(Sender: TObject);
 begin
+  log.println('refreshButtonClick');
   RefreshAll;
 end;
 

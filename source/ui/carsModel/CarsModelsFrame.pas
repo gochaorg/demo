@@ -67,6 +67,7 @@ var
 
 procedure TCarsModelsController.ActivateDataView();
 begin
+  log.println('ActivateDataView');
   ADOQuery1.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, carModelDBGrid);
 
@@ -78,11 +79,13 @@ end;
 
 procedure TCarsModelsController.refreshButtonClick(Sender: TObject);
 begin
+  log.println('refreshButtonClick');
   refreshAll;
 end;
 
 procedure TCarsModelsController.carModelDBGridTitleClick(Column: TColumn);
 begin
+  log.println('carModelDBGridTitleClick');
   ADOQuery1.Active := false;
   ADOQuery1.SQL.Clear();
   ADOQuery1.SQL.Add('select * from cars_model order by name desc');
@@ -91,11 +94,13 @@ end;
 
 procedure TCarsModelsController.refreshCurrent();
 begin
+  log.println('refreshCurrent');
   ADOQuery1.Refresh;
 end;
 
 procedure TCarsModelsController.refreshAll();
 begin
+  log.println('refreshAll');
   ADOQuery1.Active := false;
   ADOQuery1.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, carModelDBGrid);
@@ -106,6 +111,7 @@ var
   insertDialog : TCarModelController;
   rows: TDBRows;
 begin
+  log.println('newButtonClick');
   insertDialog := TCarModelController.Create(self);
   rows := TDBRows.Create;
   try
@@ -131,6 +137,7 @@ var
   name : variant;
   updateDialog : TCarModelController;
 begin
+  log.println('editButtonClick');
   if extend(carModelDBGrid).getRowsCount > 0 then
   begin
     id     := carModelDBGrid.Fields[0].Value;
@@ -156,6 +163,7 @@ var
   rowDelete:  TDBRowsSqlExec;
   query: TADOQuery;
 begin
+  log.println('deleteButtonClick');
   rows := TDBRows.Create;
 
   query := TADOQuery.Create(self);

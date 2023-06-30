@@ -5,6 +5,8 @@ object DispatcherController: TDispatcherController
   Height = 208
   Caption = 'DispatcherController'
   Color = clBtnFace
+  Constraints.MinHeight = 208
+  Constraints.MinWidth = 384
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -23,7 +25,6 @@ object DispatcherController: TDispatcherController
     Top = 104
     Width = 39
     Height = 13
-    Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'errLabel'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clMaroon

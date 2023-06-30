@@ -94,6 +94,7 @@ begin
     log.println('Connected');
   except
     on e: EOleException do begin
+      log.println('! Ошибка соединения:'+e.Message);
       ShowMessage('Ошибка соединения:'+e.Message);
     end;
   end;
@@ -103,6 +104,7 @@ procedure TMainForm.dbConnectConfigClick(Sender: TObject);
 var
   conf: TDBConfController;
 begin
+  log.println('dbConnectConfigClick');
   conf := TDBConfController.Create(self);
   try
     conf.edit(applicationConfigItf, applicationConfigSaveItf);
@@ -113,6 +115,7 @@ end;
 
 procedure TMainForm.waybillsExcelExportClick(Sender: TObject);
 begin
+  log.println('waybillsExcelExportClick');
   try
     excelExporter.doExport(
       extend(waybillsController.waybillsDBGrid).GetDBRows
@@ -120,19 +123,22 @@ begin
   except
     on e:EOleException do begin
       log.println('! Ощибка экспорта Excel: '+e.Message);
+      ShowMessage('! Ощибка экспорта Excel: '+e.Message);
     end;
   end;
 end;
 
 procedure TMainForm.waybillsWordExportClick(Sender: TObject);
 begin
+  log.println('waybillsWordExportClick');
   try
     wordExporter.doExport(
       extend(waybillsController.waybillsDBGrid).GetDBRows
     );
   except
     on e:EOleException do begin
-      log.println('! Ощибка экспорта Word: '+e.Message);
+      log.println('! Ошибка экспорта Word: '+e.Message);
+      ShowMessage('! Ошибка экспорта Word: '+e.Message);
     end;
   end;
 end;

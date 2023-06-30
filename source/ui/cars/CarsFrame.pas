@@ -63,6 +63,7 @@ log: ILog;
 
 procedure TCarsController.ActivateDataView();
 begin
+  log.println('ActivateDataView');
   carsADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, carsDBGrid);
 
@@ -74,11 +75,13 @@ end;
 
 procedure TCarsController.RefreshCurrent();
 begin
+  log.println('RefreshCurrent');
   carsADOQuery.Refresh;
 end;
 
 procedure TCarsController.RefreshAll();
 begin
+  log.println('RefreshAll');
   carsADOQuery.Active := false;
   carsADOQuery.Active := true;
   dbViewPreparer.prepareGrid(Self.ClassName, carsDBGrid);
@@ -88,6 +91,7 @@ end;
 
 procedure TCarsController.refreshButtonClick(Sender: TObject);
 begin
+  log.println('refreshButtonClick');
   refreshAll;
 end;
 
@@ -95,6 +99,7 @@ procedure TCarsController.newButtonClick(Sender: TObject);
 var
   insertDialog : TCarController;
 begin
+  log.println('newButtonClick');
   insertDialog := TCarController.Create(self);
   try
     if insertDialog.insertDialog(self.carsADOQuery.Connection) then
@@ -117,6 +122,7 @@ var
   updateDialog : TCarController;
   curRow: TStringMap;
 begin
+  log.println('editButtonClick');
   curRow := TStringMap.Create;
   try
     if extend(carsDBGrid).GetFocusedRow(curRow) then begin
@@ -148,6 +154,7 @@ var
   rowDelete:  TDBRowsSqlExec;
   query: TADOQuery;
 begin
+  log.println('deleteButtonClick');
   rows := TDBRows.Create;
 
   query := TADOQuery.Create(nil);
