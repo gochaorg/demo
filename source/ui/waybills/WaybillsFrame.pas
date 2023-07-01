@@ -92,7 +92,10 @@ log : ILog;
 procedure TWaybillsController.ActivateDataView();
 begin
   log.println('ActivateDataView');
+
   waybillsADOQuery.Active := true;
+  self.RebuildQuery;
+
   dbViewPreparer.prepareGrid(Self.ClassName, waybillsDBGrid);
 
   refreshButton.Enabled := true;
@@ -168,6 +171,7 @@ begin
   curRow := TStringMap.Create;
   try
     if extend(waybillsDBGrid).GetFocusedRow(curRow) then begin
+      log.println('curRow '+curRow.toString);
       if curRow.get('state') = 'actual' then begin
         updateDialog := TWaybillController.Create(self);
         try

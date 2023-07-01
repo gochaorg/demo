@@ -6,6 +6,7 @@ uses
   SysUtils,
   ADODB,
 
+  Config,
   Loggers,Logging,
   MyDate,
   Map,
@@ -169,13 +170,18 @@ var
   myDate: TMyDate;
   nextFrom: Integer;
   parseError: WideString;
+  validate: IDataValidationMut;
 begin
+  validate := TDataValidation.Create;
   myDate := TMyDate.Create(0,0,0);
   try
-    if TryParseDate(date,1,myDate,nextFrom,parseError) then begin
+    if TryParseDate(
+      date,applicationConfigObj.getDateFormat,
+      myDate,validate)
+    then begin
       self.birthDay := myDate.ToDateTime;
       self.birthDayExists := true;
-      self.birthDayConvError := '';
+      self.birthDayConvError := validate.getMessage;
     end else begin
       self.birthDayExists := false;
       self.birthDayConvError := parseError;

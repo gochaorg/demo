@@ -68,6 +68,9 @@ type
     // Строка подключения к DB
     dbConnectionStringValue : WideString;
 
+    // Формат времени
+    dateFormatValue: WideString;
+
     // режим отладки
     debug: boolean;
 
@@ -121,6 +124,10 @@ type
     // свойство dbConnectionString
     function getDbConnectionString: WideString;
     procedure setDbConnectionString( str:WideString );
+
+    // свойство dateFormat
+    // формат времени
+    function getDateFormat: WideString;
 
     // кол-во ссылок
     function getRefCount(): Integer;
@@ -340,6 +347,14 @@ end;
 procedure TConfig.addReader(listener: TConfigReader);
 begin
   self.readers.Add(listener);
+end;
+
+function TConfig.getDateFormat: WideString;
+begin
+  if length(self.dateFormatValue)>0 then
+    result := self.dateFormatValue
+  else
+    result := '%Y-%M-%D';
 end;
 
 { TConfigListenerHolder }

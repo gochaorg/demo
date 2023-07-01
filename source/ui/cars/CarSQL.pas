@@ -7,9 +7,10 @@ uses
   SysUtils,
   ADODB,
 
+  MyDate,
+  Config,
   Loggers, Logging,
   IntegerList,
-  MyDate,
   DMLOperation,
   Validation,
   Map;
@@ -335,21 +336,24 @@ var
   parsedDate: TMyDate;
   next: Integer;
   err: WideString;
+  validate: IDataValidationMut;
 begin
+  validate := TDataValidation.Create;
   if length(date)>0 then
   begin
     parsedDate := TMyDate.Create(0,0,0);
     try
-      if TryParseDate(date,1,parsedDate,next,err) then begin
+      if TryParseDate(date,applicationConfigObj.getDateFormat,parsedDate,validate)
+      then begin
         if assigned(self.maintainceDate)
         then FreeAndNil(self.maintainceDate);
-        
+
         self.maintainceDate := TMyDate.Copy(parsedDate);
         self.maintainceDateExists := true;
         self.maintainceDateConvError := '';
       end else begin
         self.maintainceDateExists := false;
-        self.maintainceDateConvError := err;
+        self.maintainceDateConvError := validate.getMessage;
       end;
     finally
       FreeAndNil(parsedDate);
