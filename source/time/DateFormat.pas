@@ -9,6 +9,7 @@ uses
   Validation,
   Logging, Loggers,
   IntegerList,
+  Classes,
 
   SysUtils;
 
@@ -51,7 +52,7 @@ TMyDateFormatNumber = class(TInterfacedObject,IMyDateFormat)
   public
     constructor Create(digitCountMin:Integer;digitCountMax:Integer);
     destructor Destroy; override;
-    
+
     function parse(
       str:WideString;
       from:Integer;
@@ -79,8 +80,85 @@ TMyDateFormatYear = class(TMyDateFormatNumber)
       var date:TMyDate;
       var validation:TDataValidation
     ):boolean; override;
-    
+
     procedure build( var str:WideString; var myDate: TMyDate ); override;
+end;
+
+TMyDateFormatMonth = class(TMyDateFormatNumber)
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function numberParsed(
+      num:Integer;
+      var date:TMyDate;
+      var validation:TDataValidation
+    ):boolean; override;
+
+    procedure build( var str:WideString; var myDate: TMyDate ); override;
+end;
+
+TMyDateFormatMonthsDay = class(TMyDateFormatNumber)
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function numberParsed(
+      num:Integer;
+      var date:TMyDate;
+      var validation:TDataValidation
+    ):boolean; override;
+
+    procedure build( var str:WideString; var myDate: TMyDate ); override;
+end;
+
+// ¬алидаци€ даты (год, мес€ц, день) на
+//   мес€ц от 1 до 12
+//   день от 1 до 31
+//   день с учетом вискосного года
+TMyDateFormatValidateDate = class(TInterfacedObject,IMyDateFormat)
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function parse(
+      str:WideString;
+      from:Integer;
+      var date:TMyDate;
+      var validation:TDataValidation;
+      var nextFrom:Integer
+    ): boolean;
+    procedure build( var str:WideString; var myDate: TMyDate ); override;
+end;
+
+// Ќесколько компонент времени собранных в последовательность
+IMyDateFormatSequence = interface(IMyDateFormat)
+  procedure addPlain( str: WideString );
+  procedure addYear;
+  procedure addMonth;
+  procedure addMonthsDay;
+end;
+
+TMyDateFormatSequence = class(TInterfacedObject,IMyDateFormat,IMyDateFormatSequence)
+  private
+    dateComponents : TList; // of TComponentHolder
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function parse(
+      str:WideString;
+      from:Integer;
+      var date:TMyDate;
+      var validation:TDataValidation;
+      var nextFrom:Integer
+    ): boolean;
+
+    procedure build( var str:WideString; var myDate: TMyDate );
+
+    procedure addPlain( str: WideString );
+    procedure addYear;
+    procedure addMonth;
+    procedure addMonthsDay;
 end;
 
 implementation
@@ -280,13 +358,222 @@ function TMyDateFormatYear.numberParsed(
   var validation: TDataValidation): boolean;
 begin
   date.year := num;
+  result := true;
 end;
+
+/////////////////////
+
+constructor TMyDateFormatMonth.Create;
+begin
+  inherited Create(2,2)
+end;
+
+destructor TMyDateFormatMonth.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TMyDateFormatMonth.build(
+  var str: WideString;
+  var myDate: TMyDate);
+begin
+  str := str + PadNumber(IntToStr(myDate.month),2);
+end;
+
+function TMyDateFormatMonth.numberParsed(
+  num: Integer;
+  var date:TMyDate;
+  var validation: TDataValidation): boolean;
+begin
+  date.month := num;
+  result := true;
+end;
+
+/////////////////////
+
+constructor TMyDateFormatMonthsDay.Create;
+begin
+  inherited Create(2,2)
+end;
+
+destructor TMyDateFormatMonthsDay.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TMyDateFormatMonthsDay.build(
+  var str: WideString;
+  var myDate: TMyDate);
+begin
+  str := str + PadNumber(IntToStr(myDate.month),2);
+end;
+
+function TMyDateFormatMonthsDay.numberParsed(
+  num: Integer;
+  var date:TMyDate;
+  var validation: TDataValidation): boolean;
+begin
+  date.date := num;
+  result := true;
+end;
+
+{ TMyDateFormatSequence }
+
+type
+  TComponentHolder = class
+    private
+      ref: IMyDateFormat;
+    constructor Create(ref:IMyDateFormat);
+    destructor Destroy; override;
+    function getRef: IMyDateFormat;
+  end;
+
+constructor TComponentHolder.Create(ref:IMyDateFormat);
+begin
+  self.ref := ref;
+end;
+
+destructor TComponentHolder.Destroy;
+begin
+  self.ref := nil;
+end;
+
+function TComponentHolder.getRef: IMyDateFormat;
+begin
+  result := self.ref;
+end;
+
+//////////.....///////////
+constructor TMyDateFormatSequence.Create;
+begin
+  inherited Create;
+  self.dateComponents := TList.Create;
+end;
+
+destructor TMyDateFormatSequence.Destroy;
+var
+  i:Integer;
+  c:TComponentHolder;
+begin
+  if assigned(self.dateComponents) then begin
+    for i:=0 to (self.dateComponents.Count-1) do begin
+      c := self.dateComponents[i];
+      if assigned(c) then c.Destroy;
+    end;
+    self.dateComponents.Clear;
+    FreeAndNil(self.dateComponents);
+  end;
+  inherited Destroy;
+end;
+
+procedure TMyDateFormatSequence.addMonth;
+var
+  c:IMyDateFormat;
+begin
+  c := TMyDateFormatMonth.Create;
+  self.dateComponents.Add(TComponentHolder.Create(c));
+end;
+
+procedure TMyDateFormatSequence.addPlain(str: WideString);
+var
+  c:IMyDateFormat;
+begin
+  c := TMyDateFormatPlainText.Create(str);
+  self.dateComponents.Add(TComponentHolder.Create(c));
+end;
+
+procedure TMyDateFormatSequence.addYear;
+var
+  c:IMyDateFormat;
+begin
+  c := TMyDateFormatYear.Create;
+  self.dateComponents.Add(TComponentHolder.Create(c));
+end;
+
+procedure TMyDateFormatSequence.addMonthsDay;
+var
+  c:IMyDateFormat;
+begin
+  c := TMyDateFormatMonthsDay.Create;
+  self.dateComponents.Add(TComponentHolder.Create(c));
+end;
+
+procedure TMyDateFormatSequence.build(
+  var str: WideString;
+  var myDate: TMyDate
+);
+var
+  i: Integer;
+  c: TComponentHolder;
+begin
+  for i:=0 to (self.dateComponents.Count-1) do begin
+    c := self.dateComponents[i];
+    if assigned(c) then begin
+      c.ref.build(str, myDate);
+    end;
+  end;
+end;
+
+function TMyDateFormatSequence.parse(
+  str: WideString;
+  from: Integer;
+  var date: TMyDate;
+  var validation: TDataValidation;
+  var nextFrom: Integer): boolean;
+var
+  i:Integer;
+  c:TComponentHolder;
+  ptr:Integer;
+  next:Integer;
+begin
+  result := true;
+  ptr := from;
+  for i:=0 to (self.dateComponents.Count-1) do begin
+    c := self.dateComponents[i];
+    if assigned(c) then begin
+      if c.ref.parse(str,ptr,date,validation,next) then begin
+        ptr := next;
+        nextFrom := next;
+      end else begin
+        result := false;
+      end;
+    end;
+  end;
+end;
+
+{ TMyDateFormatValidateDate }
+
+procedure TMyDateFormatValidateDate.build(var str: WideString;
+  var myDate: TMyDate);
+begin
+end;
+
+constructor TMyDateFormatValidateDate.Create;
+begin
+  inherited Create;
+end;
+
+destructor TMyDateFormatValidateDate.Destroy;
+begin
+  inherited Destroy;
+end;
+
+function TMyDateFormatValidateDate.parse(str: WideString; from: Integer;
+  var date: TMyDate; var validation: TDataValidation;
+  var nextFrom: Integer): boolean;
+begin
+  
+end;
+
+////////////////////////
 
 procedure test;
 var
   plain : TMyDateFormatPlainText;
   number : TMyDateFormatNumber;
   year : TMyDateFormatYear;
+  month : TMyDateFormatMonth;
+  seq : TMyDateFormatSequence;
 
   myDate : TMyDate;
   nextFrom : Integer;
@@ -300,10 +587,12 @@ begin
   plain := TMyDateFormatPlainText.Create('hello');
   number := TMyDateFormatNumber.Create(0,4);
   year := TMyDateFormatYear.Create;
+  month := TMyDateFormatMonth.Create;
+  seq := TMyDateFormatSequence.Create;
 
   validation := TDataValidation.Create;
   myDate := TMyDate.Create(0,0,0);
-  
+
   try
     log.println('plain test');
     if plain.parse('hello',1,myDate,validation,nextFrom) then begin
@@ -334,12 +623,45 @@ begin
       log.println('not parsed');
     end;
 
+    log.println('month test');
+    if month.parse('123456',1,myDate,validation,nextFrom) then begin
+      log.println('parsed');
+      log.println('  month='+IntToStr(myDate.month));
+      log.println('  nextFrom='+IntToStr(nextFrom));
+
+      generatedString := '';
+      month.build(generatedString, myDate);
+      log.println('  generated string='+generatedString);
+    end else begin
+      log.println('not parsed');
+    end;
+
+    log.println('seq test');
+    seq.addYear;
+    seq.addPlain(' ');
+    seq.addMonth;
+
+    if seq.parse('1987 10',1,myDate,validation,nextFrom) then begin
+      log.println('parsed');
+      log.println('  year='+IntToStr(myDate.year));
+      log.println('  month='+IntToStr(myDate.month));
+      log.println('  nextFrom='+IntToStr(nextFrom));
+
+      generatedString := '';
+      seq.build(generatedString, myDate);
+      log.println('  generated string='+generatedString);
+    end else begin
+      log.println('not parsed');
+    end;
+
   finally
     plain.Destroy;
     validation.Destroy;
     myDate.Destroy;
     number.Destroy;
     year.Destroy;
+    month.Destroy;
+    seq.Destroy;
   end;
 end;
 
