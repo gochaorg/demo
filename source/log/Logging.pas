@@ -3,7 +3,7 @@ unit Logging;
 interface
 
 uses
-  SysUtils;
+  SysUtils, Classes;
 
 type
   // Запись в лог сообщения
@@ -42,10 +42,25 @@ type
       textFile: TextFile;
   end;
 
+  TDelegateLogListenerProc = procedure ();
+  TDelegateLogListenerMethod = procedure () of object;
+
+  TDelegateLogListener = class
+    private
+      proc: TDelegateLogListenerProc;
+      meth: TDelegateLogListenerMethod;
+    public
+      constructor Create( target:TDelegateLogListenerProc ); overload;
+      constructor Create( target:TDelegateLogListenerMethod ); overload;
+      destructor Destroy; override;
+      procedure fire;
+  end;
+
   // Перенаправляет лог
   TDelegateLog = class(TInterfacedObject,ILog)
     private
       target:ILog;
+      onTargetListeners: TList; // TDelegateLogListener
     public
       constructor Create();
       destructor Destroy(); override;
@@ -53,6 +68,9 @@ type
       // Указывает новое целевое назначение
       // куда записывать сообщения (делегировать вызовы)
       procedure setTarget( const target:ILog ); virtual;
+      procedure addListener( target:TDelegateLogListenerProc ); overload;
+      procedure addListener( target:TDelegateLogListenerMethod ); overload;
+
       procedure print( const messageText: string ); virtual;
       procedure println( const messageText: string ); virtual;
   end;
@@ -268,15 +286,45 @@ end;
 
 { TDelegateLog }
 
+procedure TDelegateLog.addListener(target: TDelegateLogListenerProc);
+begin
+  if assigned(self.onTargetListeners) then begin
+    self.onTargetListeners.Add(TDelegateLogListener.Create(target));
+  end;
+end;
+
+procedure TDelegateLog.addListener(target: TDelegateLogListenerMethod);
+begin
+  if assigned(self.onTargetListeners) then begin
+    self.onTargetListeners.Add(TDelegateLogListener.Create(target));
+  end;
+end;
+
 constructor TDelegateLog.Create;
 begin
   inherited Create;
   self.target := TDummyLog.Create;
+  self.onTargetListeners := TList.Create;
 end;
 
 destructor TDelegateLog.Destroy;
+var
+  i:Integer;
+  ls: TDelegateLogListener;
 begin
   self.target := nil;
+
+  if assigned(self.onTargetListeners) then begin
+    for i:=0 to (self.onTargetListeners.Count-1) do begin
+      ls := self.onTargetListeners[i];
+      if assigned(ls) then begin
+        ls.Destroy;
+      end;
+    end;
+    self.onTargetListeners.Destroy;
+    Self.onTargetListeners := nil;
+  end;
+
   inherited Destroy;
 end;
 
@@ -291,9 +339,21 @@ begin
 end;
 
 procedure TDelegateLog.setTarget(const target: ILog);
+var
+  i:Integer;
+  ls: TDelegateLogListener;
 begin
-  if assigned(target) then
+  if assigned(target) then begin
     self.target := target;
+    if assigned(self.onTargetListeners) then begin
+      for i:=0 to (self.onTargetListeners.Count-1) do begin
+        ls := self.onTargetListeners[i];
+        if assigned(ls) then begin
+          ls.fire;
+        end;
+      end;
+    end;
+  end;
 end;
 
 type
@@ -323,6 +383,33 @@ begin
   end else begin
     rootLog.setTarget(dummyLog);
   end;
+end;
+
+{ TDelegateLogListener }
+
+constructor TDelegateLogListener.Create(target: TDelegateLogListenerProc);
+begin
+  self.proc := target;
+  self.meth := nil;
+end;
+
+constructor TDelegateLogListener.Create(
+  target: TDelegateLogListenerMethod);
+begin
+  self.proc := nil;
+  self.meth := target;
+end;
+
+destructor TDelegateLogListener.Destroy;
+begin
+  self.proc := nil;
+  self.meth := nil;
+end;
+
+procedure TDelegateLogListener.fire;
+begin
+  if assigned(self.proc) then self.proc;
+  if assigned(self.meth) then self.meth;
 end;
 
 initialization
