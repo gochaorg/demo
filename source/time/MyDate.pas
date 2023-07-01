@@ -2,7 +2,7 @@ unit MyDate;
 
 interface
 uses
-  SysUtils,
+  SysUtils,DateUtils,
 
   IntegerList,
   Classes,
@@ -21,8 +21,9 @@ TMyDate = class
   date: Integer;
   constructor Create(const year: Integer; const month:Integer; const date:Integer);
   constructor Copy(const myDate: TMyDate);
+  constructor From(const date:TDateTime);
   destructor Destroy; override;
-  function ToString(): WideString;
+  function ToString(const format:WideString): WideString;
   function ToMSSQLDateTime2(): WideString;
   function ToDateTime(): TDateTime;
 private
@@ -340,6 +341,14 @@ begin
   self.date  := date;
 end;
 
+constructor TMyDate.From(const date:TDateTime);
+begin
+  inherited Create;
+  self.year := YearOf(date);
+  self.month := MonthOf(date);
+  self.date := DayOf(date);
+end;
+
 destructor TMyDate.Destroy;
 begin
   inherited;
@@ -358,14 +367,15 @@ begin
   end;
 end;
 
-function TMyDate.ToString: WideString;
+function TMyDate.ToString(const format:WideString): WideString;
+var
+  fmt: IMyDateFormat;
+  str: WideString;
 begin
-  result :=
-    pad(IntToStr(self.year),4) +
-    '-'+
-    pad(IntToStr(self.month),2) +
-    '-'+
-    pad(IntToStr(self.date),2);
+  fmt := DateFormatParse(format);
+  str := '';
+  fmt.build(str,self);
+  result := str;
 end;
 
 function TMyDate.ToMSSQLDateTime2: WideString;

@@ -71,6 +71,13 @@ type
     // Формат времени
     dateFormatValue: WideString;
 
+    // Формат времени для SQL
+    sqlDateFormatValue: WideString;
+
+    // Способ представления времени
+    // см SQLDateParam
+    dateToSqlMethodValue: WideString;
+
     // режим отладки
     debug: boolean;
 
@@ -128,6 +135,14 @@ type
     // свойство dateFormat
     // формат времени
     function getDateFormat: WideString;
+
+    // свойство sqlDateFormat
+    // формат времени используемый в SQL конструкциях  
+    function getSqlDateFormat: WideString;
+
+    // Способ представления времени
+    // см SQLDateParam
+    function getDateToSqlMethod: WideString;
 
     // кол-во ссылок
     function getRefCount(): Integer;
@@ -224,6 +239,24 @@ begin
       self.dbPasswordValue := iniFile.ReadString(DB_SECTION, DB_PASSWORD_KEY, DEFAULT_DB_PASSWORD);
 
       debug := iniFile.ReadBool('debug', 'default', true);
+
+      self.sqlDateFormatValue := iniFile.ReadString(
+        DB_SECTION,
+        'date-format',
+        ''
+      );
+
+      self.dateToSqlMethodValue := iniFile.ReadString(
+        DB_SECTION,
+        'date-to-sql',
+        ''
+      );
+
+      self.dateFormatValue := iniFile.ReadString(
+        'date-format',
+        'format',
+        ''
+      );
 
       ///
       for i:=0 to (self.readers.Count-1) do begin
@@ -355,6 +388,19 @@ begin
     result := self.dateFormatValue
   else
     result := '%Y-%M-%D';
+end;
+
+function TConfig.getSqlDateFormat: WideString;
+begin
+  if length(self.sqlDateFormatValue)>0 then
+    result := self.sqlDateFormatValue
+  else
+    result := '%Y-%M-%D 00:00:00.000';
+end;
+
+function TConfig.getDateToSqlMethod: WideString;
+begin
+  result := self.dateToSqlMethodValue;
 end;
 
 { TConfigListenerHolder }

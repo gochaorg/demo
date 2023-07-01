@@ -7,6 +7,7 @@ uses
   SysUtils,
   ADODB,
 
+  SQLDateParam,
   MyDate,
   Config,
   Loggers, Logging,
@@ -486,7 +487,8 @@ begin
       'values (:legal_number, :model, :wear, :birth_year, :maintenance);' +
       'select @@IDENTITY as _id';
 
-    params.put('maintenance',  self.maintainceDate.toMSSQLDateTime2);
+    params.put('maintenance',
+      DateToSQL(self.maintainceDate));
   end;
 
   result := TSqlInsertOperation.Create( sql, params, '_id');
@@ -529,7 +531,7 @@ begin
     ' maintenance = :maintenance'+
     ' where id = :id';
 
-    params.put('maintenance',  self.maintainceDate.toMSSQLDateTime2);
+    params.put('maintenance',  DateToSQL(self.maintainceDate));
   end;
 
   result := TSqlUpdateOperation.Create( sql, params);

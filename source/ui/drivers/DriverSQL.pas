@@ -5,6 +5,7 @@ interface
 uses
   SysUtils, ADODB,
 
+  SQLDateParam,
   Config,
   Loggers,Logging,
   MyDate,
@@ -63,7 +64,7 @@ TDriverDataBuilder = class(TInterfacedObject, IDriverDataBuilder)
     name: WideString;
     nameExists: boolean;
 
-    birthDay: TDateTime;
+    birthDay: TMyDate;
     birthDayExists: boolean;
     birthDayConvError: WideString;
   public
@@ -148,13 +149,13 @@ log: ILog;
 
 constructor TDriverDataBuilder.Create;
 begin
-
+  inherited Create;
 end;
 
 destructor TDriverDataBuilder.Destroy;
 begin
-
-  inherited;
+  if assigned(self.birthDay) then FreeAndNil(self.birthDay);
+  inherited Destroy;
 end;
 
 procedure TDriverDataBuilder.Reset;
@@ -176,7 +177,8 @@ begin
   try
     if TryParseDate(date,applicationConfigObj.getDateFormat,myDate,validate)
     then begin
-      self.birthDay := myDate.ToDateTime;
+      if assigned(self.birthDay) then FreeAndNil(self.birthDay);
+      self.birthDay := TMyDate.Copy(myDate);
       self.birthDayExists := true;
       self.birthDayConvError := '';
     end else begin
@@ -190,7 +192,8 @@ end;
 
 procedure TDriverDataBuilder.setBirthDay(date: TDateTime);
 begin
-  self.birthDay := date;
+  if assigned(self.birthDay) then FreeAndNil(self.birthDay);
+  self.birthDay := TMyDate.From(date);
   self.birthDayExists := true;
   self.birthDayConvError := '';
 end;
@@ -251,7 +254,7 @@ begin
          'select @@IDENTITY as _id';
   params := TStringMap.Create;
   params.put('name', self.name);
-  params.put('birth_day',self.birthDay);
+  params.put('birth_day', DateToSQL(self.birthDay));
 
   dmlOp := TSqlInsertOperation.Create(sql, params, '_id');
   result := dmlOp;
@@ -274,7 +277,7 @@ begin
 
   params := TStringMap.Create;
   params.put('name', self.name);
-  params.put('birth_day',self.birthDay);
+  params.put('birth_day', DateToSQL(self.birthDay));
   params.put('id', self.driverId);
 
   dmlOp := TSqlUpdateOperation.Create(sql, params);
