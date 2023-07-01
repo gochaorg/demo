@@ -1,4 +1,4 @@
-USE [test1]
+use [carpark]
 GO
 
 /****** Object:  Table [dbo].[waybills]    Script Date: 22.06.2023 5:00:02 ******/

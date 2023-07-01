@@ -1,4 +1,4 @@
-USE [test1]
+use [carpark]
 GO
 
 /****** Object:  Table [dbo].[drivers]    Script Date: 22.06.2023 4:59:49 ******/

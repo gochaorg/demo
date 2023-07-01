@@ -1,4 +1,4 @@
-USE [test1]
+use [carpark]
 GO
 
 /****** Object:  Table [dbo].[cars]    Script Date: 22.06.2023 4:59:25 ******/
@@ -25,7 +25,7 @@ PRIMARY KEY CLUSTERED
 ) ON [PRIMARY]
 WITH
 (
-SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[MSSQL_TemporalHistoryFor_773577794] )
+SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[cars_hist] )
 )
 GO
 
