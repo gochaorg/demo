@@ -19,7 +19,7 @@ uses
   WaybillsFrame in 'ui\waybills\WaybillsFrame.pas' {waybillsController: TFrame},
   DriverForm in 'ui\drivers\DriverForm.pas' {DriverController},
   DriverSQL in 'ui\drivers\DriverSQL.pas',
-  MyDate in 'ui\cars\MyDate.pas',
+  MyDate in 'time\MyDate.pas',
   CarSQL in 'ui\cars\CarSQL.pas',
   DispatcherSQL in 'ui\dispatcher\DispatcherSQL.pas',
   DispatcherForm in 'ui\dispatcher\DispatcherForm.pas' {DispatcherController},
