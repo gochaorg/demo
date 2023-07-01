@@ -3,7 +3,8 @@ unit DBViewConfig;
 interface
 
 uses
-  DBGrids, SysUtils;
+  DBGrids, SysUtils,
+  Loggers, Logging;
 
 type
   // Подгатовка визуальных таблиц
@@ -48,6 +49,7 @@ type
 
 var
   dbViewPreparer : TDBViewConfig;
+  log: ILog;
 
 implementation
 
@@ -66,14 +68,23 @@ procedure TDBViewConfig.prepareGrid(
   const grid: TDBGrid
 );
 begin
+  log.println('prepareGrid '+className);
   if className = CARS_MODEL then begin
     hideVersionColumns(grid);
     setColumnWidth(grid, 'name', 150);
+    setColumnTitle(grid, 'name', 'Название');
   end;
   if className = CARS then begin
     hideColumn(grid, 'model_id');
     setColumnWidth(grid, 'legal_number', 130);
     setColumnWidth(grid, 'model_name', 150);
+
+    hideColumn(grid, 'maintenance');
+    setColumnTitle(grid, 'maintenance_s', 'Дата прохождения ТО');
+    setColumnTitle(grid,'legal_number', 'Гос номер');
+    setColumnTitle(grid,'model_name', 'Имя модели');
+    setColumnTitle(grid,'wear', 'Пробег');
+    setColumnTitle(grid, 'birth_year', 'Год выпуска');    
   end;
   if className = WAYBILLS then begin
     hideColumn(grid, 'car_id');
@@ -167,5 +178,6 @@ end;
 
 initialization
   dbViewPreparer := TDBViewConfig.Create();
+  log := logger('DBViewConfig');
 
 end.

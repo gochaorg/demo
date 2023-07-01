@@ -356,7 +356,7 @@ begin
 end;
 
 initialization
-  parseDateDebug := true;
+  parseDateDebug := false;
   log := logger('MyDate');
 
 end.

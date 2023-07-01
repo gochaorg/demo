@@ -74,6 +74,7 @@ object CarsController: TCarsController
     Top = 104
   end
   object carsADOQuery: TADOQuery
+    CursorLocation = clUseServer
     Parameters = <>
     SQL.Strings = (
       'select '
@@ -83,7 +84,8 @@ object CarsController: TCarsController
       #9'cm.name as model_name, '
       #9'wear, '
       #9'birth_year, '
-      #9'maintenance '
+      #9'maintenance,'
+      #9'( convert(nvarchar(50), c.maintenance, 23) ) as maintenance_s'
       'from cars c'
       'left join cars_model cm on (cm.id = c.model)')
     Left = 112

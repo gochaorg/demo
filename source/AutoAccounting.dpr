@@ -37,7 +37,8 @@ uses
   WaybillSQLView in 'ui\waybills\WaybillSQLView.pas',
   OfficeExport in 'export\OfficeExport.pas',
   ExcelExport in 'export\ExcelExport.pas',
-  WordExport in 'export\WordExport.pas';
+  WordExport in 'export\WordExport.pas',
+  DateFormat in 'time\DateFormat.pas';
 
 {$R *.res}
 

@@ -10,7 +10,7 @@ uses
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig,
 
-  CarForm, CarSQL
+  CarForm, CarSQL     
   ;
 
 type
@@ -77,6 +77,7 @@ procedure TCarsController.RefreshCurrent();
 begin
   log.println('RefreshCurrent');
   carsADOQuery.Refresh;
+  carsDBGrid.Refresh;
 end;
 
 procedure TCarsController.RefreshAll();
@@ -135,7 +136,7 @@ begin
           curRow.get('model_id'),
           curRow.get('wear'),
           curRow.get('birth_year'),
-          curRow.get('maintenance'),
+          curRow.get('maintenance_s'),
         ) then begin
           refreshCurrent;
         end;

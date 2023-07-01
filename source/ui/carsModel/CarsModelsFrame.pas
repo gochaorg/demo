@@ -132,27 +132,32 @@ end;
 
 procedure TCarsModelsController.editButtonClick(Sender: TObject);
 var
-  id : variant;
-  id_int : Integer;
-  name : variant;
   updateDialog : TCarModelController;
+  curRow: TStringMap;
 begin
   log.println('editButtonClick');
   if extend(carModelDBGrid).getRowsCount > 0 then
   begin
-    id     := carModelDBGrid.Fields[0].Value;
-    name   := carModelDBGrid.Fields[1].Value;
-    id_int := StrToInt(VarToStr(id));
-
-    updateDialog := TCarModelController.Create(self);
-    TDBGridExt.Create(carModelDBGrid).Ext;
+    curRow := TStringMap.Create;
     try
-      if updateDialog.updateDialog(
-        ADOQuery1.Connection, id_int, varToWideStr(name) ) then begin
-        refreshCurrent;
+      if extend(carModelDBGrid).GetFocusedRow(curRow) then begin
+        try
+          updateDialog := TCarModelController.Create(self);
+
+        if updateDialog.updateDialog(
+            ADOQuery1.Connection, 
+            curRow.get('id'), 
+            curRow.get('name')
+        ) then begin
+          refreshCurrent;
+        end;
+
+        finally
+          FreeAndNil(updateDialog);
+        end;      
       end;
     finally
-      FreeAndNil(updateDialog);
+      FreeAndNil(curRow);
     end;
   end;
 end;

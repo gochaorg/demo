@@ -123,6 +123,7 @@ begin
   log.println('editButtonClick');
   curRow := TStringMap.Create;
   try
+
     if extend(dispatchersDBGrid).GetFocusedRow(curRow) then begin
       updateDialog := TDispatcherController.Create(self);
       try
