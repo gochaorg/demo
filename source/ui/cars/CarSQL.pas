@@ -332,21 +332,27 @@ end;
 
 procedure TCarDataBuilder.SetMaintainceDate(date: WideString);
 var
-  maintainceDateParsed: TMyDateParsed;
-  maintainceDate: TMyDate;
+  parsedDate: TMyDate;
+  next: Integer;
+  err: WideString;
 begin
   if length(date)>0 then
   begin
+    parsedDate := TMyDate.Create(0,0,0);
     try
-      maintainceDateParsed := parseDate(date,1);
-      maintainceDate := TMyDate.Copy(maintainceDateParsed.date);
-      FreeAndNil(maintainceDateParsed);
-      self.setMaintainceDate(maintainceDate,true);
-    except
-      on e:EParseException do begin
-        maintainceDateConvError := e.Message;
-        maintainceDateExists := false;
+      if TryParseDate(date,1,parsedDate,next,err) then begin
+        if assigned(self.maintainceDate)
+        then FreeAndNil(self.maintainceDate);
+        
+        self.maintainceDate := TMyDate.Copy(parsedDate);
+        self.maintainceDateExists := true;
+        self.maintainceDateConvError := '';
+      end else begin
+        self.maintainceDateExists := false;
+        self.maintainceDateConvError := err;
       end;
+    finally
+      FreeAndNil(parsedDate);
     end;
   end else begin
     self.maintainceDateExists := false;
