@@ -10,6 +10,7 @@ uses
   Logging, Loggers,
   IntegerList,
   Classes,
+  Config,
 
   SysUtils;
 
@@ -127,7 +128,7 @@ TMyDateFormatValidateDate = class(TInterfacedObject,IMyDateFormat)
       var validation:TDataValidation;
       var nextFrom:Integer
     ): boolean;
-    procedure build( var str:WideString; var myDate: TMyDate ); override;
+    procedure build( var str:WideString; var myDate: TMyDate );
 end;
 
 // Несколько компонент времени собранных в последовательность
@@ -136,6 +137,7 @@ IMyDateFormatSequence = interface(IMyDateFormat)
   procedure addYear;
   procedure addMonth;
   procedure addMonthsDay;
+  procedure addValidateDate;
 end;
 
 TMyDateFormatSequence = class(TInterfacedObject,IMyDateFormat,IMyDateFormatSequence)
@@ -159,7 +161,17 @@ TMyDateFormatSequence = class(TInterfacedObject,IMyDateFormat,IMyDateFormatSeque
     procedure addYear;
     procedure addMonth;
     procedure addMonthsDay;
+    procedure addValidateDate;
 end;
+
+// Парсинг формата времени
+//   str - строка формата
+//     %Y - год 4 цифры
+//     %M - месяц 2 цифры
+//        01 - январь
+//     %D - день месяца 2 цифры
+//     %% - символ %
+function DateFormatParse( str:WideString ):IMyDateFormat;
 
 implementation
 
@@ -405,7 +417,7 @@ procedure TMyDateFormatMonthsDay.build(
   var str: WideString;
   var myDate: TMyDate);
 begin
-  str := str + PadNumber(IntToStr(myDate.month),2);
+  str := str + PadNumber(IntToStr(myDate.date),2);
 end;
 
 function TMyDateFormatMonthsDay.numberParsed(
@@ -498,6 +510,15 @@ begin
   self.dateComponents.Add(TComponentHolder.Create(c));
 end;
 
+
+procedure TMyDateFormatSequence.addValidateDate;
+var
+  c:IMyDateFormat;
+begin
+  c := TMyDateFormatValidateDate.Create;
+  self.dateComponents.Add(TComponentHolder.Create(c));
+end;
+
 procedure TMyDateFormatSequence.build(
   var str: WideString;
   var myDate: TMyDate
@@ -509,7 +530,7 @@ begin
   for i:=0 to (self.dateComponents.Count-1) do begin
     c := self.dateComponents[i];
     if assigned(c) then begin
-      c.ref.build(str, myDate);
+      c.getRef.build(str, myDate);
     end;
   end;
 end;
@@ -543,6 +564,35 @@ end;
 
 { TMyDateFormatValidateDate }
 
+// Является ли год високосным ?
+function isLeapYear(year:Integer):boolean;
+begin
+  result := false;
+  if (year mod 400) = 0 then result := true
+  else if (year mod 100) = 0 then result := false
+  else if (year mod 4) = 0 then result := true;
+end;
+
+// Кол-во дней в месяце
+function getMonthLen(year,mon:Integer):Integer;
+begin
+  result := 0;
+  if mon = 1 then result := 31
+  else if (mon = 2) and (isLeapYear(year)) then result := 29
+  else if (mon = 2) and (not isLeapYear(year)) then result := 28
+  else if mon = 3  then result := 31
+  else if mon = 4  then result := 30
+  else if mon = 5  then result := 31
+  else if mon = 6  then result := 30
+  else if mon = 7  then result := 31
+  else if mon = 8  then result := 31
+  else if mon = 9  then result := 30
+  else if mon = 10 then result := 31
+  else if mon = 11 then result := 30
+  else if mon = 12 then result := 31;
+end;
+
+
 procedure TMyDateFormatValidateDate.build(var str: WideString;
   var myDate: TMyDate);
 begin
@@ -558,11 +608,103 @@ begin
   inherited Destroy;
 end;
 
-function TMyDateFormatValidateDate.parse(str: WideString; from: Integer;
-  var date: TMyDate; var validation: TDataValidation;
+function TMyDateFormatValidateDate.parse(
+  str: WideString; 
+  from: Integer;
+  var date: TMyDate; 
+  var validation: TDataValidation;
   var nextFrom: Integer): boolean;
 begin
-  
+  result := true;
+  if date.month < 1 then begin
+    validation.addError('Номер месяца не модет быть меньше 1');
+    result := false;
+  end else if date.month > 12 then begin
+    validation.addError('Номер месяца не модет быть больше 12');
+    result := false;
+  end else if date.year < 0 then begin
+    validation.addError('Номер года не модет быть меньше 0');
+    result := false;
+  end else if date.date < 1 then begin
+    validation.addError('Дата (день) не может быть меньше 1');
+    result := false;
+  end else if date.date > getMonthLen(date.year, date.month) then begin
+    validation.addError(
+      'Дата (день) не может быть больше '+IntToStr(getMonthLen(date.year, date.month))+
+      ' для '+IntToStr(date.year)+' года '+IntToStr(date.month)+' месяца');
+    result := false;
+  end;
+
+end;
+
+// Парсинг формата времени
+//   str - строка формата
+//     %Y - год 4 цифры
+//     %M - месяц 2 цифры
+//        01 - январь
+//     %D - день месяца 2 цифры
+//     %% - символ %
+function DateFormatParse( str:WideString ):IMyDateFormat;
+var
+  state : Integer;
+  ptr : Integer;
+  fmt : IMyDateFormatSequence;
+  buff : WideString;
+  procedure flush;
+  begin
+    if length(buff) > 0 then begin
+      fmt.addPlain(buff);
+      buff := '';
+    end;
+  end;
+begin
+  ptr := 1;
+  state := 0;
+  fmt := TMyDateFormatSequence.Create;
+  result := fmt;
+  buff := '';
+
+  while (state >= 0) do begin
+    if ptr > length(str) then begin
+      state := -1;
+    end else if state = 0 then begin
+      if str[ptr] = WideChar('%') then begin
+        ptr := ptr + 1;
+        state := 1;
+      end else begin
+        buff := buff + str[ptr];
+        ptr := ptr + 1;
+      end;
+    end else if state = 1 then begin
+      if str[ptr] = WideChar('%') then begin
+        state := 0;
+        ptr := ptr + 1;
+        buff := buff + '%';
+      end else if str[ptr] = WideChar('Y') then begin
+        state := 0;
+        ptr := ptr + 1;
+        flush;
+        fmt.addYear;
+      end else if str[ptr] = WideChar('M') then begin
+        state := 0;
+        ptr := ptr + 1;
+        flush;
+        fmt.addMonth;
+      end else if str[ptr] = WideChar('D') then begin
+        state := 0;
+        ptr := ptr + 1;
+        flush;
+        fmt.addMonthsDay;
+      end else begin
+        state := 0;
+        ptr := ptr + 1;
+        buff := buff + WideChar('%') + str[ptr];
+      end;
+    end;
+  end;
+
+  flush;
+  fmt.addValidateDate;
 end;
 
 ////////////////////////
@@ -574,6 +716,7 @@ var
   year : TMyDateFormatYear;
   month : TMyDateFormatMonth;
   seq : TMyDateFormatSequence;
+  fmt : IMyDateFormat;
 
   myDate : TMyDate;
   nextFrom : Integer;
@@ -582,86 +725,107 @@ var
   generatedString: WideString;
 
 begin
-  log.println('test !');
+  if applicationConfigObj.isDebug then begin
+    log.println('test !');
 
-  plain := TMyDateFormatPlainText.Create('hello');
-  number := TMyDateFormatNumber.Create(0,4);
-  year := TMyDateFormatYear.Create;
-  month := TMyDateFormatMonth.Create;
-  seq := TMyDateFormatSequence.Create;
+    plain := TMyDateFormatPlainText.Create('hello');
+    number := TMyDateFormatNumber.Create(0,4);
+    year := TMyDateFormatYear.Create;
+    month := TMyDateFormatMonth.Create;
+    seq := TMyDateFormatSequence.Create;
 
-  validation := TDataValidation.Create;
-  myDate := TMyDate.Create(0,0,0);
+    validation := TDataValidation.Create;
+    myDate := TMyDate.Create(0,0,0);
 
-  try
-    log.println('plain test');
-    if plain.parse('hello',1,myDate,validation,nextFrom) then begin
-      log.println('parsed');
-      log.println('  nextFrom='+IntToStr(nextFrom));
-    end else begin
-      log.println('not parsed');
+    try
+      log.println('parse by format');
+      fmt := DateFormatParse('%Y %M %D');
+      if fmt.parse('1987 10 22',1,myDate,validation,nextFrom) then begin
+        log.println('parsed');
+        log.println('  year='+IntToStr(myDate.year));
+        log.println('  month='+IntToStr(myDate.month));
+        log.println('  date='+IntToStr(myDate.date));
+        log.println('  nextFrom='+IntToStr(nextFrom));
+
+        generatedString := '';
+        fmt.build(generatedString, myDate);
+        log.println('  generated string='+generatedString);
+      end else begin
+        log.println('not parsed');
+        log.println(validation.getMessage);
+      end;
+      fmt := nil;
+
+
+      log.println('plain test');
+      if plain.parse('hello',1,myDate,validation,nextFrom) then begin
+        log.println('parsed');
+        log.println('  nextFrom='+IntToStr(nextFrom));
+      end else begin
+        log.println('not parsed');
+      end;
+
+      log.println('number test');
+      if number.parse('123456',1,myDate,validation,nextFrom) then begin
+        log.println('parsed');
+        log.println('  nextFrom='+IntToStr(nextFrom));
+      end else begin
+        log.println('not parsed');
+      end;
+
+      log.println('year test');
+      if year.parse('123456',1,myDate,validation,nextFrom) then begin
+        log.println('parsed');
+        log.println('  year='+IntToStr(myDate.year));
+        log.println('  nextFrom='+IntToStr(nextFrom));
+
+        generatedString := '';
+        year.build(generatedString, myDate);
+        log.println('  generated string='+generatedString);
+      end else begin
+        log.println('not parsed');
+      end;
+
+      log.println('month test');
+      if month.parse('123456',1,myDate,validation,nextFrom) then begin
+        log.println('parsed');
+        log.println('  month='+IntToStr(myDate.month));
+        log.println('  nextFrom='+IntToStr(nextFrom));
+
+        generatedString := '';
+        month.build(generatedString, myDate);
+        log.println('  generated string='+generatedString);
+      end else begin
+        log.println('not parsed');
+      end;
+
+      log.println('seq test');
+      seq.addYear;
+      seq.addPlain(' ');
+      seq.addMonth;
+
+      if seq.parse('1987 10',1,myDate,validation,nextFrom) then begin
+        log.println('parsed');
+        log.println('  year='+IntToStr(myDate.year));
+        log.println('  month='+IntToStr(myDate.month));
+        log.println('  nextFrom='+IntToStr(nextFrom));
+
+        generatedString := '';
+        seq.build(generatedString, myDate);
+        log.println('  generated string='+generatedString);
+      end else begin
+        log.println('not parsed');
+      end;
+
+    finally
+      plain.Destroy;
+      validation.Destroy;
+      myDate.Destroy;
+      number.Destroy;
+      year.Destroy;
+      month.Destroy;
+      seq.Destroy;
     end;
-
-    log.println('number test');
-    if number.parse('123456',1,myDate,validation,nextFrom) then begin
-      log.println('parsed');
-      log.println('  nextFrom='+IntToStr(nextFrom));
-    end else begin
-      log.println('not parsed');
-    end;
-
-    log.println('year test');
-    if year.parse('123456',1,myDate,validation,nextFrom) then begin
-      log.println('parsed');
-      log.println('  year='+IntToStr(myDate.year));
-      log.println('  nextFrom='+IntToStr(nextFrom));
-
-      generatedString := '';
-      year.build(generatedString, myDate);
-      log.println('  generated string='+generatedString);
-    end else begin
-      log.println('not parsed');
-    end;
-
-    log.println('month test');
-    if month.parse('123456',1,myDate,validation,nextFrom) then begin
-      log.println('parsed');
-      log.println('  month='+IntToStr(myDate.month));
-      log.println('  nextFrom='+IntToStr(nextFrom));
-
-      generatedString := '';
-      month.build(generatedString, myDate);
-      log.println('  generated string='+generatedString);
-    end else begin
-      log.println('not parsed');
-    end;
-
-    log.println('seq test');
-    seq.addYear;
-    seq.addPlain(' ');
-    seq.addMonth;
-
-    if seq.parse('1987 10',1,myDate,validation,nextFrom) then begin
-      log.println('parsed');
-      log.println('  year='+IntToStr(myDate.year));
-      log.println('  month='+IntToStr(myDate.month));
-      log.println('  nextFrom='+IntToStr(nextFrom));
-
-      generatedString := '';
-      seq.build(generatedString, myDate);
-      log.println('  generated string='+generatedString);
-    end else begin
-      log.println('not parsed');
-    end;
-
-  finally
-    plain.Destroy;
-    validation.Destroy;
-    myDate.Destroy;
-    number.Destroy;
-    year.Destroy;
-    month.Destroy;
-    seq.Destroy;
   end;
 end;
 
