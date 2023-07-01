@@ -75,6 +75,7 @@ object DispatchersController: TDispatchersController
     Top = 72
   end
   object dispatchersADOQuery: TADOQuery
+    CursorLocation = clUseServer
     Parameters = <>
     SQL.Strings = (
       

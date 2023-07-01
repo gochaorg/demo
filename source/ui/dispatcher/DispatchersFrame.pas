@@ -76,6 +76,7 @@ end;
 procedure TDispatchersController.RefreshCurrent();
 begin
   log.println('RefreshCurrent');
+  dispatchersADOQuery.Refresh;
   dispatchersDBGrid.Refresh;
 end;
 

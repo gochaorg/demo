@@ -77,6 +77,7 @@ procedure TDriversController.RefreshCurrent();
 begin
   log.println('RefreshCurrent');
   driversADOQuery.Refresh;
+  driversDBGrid.Refresh;
 end;
 
 procedure TDriversController.RefreshAll();

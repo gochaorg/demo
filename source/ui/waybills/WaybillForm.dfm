@@ -15,6 +15,9 @@ object WaybillController: TWaybillController
   OldCreateOrder = False
   OnHide = FormHide
   OnShow = FormShow
+  DesignSize = (
+    440
+    557)
   PixelsPerInch = 96
   TextHeight = 13
   object errLabel: TLabel
@@ -45,6 +48,7 @@ object WaybillController: TWaybillController
     Top = 24
     Width = 209
     Height = 21
+    Anchors = [akLeft, akTop, akRight]
     EditLabel.Width = 101
     EditLabel.Height = 13
     EditLabel.Caption = #1042#1088#1077#1084#1103' '#1074#1086#1079#1074#1088#1072#1097#1077#1085#1080#1103
@@ -55,6 +59,7 @@ object WaybillController: TWaybillController
     Top = 48
     Width = 417
     Height = 233
+    Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
     object Splitter1: TSplitter
       Left = 201
@@ -165,6 +170,7 @@ object WaybillController: TWaybillController
     Top = 288
     Width = 417
     Height = 153
+    Anchors = [akLeft, akTop, akRight]
     Caption = #1040#1074#1090#1086
     TabOrder = 3
     DesignSize = (
@@ -214,6 +220,7 @@ object WaybillController: TWaybillController
     Top = 464
     Width = 209
     Height = 21
+    Anchors = [akLeft, akTop, akRight]
     EditLabel.Width = 112
     EditLabel.Height = 13
     EditLabel.Caption = #1055#1086#1090#1088#1077#1073#1083#1077#1085#1080#1077' '#1090#1086#1087#1083#1080#1074#1072
@@ -224,6 +231,7 @@ object WaybillController: TWaybillController
     Top = 496
     Width = 75
     Height = 25
+    Anchors = [akTop, akRight]
     Caption = 'okButton'
     TabOrder = 6
     OnClick = okButtonClick

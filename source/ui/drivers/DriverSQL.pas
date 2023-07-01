@@ -174,6 +174,7 @@ var
   validate: IDataValidationMut;
 begin
   myDate := TMyDate.Create(0,0,0);
+  validate := TDataValidation.Create;
   try
     if TryParseDate(date,applicationConfigObj.getDateFormat,myDate,validate)
     then begin

@@ -3,7 +3,7 @@ object MainForm: TMainForm
   Top = 71
   Width = 682
   Height = 363
-  Caption = 'MainForm'
+  Caption = #1040#1074#1090#1086' '#1087#1072#1088#1082
   Color = clBtnFace
   Constraints.MinHeight = 363
   Constraints.MinWidth = 682

@@ -1,6 +1,6 @@
 object DriverController: TDriverController
-  Left = 1417
-  Top = 226
+  Left = 407
+  Top = 111
   Width = 383
   Height = 193
   Caption = 'DriverController'

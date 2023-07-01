@@ -75,6 +75,7 @@ object DriversController: TDriversController
     Top = 112
   end
   object driversADOQuery: TADOQuery
+    CursorLocation = clUseServer
     Parameters = <>
     SQL.Strings = (
       

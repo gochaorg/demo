@@ -275,7 +275,7 @@ begin
   if not validation.isOk then
     raise EDispatcherDataBuilder.Create(validation.getMessage);
 
-  sql := 'update dispatcher set'+
+  sql := 'update dispatchers set'+
     ' name = :name,'+
     ' birth_day = :birth_day'+
     ' where id = :id';
