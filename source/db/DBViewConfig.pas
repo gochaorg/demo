@@ -57,6 +57,8 @@ const
   CARS_MODEL = 'TCarsModelsController';
   CARS = 'TCarsController';
   WAYBILLS = 'TWaybillsController';
+  DRIVERS = 'TDriversController';
+  DISPATCHERS = 'TDispatchersController';
 
 constructor TDBViewConfig.Create;
 begin
@@ -84,7 +86,23 @@ begin
     setColumnTitle(grid,'legal_number', 'Гос номер');
     setColumnTitle(grid,'model_name', 'Имя модели');
     setColumnTitle(grid,'wear', 'Пробег');
-    setColumnTitle(grid, 'birth_year', 'Год выпуска');    
+    setColumnTitle(grid, 'birth_year', 'Год выпуска');
+  end;
+  if className = DRIVERS then begin
+    setColumnWidth(grid,'name',150);
+    setColumnTitle(grid,'name','Имя водителя');
+    setColumnWidth(grid,'birth_day_s',150);
+    setColumnTitle(grid,'birth_day_s','Дата рождения');
+
+    hideColumn(grid, 'birth_day');
+  end;
+  if className = DISPATCHERS then begin
+    setColumnWidth(grid,'name',150);
+    setColumnTitle(grid,'name','Имя диспетчера');
+    setColumnWidth(grid,'birth_day_s',150);
+    setColumnTitle(grid,'birth_day_s','Дата рождения');
+
+    hideColumn(grid, 'birth_day');
   end;
   if className = WAYBILLS then begin
     hideColumn(grid, 'car_id');

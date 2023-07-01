@@ -77,7 +77,10 @@ object DispatchersController: TDispatchersController
   object dispatchersADOQuery: TADOQuery
     Parameters = <>
     SQL.Strings = (
-      'select * from dispatchers')
+      
+        'select id, name, birth_day, (convert(nvarchar(50), birth_day, 23' +
+        ')) as birth_day_s'
+      'from dispatchers')
     Left = 104
     Top = 136
   end

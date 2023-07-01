@@ -12,7 +12,7 @@ object DriversController: TDriversController
     Align = alTop
     TabOrder = 0
     object refreshButton: TButton
-      Left = 16
+      Left = 8
       Top = 8
       Width = 75
       Height = 25
@@ -22,7 +22,7 @@ object DriversController: TDriversController
       OnClick = refreshButtonClick
     end
     object newButton: TButton
-      Left = 96
+      Left = 88
       Top = 8
       Width = 75
       Height = 25
@@ -32,7 +32,7 @@ object DriversController: TDriversController
       OnClick = newButtonClick
     end
     object editButton: TButton
-      Left = 176
+      Left = 168
       Top = 8
       Width = 97
       Height = 25
@@ -42,7 +42,7 @@ object DriversController: TDriversController
       OnClick = editButtonClick
     end
     object deleteButton: TButton
-      Left = 280
+      Left = 272
       Top = 8
       Width = 75
       Height = 25
@@ -77,7 +77,10 @@ object DriversController: TDriversController
   object driversADOQuery: TADOQuery
     Parameters = <>
     SQL.Strings = (
-      'select * from drivers')
+      
+        'select id, name, birth_day, (convert(nvarchar(50), birth_day, 23' +
+        ')) as birth_day_s'
+      'from drivers')
     Left = 112
     Top = 128
   end
