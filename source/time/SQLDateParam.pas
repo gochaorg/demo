@@ -19,7 +19,7 @@ begin
   else if applicationConfigObj.getDateToSqlMethod = 'ToString' then
     result := date.ToString(applicationConfigObj.getSqlDateFormat)
   else
-    result := date.ToDateTime;
+    result := date.ToMSSQLDateTime2;
 end;
 
 end.
