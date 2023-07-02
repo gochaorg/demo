@@ -9,7 +9,7 @@ uses
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig,
 
-  DispatcherForm,
+  DispatcherForm, FormConfig,
   Loggers, Logging
   ;
 
@@ -101,6 +101,7 @@ var
 begin
   log.println('newButtonClick');
   insertDialog := TDispatcherController.Create(self);
+  FormConfigure(insertDialog);
   try
     if insertDialog.InsertDialog(dispatchersADOQuery.Connection) then begin
       refreshAll;
@@ -127,12 +128,13 @@ begin
 
     if extend(dispatchersDBGrid).GetFocusedRow(curRow) then begin
       updateDialog := TDispatcherController.Create(self);
+      FormConfigure(updateDialog);
       try
         if updateDialog.UpdateDialog(
           dispatchersADOQuery.Connection,
           curRow.get('id'),
           curRow.get('name'),
-          curRow.get('birth_day')
+          curRow.get('birth_day_s')
         ) then begin
           RefreshCurrent;
         end;

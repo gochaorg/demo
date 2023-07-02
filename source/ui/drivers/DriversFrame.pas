@@ -9,7 +9,7 @@ uses
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig,
 
-  DriverForm,
+  DriverForm, FormConfig,
   Loggers, Logging
   ;
 
@@ -95,6 +95,7 @@ var
 begin
   log.println('newButtonClick');
   insertDialog := TDriverController.Create(self);
+  FormConfigure(insertDialog);
   try
     if insertDialog.InsertDialog(driversADOQuery.Connection) then begin
       refreshAll;
@@ -120,12 +121,13 @@ begin
   try
     if extend(driversDBGrid).GetFocusedRow(curRow) then begin
       updateDialog := TDriverController.Create(self);
+      FormConfigure(updateDialog);
       try
         if updateDialog.UpdateDialog(
           driversADOQuery.Connection,
           curRow.get('id'),
           curRow.get('name'),
-          curRow.get('birth_day')
+          curRow.get('birth_day_s')
         ) then begin
           RefreshCurrent;
         end;

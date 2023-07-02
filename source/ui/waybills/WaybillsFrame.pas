@@ -9,7 +9,7 @@ uses
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig, 
 
-  WaybillForm, WaybillSQLView,
+  WaybillForm, WaybillSQLView, FormConfig,
   Loggers, Logging
   ;
 
@@ -141,6 +141,7 @@ var
 begin
   log.println('newButtonClick');
   insertDialog := TWaybillController.Create(self);
+  FormConfigure(insertDialog);
   try
     if insertDialog.InsertDialog(waybillsADOQuery.Connection) then begin
       RefreshAll;
@@ -174,6 +175,7 @@ begin
       log.println('curRow '+curRow.toString);
       if curRow.get('state') = 'actual' then begin
         updateDialog := TWaybillController.Create(self);
+        FormConfigure(updateDialog);
         try
           if updateDialog.updateDialog(
             self.waybillsADOQuery.Connection,

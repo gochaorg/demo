@@ -5,14 +5,15 @@ unit FormConfig;
 interface
 
 uses
-Forms, Controls, IniFiles,
+  Forms, Controls, IniFiles,
+  Config;
 
-Config;
-
+// Конфигурация окна
 procedure FormConfigure( form: TForm );
 
 implementation
 
+// Переместить окно в центер экрана
 procedure MoveToCenter( form: TForm );
 var
   xCenter,yCenter:Integer;

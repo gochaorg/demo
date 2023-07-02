@@ -6,6 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, DB, ExtCtrls, Grids, DBGrids, ADODB,
 
+  FormConfig,
   Logging, Loggers,
   DBRows, DBRowPredicate, DBView, Map, DBRowsSqlExec,
   DBViewConfig,
@@ -102,6 +103,7 @@ var
 begin
   log.println('newButtonClick');
   insertDialog := TCarController.Create(self);
+  FormConfigure(insertDialog);
   try
     if insertDialog.insertDialog(self.carsADOQuery.Connection) then
     begin
@@ -128,6 +130,7 @@ begin
   try
     if extend(carsDBGrid).GetFocusedRow(curRow) then begin
       updateDialog := TCarController.Create(self);
+      FormConfigure(updateDialog);
       try
         if updateDialog.updateDialog(
           self.carsADOQuery.Connection,
