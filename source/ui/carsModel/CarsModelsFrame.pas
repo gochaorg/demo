@@ -3,9 +3,10 @@ unit CarsModelsFrame;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, DBGrids, StdCtrls, ExtCtrls, DB, ADODB,
 
+  FormConfig,
   CarModelFrame,
   Logging, Loggers,
   Map, DBRows, DBRowPredicate,
@@ -113,6 +114,8 @@ var
 begin
   log.println('newButtonClick');
   insertDialog := TCarModelController.Create(self);
+  FormConfigure(insertDialog);
+
   rows := TDBRows.Create;
   try
     if insertDialog.insertDialog( ADOQuery1.Connection ) then begin
@@ -143,6 +146,7 @@ begin
       if extend(carModelDBGrid).GetFocusedRow(curRow) then begin
         try
           updateDialog := TCarModelController.Create(self);
+          FormConfigure(updateDialog);
 
         if updateDialog.updateDialog(
             ADOQuery1.Connection, 

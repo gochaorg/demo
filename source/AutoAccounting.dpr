@@ -38,7 +38,8 @@ uses
   OfficeExport in 'export\OfficeExport.pas',
   ExcelExport in 'export\ExcelExport.pas',
   WordExport in 'export\WordExport.pas',
-  SQLDateParam in 'time\SQLDateParam.pas';
+  SQLDateParam in 'time\SQLDateParam.pas',
+  FormConfig in 'ui\FormConfig.pas';
 
 {$R *.res}
 
