@@ -200,6 +200,7 @@ begin
             curRow.get('fuel_cons')
           ) then begin
             refreshCurrent;
+            waybillsDBGrid.SetFocus;
           end;
         finally;
           FreeAndNil(updateDialog);
@@ -227,8 +228,14 @@ begin
   rowDelete := TDBRowsSqlExec.Create(query);
   rowDelete.Map('id', 'id');
   try
-    extend(waybillsDBGrid).fetchRows(true,false, rows.Add);
+    extend(waybillsDBGrid)
+      .fetchActiveRecord(true)
+      .fetchRows(true,false, rows.Add);
+    log.println('fetched '+IntToStr(rows.GetCount)+' rows');
+
     rows.Retain(TDataRowValueEqualsPredicate.Create('state', 'actual'));
+    log.println('Retain '+IntToStr(rows.GetCount)+' rows');
+
     rows.Each(rowDelete.Execute);
     if rowDelete.getErrorsCount > 0 then
       begin
@@ -237,6 +244,7 @@ begin
     else
       begin
         refreshAll;
+        waybillsDBGrid.SetFocus;
       end;
   finally
     FreeAndNil(query);

@@ -6,8 +6,9 @@ uses
   DBGrids, DB,
   Classes, SysUtils,
 
+  Config,
   DBRowPredicate, DBRows,
-  Logging, Map;
+  Logging, Loggers, Map;
 
 type
   // Используется для обновдления
@@ -113,6 +114,13 @@ type
       inVisibleColumn: boolean
     ):IDBGridExtension;
 
+    // Указывает выбирать активную записб или нет
+    // Аргументы
+    //   activeRecord - true - выбирать активную запись
+    function FetchActiveRecord(
+      activeRecord:boolean
+    ):IDBGridExtension;
+
     // Выборка строк
     function GetDBRows:IDBRows;
   end;
@@ -124,6 +132,7 @@ type
       grid: TDBGrid;
       visibleColumnsFetch: boolean;
       inVisibleColumnsFetch: boolean;
+      activeRecordFetch: boolean;
     public
       constructor Create( const grid:TDBGrid );
       function Ext(): IDBGridExtension;
@@ -141,6 +150,10 @@ type
         unselected:Boolean;
         consumer:TDataRowConsumer
       );
+
+      function FetchActiveRecord(
+        activeRecord:boolean
+      ):IDBGridExtension;
 
       procedure UpdateSelection(
         updater: TDataRowSelectUpdater;
@@ -164,6 +177,9 @@ implementation
 
 uses
   Dialogs, Variants;
+
+var
+  log : ILog;
 
 type
   // Обновление выделенных строк и строки содержащей фокус
@@ -189,6 +205,7 @@ type
       selected: boolean;
       unSelected: boolean;
       target : TDataRowConsumer;
+      activeRecord:boolean;
     public
       // Конструктор
       // Аргументы
@@ -198,6 +215,7 @@ type
       constructor Create(
         selected:boolean;
         unSelected:boolean;
+        activeRecord:boolean;
         target : TDataRowConsumer
       );
       destructor Destroy; override;
@@ -248,7 +266,11 @@ procedure TDBGridExt.FetchRows(
 var
   delegate : TFetchRowDelegate;
 begin
-  delegate := TFetchRowDelegate.Create(selected, unselected, consumer);
+  delegate := TFetchRowDelegate.Create(
+    selected,
+    unselected,
+    self.activeRecordFetch,
+    consumer);
   try
     self.UpdateSelection(delegate.Consume);
   finally
@@ -263,6 +285,12 @@ function TDBGridExt.FetchVisible(
 begin
   self.visibleColumnsFetch := visibleColumn;
   self.inVisibleColumnsFetch := inVisibleColumn;
+  result := self;
+end;
+
+function TDBGridExt.FetchActiveRecord( activeRecord:boolean ): IDBGridExtension;
+begin
+  self.activeRecordFetch := activeRecord;
   result := self;
 end;
 
@@ -373,6 +401,7 @@ begin
         self.grid.DataSource.DataSet.DisableControls;
         self.grid.DataSource.DataSet.First;
 
+        // Копирование списка колонок
         if assigned(columnConsumer) then begin
           for c:=0 to self.grid.DataSource.DataSet.Fields.Count-1 do begin
             column := TDBRowColumn.Create;
@@ -388,9 +417,19 @@ begin
           end;
         end;
 
+        // Обход строк
         try
-          for i:=0 to self.grid.DataSource.DataSet.RecordCount-1 do begin
+          for i:=0 to (self.grid.DataSource.DataSet.RecordCount-1) do begin
             row := TStringMap.Create;
+
+            if applicationConfigObj.isDebug then
+              log.println(
+                'row#'+IntToStr(i)+
+                ' grid.SelectedRows.CurrentRowSelected='+
+                  BoolToStr(self.grid.SelectedRows.CurrentRowSelected)+
+                ' savedActiveRecNo='+BoolToStr(savedActiveRecNo = (i+1))
+              );
+
             rowUpdate := TDataRowSelectionUpdate.Create(
               row,
               i,
@@ -400,7 +439,7 @@ begin
             try
 
               // build data
-              for c:=0 to self.grid.DataSource.DataSet.Fields.Count-1 do begin
+              for c:=0 to (self.grid.DataSource.DataSet.Fields.Count-1) do begin
                 if  (   self.visibleColumnsFetch
                     and self.grid.Columns.Items[c].Visible
                     ) or
@@ -534,6 +573,7 @@ end;
 constructor TFetchRowDelegate.Create(
   selected:boolean;
   unSelected:boolean;
+  activeRecord:boolean;
   target: TDataRowConsumer
 );
 begin
@@ -541,6 +581,7 @@ begin
   self.target := target;
   self.selected := selected;
   self.unSelected := unSelected;
+  self.activeRecord := activeRecord;
 end;
 
 destructor TFetchRowDelegate.Destroy;
@@ -551,12 +592,31 @@ end;
 
 procedure TFetchRowDelegate.Consume(row: TDataRowSelectionUpdate);
 begin
+  if applicationConfigObj.isDebug then
+    log.println('TFetchRowDelegate.Consume '+
+      ' row.isSelected='+BoolToStr(row.isSelected)+
+      ' row.hasFocus='+BoolToStr(row.hasFocus)+
+      ' self.selected='+BoolToStr(self.selected)+
+      ' self.unSelected='+BoolToStr(self.unSelected)+
+      ' self.activeRecord='+BoolToStr(self.activeRecord)
+    );
+
   if assigned(self.target) then begin
     if row.isSelected and self.selected
-    then self.target(row.getRow);
-
-    if not row.isSelected and self.unSelected
-    then self.target(row.getRow);
+      then begin
+        if applicationConfigObj.isDebug then log.println('  delegate');
+        self.target(row.getRow);
+      end
+    else if not row.isSelected and self.unSelected
+      then begin
+        if applicationConfigObj.isDebug then log.println('  delegate');
+        self.target(row.getRow);
+      end
+    else if row.hasFocus and self.activeRecord
+      then begin
+        if applicationConfigObj.isDebug then log.println('  delegate');
+        self.target(row.getRow);
+      end;
   end;
 end;
 
@@ -592,5 +652,8 @@ begin
     self.dbRows.Add(row.getRow);
   end;
 end;
+
+initialization
+log := logger('DBRows');
 
 end.

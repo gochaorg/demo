@@ -156,7 +156,10 @@ begin
   rowDelete := TDBRowsSqlExec.Create(query);
   rowDelete.Map('id', 'id');
   try
-    extend(driversDBGrid).fetchRows(true,false, rows.Add);
+    extend(driversDBGrid)
+      .fetchActiveRecord(true)
+      .fetchRows(true,false, rows.Add);
+
     rows.Each(rowDelete.Execute);
     if rowDelete.getErrorsCount > 0 then
       begin

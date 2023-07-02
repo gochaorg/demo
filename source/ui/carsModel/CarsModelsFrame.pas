@@ -182,7 +182,10 @@ begin
   rowDelete := TDBRowsSqlExec.Create(query);
   rowDelete.Map('id', 'id');
   try
-    extend(carModelDBGrid).fetchRows(true,false, rows.Add);
+    extend(carModelDBGrid)
+      .fetchActiveRecord(true)
+      .fetchRows(true,false, rows.Add);
+
     rows.Each(rowDelete.Execute);
     if rowDelete.getErrorsCount > 0 then
       begin
