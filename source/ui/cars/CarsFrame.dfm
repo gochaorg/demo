@@ -59,7 +59,7 @@ object CarsController: TCarsController
     Height = 240
     Align = alClient
     DataSource = carsDataSource
-    Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
     ReadOnly = True
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET

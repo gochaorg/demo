@@ -14,7 +14,7 @@ $(SRC_EXE):
      dcc32 $(PROJECT_NAME).dpr
      cd ..
      
-$(DIST_DIR): dist_dir $(DIST_EXE) $(DIST_DIR)\config.ini office_template
+$(DIST_DIR): dist_dir $(DIST_EXE) $(DIST_DIR)\config.ini office_template sql
 
 dist_dir:
      mkdir $(DIST_DIR)
@@ -31,8 +31,13 @@ office_template: dist_dir
 
 clean:
      DEL /F /Q /S $(DIST_DIR)\sample\*
-     DEL /F /Q /S $(DIST_DIR)\*
      rmdir $(DIST_DIR)\sample
+     DEL /F /Q /S $(DIST_DIR)\sql\*
+     rmdir $(DIST_DIR)\sql
+     DEL /F /Q /S $(DIST_DIR)\*
      rmdir $(DIST_DIR)
 
+sql:
+     mkdir $(DIST_DIR)\sql
+     copy /y sql\* $(DIST_DIR)\sql
      

@@ -6,7 +6,7 @@ unit WaybillSQLView;
 interface
 
 uses
-  SysUtils, ADODB, Variants,
+  SysUtils, ADODB, Variants, DB,
 
   Loggers, Logging,
   Map;
@@ -25,8 +25,9 @@ TWaybillsQuery = class(TInterfacedObject, IWaybillsQuery)
   private
     sql: WideString;
     params: TStringMap;
+    cursorLocation: TCursorLocation;
   public
-    constructor Create(sql:WideString; params:TStringMap);
+    constructor Create(sql:WideString; params:TStringMap; cursorLocation:TCursorLocation);
     destructor Destroy; override;
     procedure apply( query:TADOQuery );
 end;
@@ -283,8 +284,13 @@ begin
   log.println('query.Active := false');
   query.Active := false;
 
-  log.println('query.Parameters.Clear');
-  query.Parameters.Clear;
+  if cursorLocation = clUseClient
+    then log.println('query.CursorLocation := clUseClient')
+  else if cursorLocation = clUseServer
+    then log.println('query.CursorLocation := clUseServer')
+  else log.println('query.CursorLocation := ???');
+
+  query.CursorLocation := self.cursorLocation;
 
   log.println('query.SQL.Text := '+self.sql);
   query.SQL.Text := self.sql;
@@ -298,14 +304,21 @@ begin
   end;
 
   log.println('query.Active := true');
-  query.Active := true;
+  try
+    query.Active := true;
+  except
+    on e:EDatabaseError do begin
+      log.println('! query.Active error: '+e.Message);
+    end;
+  end;
 end;
 
-constructor TWaybillsQuery.Create(sql: WideString; params: TStringMap);
+constructor TWaybillsQuery.Create(sql: WideString; params: TStringMap; cursorLocation:TCursorLocation);
 begin
   inherited Create;
   self.sql := sql;
   self.params := params;
+  self.cursorLocation := cursorLocation;  
   log.println('TWaybillsQuery.Create');
 end;
 
@@ -374,9 +387,11 @@ begin
   end;
   sql := sql + ') aa';
 
+  log.println('params := TStringMap.Create');
   params := TStringMap.Create;
 
   if self.hasWhereExpression then begin
+    log.println('hasWhereExpression');
     sql := sql + ' where ' +
       self.whereExpresion.BuildSql(
         TParamBuildContext.Create(params,false));
@@ -388,7 +403,9 @@ begin
     else sql := sql + ' order by '+self.orderKey+' desc';
   end;
 
-  result := TWaybillsQuery.Create(sql, params);
+  if self.withHistoryValue
+  then result := TWaybillsQuery.Create(sql, params, clUseClient)
+  else result := TWaybillsQuery.Create(sql, params, clUseServer);
 end;
 
 
@@ -421,23 +438,27 @@ end;
 
 procedure TWaybillsQueryBuilder.resetWhereExpression;
 begin
+  log.println('resetWhereExpression');
   self.whereExpressionValue := nil;
 end;
 
 procedure TWaybillsQueryBuilder.setWhereExpression(
   expression: IWhereExpression);
 begin
+  log.println('setWhereExpression');
   self.whereExpressionValue := expression;
 end;
 
 procedure TWaybillsQueryBuilder.resetOrder;
 begin
+  log.println('resetOrder');
   self.orderIsSet := false;
 end;
 
 procedure TWaybillsQueryBuilder.setOrder(orderKey: WideString;
   reverse: boolean);
 begin
+  log.println('setOrder');
   self.orderIsSet := true;
   self.orderKey := orderKey;
   self.orderReverse := reverse;
@@ -447,6 +468,7 @@ procedure TWaybillsQueryBuilder.toggleOrder(columnAlias: WideString);
 var
   i:Integer;
 begin
+  log.println('toggleOrder');
   for i:=low(columns) to high(columns) do begin
     if (columns[i].alias = columnAlias) and (columns[i].orderKeyExists)
     then begin
@@ -501,6 +523,7 @@ end;
 
 constructor TWhereOrExpression.Create(leftExp, rightExp: IWhereExpression);
 begin
+  log.println('TWhereOrExpression.Create');
   self.leftExpression := leftExp;
   self.rightExpression := rightExp;
 end;
@@ -518,6 +541,7 @@ end;
 
 constructor TWhereLikeExpression.Create(key: string; value: variant);
 begin
+  log.println('TWhereLikeExpression.Create');
   self.key := key;
   self.value := value;
 end;
@@ -527,6 +551,7 @@ function TWhereLikeExpression.BuildSql(
 var
   name : string;
 begin
+  log.println('TWhereLikeExpression.BuildSql');
   name := 'p_' + self.key + IntToStr(paramContext.GetParamCount);
   if not paramContext.AddParam(name, self.value) then begin
     log.println('! param '+name+' not added into context');
@@ -558,9 +583,13 @@ function TParamBuildContext.AddParam(
   value: variant): boolean;
 begin
   if self.params.exists(name) then begin
-    log.println('parameter '+name+' already added');
+    log.println('! parameter '+name+' already added');
     result := false;
   end else begin
+    log.println(
+      'TParamBuildContext.AddParam '+
+      name+'='+VarToStr(value)
+    );
     self.params.put(name, value);
     result := true;
   end;

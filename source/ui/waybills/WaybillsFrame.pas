@@ -61,6 +61,9 @@ type
     // Сортировка по указанной колнке
     procedure waybillsDBGridTitleClick(Column: TColumn);
   private
+    // Сколбко раз была вызвана активация
+    activateDataViewCalledCount: Integer;
+
     queryBuilderValue: IWaybillsQueryBuilder;
     function queryBuilder: IWaybillsQueryBuilder;
 
@@ -105,6 +108,8 @@ begin
   showHistoryCheckBox.Enabled := true;
   findEdit.Enabled := true;
   findButton.Enabled := true;
+
+  activateDataViewCalledCount := activateDataViewCalledCount + 1;
 end;
 
 procedure TWaybillsController.RefreshCurrent();
@@ -270,7 +275,7 @@ end;
 
 function TWaybillsController.isActivated: boolean;
 begin
-  result := waybillsADOQuery.Active;
+  result := activateDataViewCalledCount > 0;
 end;
 
 function TWaybillsController.queryBuilder: IWaybillsQueryBuilder;

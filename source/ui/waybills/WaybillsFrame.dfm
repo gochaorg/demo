@@ -110,7 +110,7 @@ object waybillsController: TwaybillsController
     Height = 224
     Align = alClient
     DataSource = waybillsDataSource
-    Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
     ReadOnly = True
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
@@ -130,7 +130,8 @@ object waybillsController: TwaybillsController
   object waybillsADOQuery: TADOQuery
     Parameters = <>
     SQL.Strings = (
-      'select '
+      'select'
+      '  '#39'actual'#39' as state,'
       #9'w.id,'
       #9'w.car as car_id,'
       #9'c.model as car_model_id,'
