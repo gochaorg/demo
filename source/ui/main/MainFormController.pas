@@ -10,6 +10,7 @@ uses
   CarsModelsFrame, CarsFrame, DispatchersFrame, DriversFrame,
   WaybillsFrame,
 
+  FormConfig,
   OfficeExport,
   DBView, DBRows,
   Config, DBConfForm,
@@ -55,6 +56,7 @@ type
 
     // Экспорт путевыз листов в Word
     procedure waybillsWordExportClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   public
   end;
 
@@ -141,6 +143,11 @@ begin
       ShowMessage('! Ошибка экспорта Word: '+e.Message);
     end;
   end;
+end;
+
+procedure TMainForm.FormShow(Sender: TObject);
+begin
+  FormConfigure(self);
 end;
 
 initialization
